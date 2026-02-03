@@ -3,8 +3,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master’s Thesis — Aryan Goyal</title>
-    <meta name="description" content="Master’s thesis overview and links.">
+    <title>Master's Thesis — Aryan Goyal</title>
+    <meta name="description" content="Forecasting and Volume Estimation of Municipal Solid Waste Using Machine Learning">
 
     <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
@@ -12,6 +12,90 @@
     <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/personal.css" />
 
     <script src="../assets/scripts/navbar.js"></script>
+    <style>
+        .figure-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .figure-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .figure-container.small img {
+            max-width: 400px;
+        }
+        .figure-container.medium img {
+            max-width: 600px;
+        }
+        .figure-container.large img {
+            max-width: 900px;
+        }
+        .figure-caption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fa 100%);
+            border-left: 4px solid #2196F3;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ddd;
+            padding: 0.6rem;
+            text-align: center;
+        }
+        .results-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .math-block {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .obj-list {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+        .obj-list h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+        .obj-list p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,14 +103,16 @@
         <div class="blog-title">
             <div class="blog-intro">
                 <div>
-                    <h1 class="title">Master’s Thesis</h1>
-                    <p class="author">Aryan Goyal • IIT Bombay • 2025 (ongoing)</p>
+                    <h1 class="title">Forecasting and Volume Estimation of Municipal Solid Waste Using Machine Learning</h1>
+                    <p class="author">Aryan Goyal</p>
+                    <p class="author" style="margin-top: 0.25rem;">B.Tech-M.Tech Dual Degree Project • IIT Bombay • December 2025</p>
+                    <p class="author" style="margin-top: 0.25rem;">Supervisor: Prof. Munish K. Chandel</p>
                     <p class="abstract">
-                        Forecasting + computer vision frameworks to predict solid waste generation and estimate pile volumes.
+                        This thesis addresses two interconnected challenges in waste management: forecasting MSW generation using economic indicators across countries, and estimating waste volumes from single RGB images using monocular depth inference—together forming a closed-loop data-driven framework for waste monitoring.
                     </p>
                     <div class="cta-row">
                         <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
-                        <a href="../assets/resume.pdf" class="button icon">Resume PDF <i class="fa-regular fa-file-pdf"></i></a>
+                        <a href="../assets/resume.pdf" class="button icon">Resume <i class="fa-regular fa-file-pdf"></i></a>
                     </div>
                 </div>
             </div>
@@ -34,18 +120,344 @@
     </div>
 
     <div class="container blog main first">
-        <h1>Abstract</h1>
+        <h1>The Problem: Waste Data Deficit</h1>
+        
         <p class="text">
-            Developed forecasting models for India by adapting lagged efficiency trajectories from other economies, and built a 2D image-based volume estimation system using depth maps in a controlled setup to estimate waste pile volumes at scale.
+            Effective solid waste management requires knowing how much waste is generated, where it originates, and what it comprises. These measurements underpin every downstream operation—from route optimization and segregation efficiency to treatment, recycling, and policy evaluation.
         </p>
+
+        <p class="text">
+            In developing countries like India, these challenges are compounded by systemic limitations: lean budgets, limited instrumentation (weighbridges, vehicle tracking), and significant inter-jurisdictional variability. Even when data exist, they often lack temporal consistency, spatial representativeness, and standardization across urban local bodies.
+        </p>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>Two Complementary Research Directions:</b><br>
+                1. <b>Forecasting models</b> that infer waste generation from stable socioeconomic variables where direct measurement is inconsistent<br>
+                2. <b>Low-cost volume estimation</b> systems that operate on-site without expensive hardware, enabling continuous monitoring
+            </p>
+        </div>
+
+        <h2>Research Objectives</h2>
+        
+        <div class="two-col">
+            <div class="obj-list">
+                <h4>O1: Low-cost Volume Measurement</h4>
+                <p>Engineer a controlled-condition vision pipeline that converts a single RGB image into a metric volume estimate over a known ROI (fixed pose, planar reference, calibrated footprint).</p>
+            </div>
+            <div class="obj-list">
+                <h4>O2: Repeatability by Design</h4>
+                <p>Guarantee repeatability via fixed camera geometry, explicit pixel-to-metric scaling, and tunable controls (ground-depth percentile, scale, threshold).</p>
+            </div>
+            <div class="obj-list">
+                <h4>O3: Forecasting Framework</h4>
+                <p>Build statistical and ML forecasters for MSW; determine which socioeconomic factors most strongly influence generation across economies.</p>
+            </div>
+            <div class="obj-list">
+                <h4>O4: Cross-country Benchmarking</h4>
+                <p>Benchmark India's waste efficiency against peers (China, USA, OECD) using intensity metrics and elasticity analyses.</p>
+            </div>
+        </div>
     </div>
 
     <div class="container blog main">
-        <h1>Contributions</h1>
+        <h1>Part 1: Forecasting MSW Generation</h1>
+        
+        <p class="text">
+            The forecasting component examines how efficiently countries generate waste relative to their economic growth. Using standardized cross-country datasets covering <b>China, India, OECD, and the United States</b>, the analysis evaluates MSW generation against indicators such as GDP, disposable income, urbanization, and retail spending.
+        </p>
+
+        <h2>Key Questions</h2>
         <ul>
-            <li><p class="text">Cross-country correlation + elasticity analysis of solid waste vs socioeconomic indicators; forecasting model for India.</p></li>
-            <li><p class="text">2D image-based volume estimation using depth maps (DINOv3) in a constrained geometry setup.</p></li>
-            <li><p class="text">Millimeter-level height correction reported in the volume estimation pipeline.</p></li>
+            <li><p class="text">Which growth factors show the strongest correlation with MSW per capita?</p></li>
+            <li><p class="text">How efficiently do different economies convert growth into waste generation?</p></li>
+            <li><p class="text">Is India's trajectory lagged relative to China's, or does it indicate a more efficient pattern?</p></li>
+            <li><p class="text">Can mature economies (USA, OECD) serve as benchmarks for India's policy evolution?</p></li>
+        </ul>
+
+        <h2>China: Transition Toward Efficiency</h2>
+        
+        <p class="text">
+            China's MSW per-capita rose from approximately 0.31 to 0.50 kg/day between 2005–2025, tracking sustained growth in GDP, disposable income, and retail sales. Policy inflection points include the National Sword policy (2017–2018), nationwide waste-sorting mandates (from 2019), and incineration expansion under the 12th–14th Five-Year Plans.
+        </p>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/china_comprehensive_time_series.png" alt="China time series">
+            <p class="figure-caption">China (2005–2025): Per-capita MSW and major economic indicators. The flattening toward 2025 aligns with slower population growth and early effects of prevention initiatives.</p>
+        </div>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/china_correlation_analysis.png" alt="China correlation analysis">
+            <p class="figure-caption">China: MSW per-capita vs. economic drivers (2005–2023). Strong positive correlations (r ≈ 0.94–0.97) reflect synchronized macro growth.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>China Key Findings:</b><br>
+                • Total MSW increased by ~41%, while per-capita rose by 29% (2005–2023)<br>
+                • Elasticities: Income (0.275), Consumption (0.294), Retail (0.254) — all inelastic<br>
+                • Urbanization elasticity remains high (1.435)<br>
+                • Declining MSW per $1B of income confirms improving material efficiency
+            </p>
+        </div>
+
+        <h2>India: Volatile and Transitional</h2>
+        
+        <p class="text">
+            Between 2015–2021, India's per-capita MSW fluctuates between 0.08–0.12 kg/day with no consistent upward trend despite steady economic growth. Variability arises from inconsistent reporting across Urban Local Bodies, changing coverage, and differing inclusion of waste categories.
+        </p>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/india_comprehensive_time_series.png" alt="India time series">
+            <p class="figure-caption">India (2015–2021): Per-capita MSW and economic indicators. The mild upward drift suggests expansion of formal collection rather than increased generation intensity.</p>
+        </div>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/usd_india_individual_factor_correlations.png" alt="India correlation analysis">
+            <p class="figure-caption">India: MSW per-capita vs. selected drivers (2015–2021). Small samples (n ≤ 7) yield indicative but non-conclusive correlations.</p>
+        </div>
+
+        <div class="warning-box">
+            <p class="text" style="margin: 0;">
+                <b>India Data Challenges:</b> The Swachh Bharat Mission (2014–) and Solid Waste Management Rules (2016) improved data coverage but introduced step-changes—discontinuities driven by administrative inclusion rather than real changes in waste generation.
+            </p>
+        </div>
+
+        <h2>OECD and USA: Mature Systems</h2>
+        
+        <div class="two-col">
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/oecd_comprehensive_time_series.png" alt="OECD time series">
+                <p class="figure-caption">OECD average (2005–2025): Gradual rise from 1.35 to 1.6 kg/day amid stable population and rising affluence.</p>
+            </div>
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/usa_comprehensive_time_series.png" alt="USA time series">
+                <p class="figure-caption">USA (2005–2025): Per-capita MSW remains flat (2.0–2.15 kg/day) despite income growth—signifying partial decoupling.</p>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/oecd_correlation_analysis.png" alt="OECD correlations">
+                <p class="figure-caption">OECD: High correlations (r ≈ 0.97) mirror broad-based expansions moderated by standardized data quality.</p>
+            </div>
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/usa_correlation_analysis.png" alt="USA correlations">
+                <p class="figure-caption">USA: Moderate correlations (r ≈ 0.52–0.66) confirm partial decoupling from income growth.</p>
+            </div>
+        </div>
+
+        <h2>Cross-Country Synthesis</h2>
+        
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Country/Region</th>
+                    <th>MSW Range (kg/day)</th>
+                    <th>Income Elasticity</th>
+                    <th>Urbanization Elasticity</th>
+                    <th>Stage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>China</td>
+                    <td>0.31 → 0.50</td>
+                    <td>0.275 (inelastic)</td>
+                    <td>1.435</td>
+                    <td>Transitioning to efficiency</td>
+                </tr>
+                <tr>
+                    <td>India</td>
+                    <td>0.08 – 0.12</td>
+                    <td>0.626</td>
+                    <td>2.397</td>
+                    <td>Rapid transformation</td>
+                </tr>
+                <tr>
+                    <td>OECD</td>
+                    <td>1.35 → 1.60</td>
+                    <td>~1.0</td>
+                    <td>−3.76 (saturated)</td>
+                    <td>Mature/decoupled</td>
+                </tr>
+                <tr>
+                    <td>USA</td>
+                    <td>2.0 – 2.15</td>
+                    <td>~1.0</td>
+                    <td>Negative</td>
+                    <td>Near-saturated</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>Key Insight:</b> Urbanization is the single most sensitive global driver of MSW generation (elasticity ~2.5 in developing economies; −3.7 in developed ones indicating saturation). India's high urbanization elasticity suggests intensifying waste loads in expanding cities.
+            </p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Part 2: Vision-Based Volume Estimation</h1>
+        
+        <p class="text">
+            While macro-level forecasting establishes broad efficiency trajectories, facilities require scalable methods to measure waste volumes on the ground. Traditional measurement systems—weighbridges, manual tallying, LiDAR scanning—are either capital-intensive or impractical for continuous deployment in resource-constrained settings.
+        </p>
+
+        <p class="text">
+            We developed a <b>low-cost, controlled vision pipeline</b> that estimates waste volume from a single RGB image using monocular depth inference. The approach requires no LiDAR, stereo cameras, or complex calibration rigs—just a fixed viewpoint, calibrated footprint, and repeatable lighting conditions.
+        </p>
+
+        <h2>Why DINOv3?</h2>
+        
+        <p class="text">
+            <b>DINOv3</b> is a state-of-the-art self-supervised visual transformer that learns rich spatial features through self-distillation. Its dense, high-resolution embeddings naturally align with scene geometry, making it particularly suitable for single-view depth estimation:
+        </p>
+        <ul>
+            <li><p class="text"><b>Works out-of-the-box:</b> Pretrained on billions of images, generalizes to waste scenes without fine-tuning</p></li>
+            <li><p class="text"><b>Dense depth maps:</b> Produces metrically consistent depth fields from single images</p></li>
+            <li><p class="text"><b>Segmentation awareness:</b> Attention maps inherently separate objects and material clusters</p></li>
+        </ul>
+
+        <h2>Controlled Setup</h2>
+        
+        <div class="two-col">
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/Screenshot 2025-09-03 at 1.50.13 AM.png" alt="Setup schematic">
+                <p class="figure-caption">Schematic of controlled imaging setup: fixed-pose RGB camera captures the conveyor surface with a known planar reference.</p>
+            </div>
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/Screenshot 2025-09-03 at 1.50.54 AM.png" alt="Conveyor setup">
+                <p class="figure-caption">Representative view of conveyor-based waste sorting line under controlled imaging conditions.</p>
+            </div>
+        </div>
+
+        <h2>Volume Computation Framework</h2>
+        
+        <p class="text">
+            The pipeline converts single RGB images into metric volume estimates through these steps:
+        </p>
+
+        <h3>Step 1: Pixel-to-Metric Scaling</h3>
+        <p class="text">
+            For an image of resolution (W<sub>px</sub>, H<sub>px</sub>) and known physical ROI dimensions (W<sub>m</sub>, H<sub>m</sub>):
+        </p>
+        <div class="math-block">
+            A<sub>px</sub> = (W<sub>m</sub> × H<sub>m</sub>) / (W<sub>px</sub> × H<sub>px</sub>)  [m²/pixel]
+        </div>
+
+        <h3>Step 2: Depth Map and Ground Reference</h3>
+        <p class="text">
+            DINOv3 predicts dense depth z(x,y). The ground depth is estimated as the 99.9th percentile:
+        </p>
+        <div class="math-block">
+            z<sub>g</sub> = percentile(z, 99.9)
+        </div>
+
+        <h3>Step 3: Height Map Conversion</h3>
+        <p class="text">
+            Per-pixel height above ground:
+        </p>
+        <div class="math-block">
+            h(x,y) = z<sub>g</sub> − scale × z(x,y)
+        </div>
+
+        <h3>Step 4: Volume Integration</h3>
+        <p class="text">
+            Total volume within the ROI:
+        </p>
+        <div class="math-block">
+            V = Σ h'(x,y) × A<sub>px</sub> × M(x,y)
+        </div>
+        <p class="text">
+            where M(x,y) is a binary mask restricting integration to valid regions.
+        </p>
+
+        <h2>Depth-RGB Comparison</h2>
+        
+        <div class="two-col">
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/20220928_03_113935_depth_overlay.png" alt="Depth overlay">
+                <p class="figure-caption">Depth overlay: Predicted depth projected over RGB. Brighter/warmer tones indicate closer surfaces.</p>
+            </div>
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/rgb_reference.png" alt="RGB reference">
+                <p class="figure-caption">Original RGB image: Reference for validating spatial alignment and ROI boundaries.</p>
+            </div>
+        </div>
+
+        <p class="text">
+            The depth field demonstrates robust spatial continuity even under challenging conditions: low contrast, partial occlusion, and dark backgrounds. The model successfully distinguishes fine height differences at centimeter to millimeter scale.
+        </p>
+
+        <h2>Waste Analysis Results</h2>
+        
+        <div class="two-col">
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/20220928_03_113935_waste_analysis.png" alt="Waste analysis Set A">
+                <p class="figure-caption">Set A: Mixed materials under controlled lighting. Segmentation correctly identifies object boundaries.</p>
+            </div>
+            <div class="figure-container">
+                <img src="../assets/figures/thesis/20220929_21_090124_waste_analysis.png" alt="Waste analysis Set B">
+                <p class="figure-caption">Set B: Higher clutter with partial occlusions. Model reliably segments major fragments.</p>
+            </div>
+        </div>
+
+        <h2>Volume Analysis Pipeline</h2>
+        
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/20221011_01_084638_volume_analysis.png" alt="Volume analysis stage 1">
+            <p class="figure-caption">Stage 1: Conversion from depth to relative height. Top-left: raw depth map. Top-right: height-above-ground. Bottom: binary mask and computed statistics.</p>
+        </div>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/Screenshot 2025-08-31 at 5.12.13 AM_volume_analysis.png" alt="Volume analysis stage 2">
+            <p class="figure-caption">Stage 2: Spatial accumulation across ROI. Height distribution and pixel-level density visualized with final volume computation.</p>
+        </div>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/thesis/Screenshot 2025-08-31 at 5.12.59 AM_volume_analysis.png" alt="Volume analysis stage 3">
+            <p class="figure-caption">Stage 3: Final integrated volume calculation. Example output: V = 0.412 m³ (≈412 L) for a 1.6×0.9 m ROI.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>System Capabilities:</b><br>
+                • Sub-centimeter height sensitivity<br>
+                • Smooth spatial continuity in depth maps<br>
+                • Repeatable measurements under fixed geometry<br>
+                • No LiDAR or stereo hardware required
+            </p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Conclusion and Future Work</h1>
+        
+        <h2>Summary</h2>
+        <p class="text">
+            This thesis developed two complementary frameworks for waste management:
+        </p>
+        <ol>
+            <li><p class="text"><b>Forecasting:</b> Cross-country analysis revealed systematic relationships between development and waste generation. India is in a rapid-transformation phase with high urbanization elasticity, while China shows early decoupling and mature economies exhibit near-zero waste elasticity.</p></li>
+            <li><p class="text"><b>Volume Estimation:</b> A single-view depth-based system successfully translates 2D imagery into consistent volumetric estimates under controlled geometry, validating low-cost deployment feasibility.</p></li>
+        </ol>
+
+        <h2>Limitations</h2>
+        <ul>
+            <li><p class="text">Forecasting depends on national-level statistics that may not capture local heterogeneity</p></li>
+            <li><p class="text">Volume estimation assumes planar surface and fixed camera pose</p></li>
+            <li><p class="text">Reflective/translucent materials can cause localized depth errors</p></li>
+        </ul>
+
+        <h2>Future Directions</h2>
+        <ul>
+            <li><p class="text">Extend forecasting to include circular economy indicators and nonlinear ML models</p></li>
+            <li><p class="text">Develop in-house calibration dataset with ground-truth volumes</p></li>
+            <li><p class="text">Integrate semantic segmentation for per-material volume breakdown</p></li>
+            <li><p class="text">Optimize for real-time deployment on edge devices</p></li>
+            <li><p class="text"><b>Closed-loop integration:</b> Forecasted quantities set operational thresholds; observed volumes validate and refine forecasts in near real-time</p></li>
         </ul>
     </div>
 
@@ -63,5 +475,3 @@
     <script src="../assets/scripts/main.js"></script>
 </body>
 </html>
-
-
