@@ -4,7 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aryan Goyal — Blogs</title>
-    <meta name="description" content="Blogs and project write-ups by Aryan Goyal.">
+    <meta name="description" content="Blogs, articles, and thoughts by Aryan Goyal.">
 
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
@@ -12,6 +12,38 @@
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
 
     <script src="assets/scripts/navbar.js"></script>
+    <style>
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 2rem 0;
+        }
+        .section-label {
+            display: inline-block;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .coming-soon {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: #888;
+        }
+        .coming-soon i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,19 +67,57 @@
             <div class="blog-intro">
                 <div>
                     <h1 class="title">Blogs</h1>
-                    <p class="author">Project write-ups, paper notes, and ideas.</p>
+                    <p class="author">Writing, ideas, and notes.</p>
                     <p class="abstract">
-                        Thumbnail-first posts (in the style you shared) that link to deeper pages.
+                        A mix of technical deep-dives, tutorials, and general thoughts. Research paper write-ups are listed separately below.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- General Blogs / Articles -->
     <div class="container blog main first">
-        <h1>Featured</h1>
+        <span class="section-label"><i class="fa-solid fa-pen-nib"></i> Writing</span>
+        <h1>Articles & Thoughts</h1>
         <p class="text">
-            A curated list of write-ups. Full publication list stays on Google Scholar.
+            General posts on tech, ideas, tutorials, and things I find interesting.
+        </p>
+
+        <div class="coming-soon">
+            <i class="fa-regular fa-lightbulb"></i>
+            <p style="margin: 0; font-size: 1rem;">Coming soon...</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem;">New articles will appear here. Stay tuned!</p>
+        </div>
+
+        <!-- 
+        TEMPLATE: Copy and paste this block to add a new blog post
+        
+        <div class="thumb-grid">
+            <a class="thumb-card" href="posts/your-post.html">
+                <div class="thumb-frame" style="background: rgba(230, 240, 250, 0.55);">
+                    <div class="thumb-image">
+                        <img src="assets/figures/your-image.png" alt="Post thumbnail">
+                    </div>
+                    <div class="thumb-title">Your Post Title</div>
+                    <div class="thumb-subtitle">
+                        <span class="pill">Category</span>
+                        &nbsp; A brief description of the post.
+                    </div>
+                </div>
+            </a>
+        </div>
+        -->
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Research / Paper Blogs -->
+    <div class="container blog main">
+        <span class="section-label"><i class="fa-solid fa-flask"></i> Research</span>
+        <h1>Paper Write-ups</h1>
+        <p class="text">
+            Detailed blog posts accompanying my research papers and projects.
         </p>
 
         <div class="thumb-grid">
@@ -56,10 +126,10 @@
                     <div class="thumb-image">
                         <img src="clarity/images/prismer.png" alt="Nodule synthesis thumbnail">
                     </div>
-                    <div class="thumb-title">Diffusion–LoRA Nodule Synthesis</div>
+                    <div class="thumb-title">Controllable Lung Nodule Synthesis</div>
                     <div class="thumb-subtitle">
                         <span class="pill">MIDL 2026</span>
-                        &nbsp; Fine-grained, controllable lung nodule generation on CXRs.
+                        &nbsp; Fine-grained, controllable lung nodule generation with LoRA adapters.
                     </div>
                 </div>
             </a>
@@ -72,7 +142,7 @@
                     <div class="thumb-title">DiffusionXRay</div>
                     <div class="thumb-subtitle">
                         <span class="pill">MICCAI 2025</span>
-                        &nbsp; Realistic X-ray enhancement preserving subtle findings.
+                        &nbsp; Enhancing DRRs while preserving subtle clinical findings.
                     </div>
                 </div>
             </a>
@@ -82,10 +152,10 @@
                     <div class="thumb-image">
                         <img src="clarity/images/residual.png" alt="Master's thesis thumbnail">
                     </div>
-                    <div class="thumb-title">Master’s Thesis</div>
+                    <div class="thumb-title">Master's Thesis</div>
                     <div class="thumb-subtitle">
                         <span class="pill">IIT Bombay</span>
-                        &nbsp; Forecasting + vision pipelines for waste volume estimation.
+                        &nbsp; MSW forecasting + vision-based volume estimation.
                     </div>
                 </div>
             </a>
@@ -98,7 +168,7 @@
                     <div class="thumb-title">Patent: Synthetic Nodules</div>
                     <div class="thumb-subtitle">
                         <span class="pill">2025</span>
-                        &nbsp; A short public-facing overview (non-confidential).
+                        &nbsp; Indian Patent Application No. 202521024259.
                     </div>
                 </div>
             </a>
@@ -119,6 +189,3 @@
     <script src="assets/scripts/main.js"></script>
 </body>
 </html>
-
-
-
