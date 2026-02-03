@@ -4,7 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiffusionXRay — Aryan Goyal</title>
-    <meta name="description" content="DiffusionXRay: short technical write-up and links.">
+    <meta name="description" content="DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs.">
 
     <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
@@ -12,6 +12,47 @@
     <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/personal.css" />
 
     <script src="../assets/scripts/navbar.js"></script>
+    <style>
+        .figure-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .figure-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .figure-caption {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .results-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .results-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fa 100%);
+            border-left: 4px solid #2196F3;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -20,14 +61,15 @@
             <div class="blog-intro">
                 <div>
                     <h1 class="title">DiffusionXRay</h1>
-                    <p class="author">Aryan Goyal • DEMI Workshop @ MICCAI 2025</p>
+                    <p class="author">Aryan Goyal†, Ashish Mittal†, Pranav Rao, Manoj Tadepalli, Preetham Putha • DEMI Workshop @ MICCAI 2025</p>
                     <p class="abstract">
-                        A diffusion + GAN-based approach for enhancing digitally reconstructed chest radiographs, designed to preserve subtle, clinically critical details.
+                        A diffusion + GAN-based approach for enhancing digitally reconstructed chest radiographs, designed to preserve subtle, clinically critical details like lung nodules.
                     </p>
                     <div class="cta-row">
                         <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
                         <a href="#" class="button icon">Paper <i class="fa-regular fa-file-pdf"></i></a>
                         <a href="#" class="button icon">Code <i class="fa-solid fa-code"></i></a>
+                        <a href="../assets/figures/qure/Qure_Presentation.pdf" class="button icon">Slides <i class="fa-solid fa-presentation-screen"></i></a>
                     </div>
                 </div>
             </div>
@@ -37,36 +79,175 @@
     <div class="container blog main first">
         <h1>Motivation</h1>
         <p class="text">
-            Many enhancement/super-resolution pipelines rely on unrealistic paired training data (e.g., bicubic degradation), which can wash out subtle findings. We reformulate the problem to learn realistic low→high quality mappings for chest X-rays.
+            Early lung cancer detection in chest X-rays (CXRs) is critical for patient outcomes, but subtle nodules are hard to see and labeled datasets are scarce. <b>Digitally Reconstructed Radiographs (DRRs)</b>—X-rays projected from CT scans—offer a scalable solution for generating training data, but they suffer from blur, loss of fine structures, and artifacts.
         </p>
+        
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-06.png" alt="DRRs explanation">
+            <p class="figure-caption">DRRs (CT-projected X-rays) are scalable but suffer from quality degradation.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>Key Insight:</b> Traditional super-resolution pipelines rely on unrealistic paired data (e.g., bicubic degradation), which washes out subtle findings. We reformulate the problem to learn realistic low→high quality mappings.
+            </p>
+        </div>
     </div>
 
     <div class="container blog main">
-        <h1>Method</h1>
+        <h1>The Problem with Existing Approaches</h1>
         <p class="text">
-            A two-stage pipeline: (1) unsupervised style transfer to generate realistic paired low/high-quality X-rays, then (2) a conditional diffusion model trained on these pairs to produce high-quality reconstructions.
+            We initially tried standard enhancement approaches: transformer-based methods (SwinFIR, SwinIR) and bicubic interpolation. The results were disappointing—they failed to preserve fine-grained details.
         </p>
 
-        <h2>Key design choices</h2>
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-12.png" alt="Transformer-based results">
+            <p class="figure-caption">Results from transformer-based methods (SwinFIR, SwinIR) showing loss of detail.</p>
+        </div>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-17.png" alt="Bicubic interpolation comparison">
+            <p class="figure-caption">Comparison: Input → Bicubic Interpolation → Reference. Bicubic fails to recover fine structures.</p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Method: A Two-Stage Pipeline</h1>
+        <p class="text">
+            Our approach, <b>DiffusionXRay</b>, uses a two-stage pipeline that first learns to generate realistic low-quality CXRs, then trains an enhancer on the resulting paired data.
+        </p>
+
+        <h2>Stage 1: Realistic LQ Generation</h2>
+        <p class="text">
+            We use two complementary approaches to generate realistic low-quality CXRs from high-quality images:
+        </p>
         <ul>
-            <li><p class="text"><b>Realistic pairing</b>: learn the degradation distribution instead of assuming bicubic.</p></li>
-            <li><p class="text"><b>Conditional DDPM</b>: preserves fine-grained, clinically relevant details.</p></li>
+            <li><p class="text"><b>MUNIT-LQ</b>: Multimodal Unsupervised Image-to-Image Translation that disentangles content vs. style, combining HQ content with LQ style.</p></li>
+            <li><p class="text"><b>DDPM-LQ</b>: Conditional Denoising Diffusion Probabilistic Model that learns realistic degradations in two sub-stages—first trained unconditionally on real LQ DRRs, then fine-tuned conditioned on HQ to generate paired LQ.</p></li>
         </ul>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-21.png" alt="MUNIT-LQ methodology">
+            <p class="figure-caption">MUNIT-LQ: Unpaired style transfer that disentangles content and style.</p>
+        </div>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-22.png" alt="DDPM-LQ methodology">
+            <p class="figure-caption">DDPM-LQ: Conditional diffusion model for learning realistic degradations.</p>
+        </div>
+
+        <h2>Stage 2: DDPM-HQ Enhancement</h2>
+        <p class="text">
+            With realistic paired HQ-LQ data from Stage 1, we train a conditional DDPM enhancer (DDPM-HQ) that preserves fine-grained, clinically relevant details during enhancement.
+        </p>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-23.png" alt="Full pipeline">
+            <p class="figure-caption">Complete DiffusionXRay pipeline: realistic LQ generation followed by diffusion-based enhancement.</p>
+        </div>
     </div>
 
     <div class="container blog main">
         <h1>Results</h1>
+        
+        <h2>Qualitative Comparison</h2>
         <p class="text">
-            Improved PSNR from 20.08→27.50 and SSIM from 0.83→0.92 on ChestX-ray8; radiologist evaluation reported improved visibility/preservation of subtle nodules.
+            DiffusionXRay significantly outperforms baselines in preserving subtle structures and overall image quality.
         </p>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-24.png" alt="Enhancement results">
+            <p class="figure-caption">Qualitative comparison of image enhancement (512×512 → 1024×1024) on synthetically degraded CXRs. DiffusionXRay preserves fine details that baselines miss.</p>
+        </div>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-25.png" alt="LQ synthesis comparison">
+            <p class="figure-caption">Low-quality CXR synthesis comparison: Bicubic vs. MUNIT-LQ vs. DDPM-LQ (ours).</p>
+        </div>
+
+        <h2>Quantitative Results</h2>
+        
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>PSNR ↑</th>
+                    <th>SSIM ↑</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3" style="background: #e8f4f8; font-weight: 600;">Results with MUNIT-LQ generated data</td>
+                </tr>
+                <tr>
+                    <td>Bicubic-DDPM</td>
+                    <td>20.08</td>
+                    <td>0.83</td>
+                </tr>
+                <tr>
+                    <td><b>DiffusionXRay (Ours)</b></td>
+                    <td><b>27.50</b></td>
+                    <td><b>0.92</b></td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="background: #e8f4f8; font-weight: 600;">Results with DDPM-LQ generated data</td>
+                </tr>
+                <tr>
+                    <td>DDPM-LQ (baseline)</td>
+                    <td>19.85</td>
+                    <td>0.78</td>
+                </tr>
+                <tr>
+                    <td><b>DDPM-LQ (Ours)</b></td>
+                    <td><b>22.21</b></td>
+                    <td>0.78</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Radiologist Evaluation</h2>
+        <p class="text">
+            We conducted a blinded evaluation with expert radiologists to assess clinical utility:
+        </p>
+
+        <div class="figure-container">
+            <img src="../assets/figures/qure/slide-27.png" alt="Radiologist evaluation">
+            <p class="figure-caption">Radiologist evaluation results comparing DiffusionXRay with baselines.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p class="text" style="margin: 0;">
+                <b>Key Results:</b><br>
+                • <b>100% nodule visibility</b> with 0% confusion (vs. 6.6% visibility and 30% confusion for baseline)<br>
+                • Lung-field clarity improved in <b>100% of cases</b> (vs. 66.7% baseline)<br>
+                • Clinically meaningful preservation of subtle findings
+            </p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Limitations & Future Work</h1>
+        <h2>Limitations</h2>
+        <ul>
+            <li><p class="text">Computational cost of training and inference is high.</p></li>
+        </ul>
+        
+        <h2>Future Directions</h2>
+        <ul>
+            <li><p class="text">Lighter backbones or knowledge distillation for faster inference.</p></li>
+            <li><p class="text">Extend to non-DRR scenarios such as portable X-rays.</p></li>
+        </ul>
     </div>
 
     <div class="container blog main">
         <h1>Citation</h1>
-<pre><code class="plaintext">@misc{yourname2026diffusionxray,
-  title   = {DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs},
-  author  = {Goyal, Aryan and Mittal, Ashish},
-  year    = {2025},
+<pre><code class="plaintext">@inproceedings{goyal2025diffusionxray,
+  title     = {DiffusionXRay: A Diffusion and GAN-Based Approach for 
+               Enhancing Digitally Reconstructed Chest Radiographs},
+  author    = {Goyal, Aryan and Mittal, Ashish and Rao, Pranav and 
+               Tadepalli, Manoj and Putha, Preetham},
+  booktitle = {DEMI Workshop, MICCAI},
+  year      = {2025},
 }</code></pre>
     </div>
 
@@ -84,5 +265,3 @@
     <script src="../assets/scripts/main.js"></script>
 </body>
 </html>
-
-
