@@ -22,6 +22,15 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        .figure-container.small img {
+            max-width: 350px;
+        }
+        .figure-container.medium img {
+            max-width: 550px;
+        }
+        .figure-container.large img {
+            max-width: 800px;
+        }
         .figure-caption {
             margin-top: 0.75rem;
             font-size: 0.9rem;
@@ -53,6 +62,13 @@
             margin: 1.5rem 0;
             border-radius: 0 8px 8px 0;
         }
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
         .char-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -61,24 +77,65 @@
         }
         .char-card {
             background: #f9f9f9;
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 12px;
+            padding: 1.25rem;
             border: 1px solid #eee;
         }
         .char-card h4 {
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.75rem 0;
             color: #333;
+            font-size: 1.1rem;
         }
         .char-card p {
             margin: 0;
             font-size: 0.9rem;
-            color: #666;
+            color: #555;
+            line-height: 1.5;
         }
-        .two-col-figures {
+        .nodule-showcase {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
             margin: 1.5rem 0;
+        }
+        .nodule-item {
+            text-align: center;
+        }
+        .nodule-item img {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nodule-item p {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .generation-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            align-items: center;
+        }
+        .generation-demo img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .generation-demo .arrow {
+            text-align: center;
+            font-size: 2rem;
+            color: #666;
+        }
+        .math-block {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
         }
     </style>
 </head>
@@ -89,15 +146,16 @@
             <div class="blog-intro">
                 <div>
                     <h1 class="title">Controllable Lung Nodule Synthesis</h1>
-                    <p class="author">Shreshtha Singh†, Aryan Goyal†, Ashish Mittal†, Manoj Tadepalli, Piyush Kumar, Preetham Putha • MIDL 2026 (Submitted)</p>
+                    <p class="author">Shreshtha Singh†, Aryan Goyal†, Ashish Mittal†, Manoj Tadepalli, Piyush Kumar, Preetham Putha</p>
+                    <p class="author" style="margin-top: 0.25rem;">MIDL 2026 (Submitted) • † Equal Contribution</p>
                     <p class="abstract">
-                        A diffusion-based framework with LoRA adapters for fine-grained, characteristic-controlled lung nodule synthesis on chest X-rays, with novel orthogonality-constrained adapter merging.
+                        A diffusion-based framework with characteristic-specific LoRA adapters for generating controllable, realistic lung nodules on chest X-rays. We introduce orthogonality-constrained adapter merging for stable multi-characteristic synthesis.
                     </p>
                     <div class="cta-row">
                         <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
                         <a href="https://openreview.net/forum?id=7DL7cu8Ui8&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DMIDL.io%2F2026%2FConference%2FAuthors%23your-submissions)" class="button icon">OpenReview <i class="fa-regular fa-file-lines"></i></a>
                         <a href="#" class="button icon">Code <i class="fa-solid fa-code"></i></a>
-                        <a href="../assets/figures/qure/Qure_Presentation.pdf" class="button icon">Slides <i class="fa-solid fa-presentation-screen"></i></a>
+                        <a href="../assets/figures/qure/Qure_Presentation.pdf" class="button icon">Slides <i class="fa-solid fa-file-powerpoint"></i></a>
                     </div>
                 </div>
             </div>
@@ -105,162 +163,242 @@
     </div>
 
     <div class="container blog main first">
-        <h1>Motivation</h1>
-        <p class="text">
-            Nodules in chest X-rays come in various shapes, sizes, and textures. Assembling representative datasets that capture this diversity is expensive and often impractical. Existing synthetic generation methods lack <b>fine-grained control</b> over nodule characteristics, limiting their utility for training robust detection models.
-        </p>
+        <h1>The Data Scarcity Problem</h1>
         
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-30.png" alt="Motivation - nodule diversity">
-            <p class="figure-caption">Nodules vary significantly in appearance—size, texture, boundary morphology, and visibility.</p>
-        </div>
+        <p class="text">
+            Early detection of lung cancer through chest X-rays (CXRs) is critical for patient outcomes. Deep learning-based Computer-Assisted Diagnosis (CAD) systems have shown promise, but their performance depends heavily on training data that captures the full diversity of lung nodule appearances.
+        </p>
+
+        <p class="text">
+            The challenge? Lung nodules vary dramatically in their radiological characteristics—size, shape, texture, boundary morphology, visibility. Assembling datasets that adequately represent this diversity is expensive and often impractical. Rare but clinically important variants (like subtle nodules or those with specific calcification patterns) are particularly underrepresented.
+        </p>
 
         <div class="highlight-box">
             <p class="text" style="margin: 0;">
-                <b>Goal:</b> Build a controllable synthesis framework that can generate nodules with specific radiological characteristics to augment training data and improve downstream CAD performance.
+                <b>Our Goal:</b> Build a synthetic data generation framework that can produce realistic nodules with <em>controllable</em> characteristics—enabling targeted augmentation of underrepresented nodule types to improve CAD performance.
             </p>
         </div>
     </div>
 
     <div class="container blog main">
-        <h1>Nodule Characteristics</h1>
+        <h1>Understanding Nodule Characteristics</h1>
+        
         <p class="text">
-            We focus on four key radiological characteristics that radiologists use to describe lung nodules:
+            Radiologists describe lung nodules using several key characteristics. Our framework learns to control each of these independently:
         </p>
 
         <div class="char-grid">
             <div class="char-card">
-                <h4>🔲 Texture</h4>
-                <p><b>Homogeneous:</b> Uniform density throughout.<br><b>Inhomogeneous:</b> Uneven density with mixed bright/dark regions.</p>
+                <h4>Texture</h4>
+                <p><b>Homogeneous:</b> Uniform density throughout the nodule—appears as a consistent gray level.<br><br><b>Inhomogeneous:</b> Uneven density with mixed bright and dark regions, often indicating complex internal structure.</p>
             </div>
             <div class="char-card">
-                <h4>⭕ Boundary Morphology</h4>
-                <p><b>Regular:</b> Smooth, well-defined margins.<br><b>Irregular:</b> Spiculated, lobulated, or poorly defined.</p>
+                <h4>Boundary Morphology</h4>
+                <p><b>Regular:</b> Smooth, well-defined margins that are clearly separated from surrounding lung tissue.<br><br><b>Irregular:</b> Spiculated, lobulated, or poorly defined margins—often associated with malignancy.</p>
             </div>
             <div class="char-card">
-                <h4>💎 Calcification</h4>
-                <p>Bright, high-intensity regions from calcium deposits, commonly seen in benign nodules.</p>
+                <h4>Calcification</h4>
+                <p>Bright, high-intensity regions caused by calcium deposits within the nodule. Certain calcification patterns (central, laminated, popcorn) are strongly associated with benign lesions.</p>
             </div>
             <div class="char-card">
-                <h4>👁️ Subtlety</h4>
-                <p>Low-contrast nodules that blend with surrounding lung tissue, making them difficult to detect.</p>
+                <h4>Subtlety</h4>
+                <p>Low-contrast nodules that blend with surrounding lung tissue, making them difficult to detect. These are often missed by both humans and CAD systems, making them particularly valuable for training.</p>
             </div>
         </div>
 
-        <div class="two-col-figures">
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-31.png" alt="Texture definitions">
-                <p class="figure-caption">Texture: Homogeneous vs. Inhomogeneous</p>
+        <h2>Visual Examples</h2>
+
+        <h3>Texture: Homogeneous vs. Inhomogeneous</h3>
+        <div class="nodule-showcase">
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/homogeneous.png" alt="Homogeneous nodule">
+                <p>Homogeneous Texture</p>
             </div>
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-32.png" alt="Boundary morphology">
-                <p class="figure-caption">Boundary: Regular vs. Irregular</p>
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/inhomogeneous.png" alt="Inhomogeneous nodule">
+                <p>Inhomogeneous Texture</p>
+            </div>
+        </div>
+
+        <h3>Boundary: Regular vs. Irregular</h3>
+        <div class="nodule-showcase">
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/regular.png" alt="Regular boundary nodule">
+                <p>Regular Boundary</p>
+            </div>
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/irregular.png" alt="Irregular boundary nodule">
+                <p>Irregular Boundary</p>
+            </div>
+        </div>
+
+        <h3>Special Characteristics</h3>
+        <div class="nodule-showcase">
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/calcified.png" alt="Calcified nodule">
+                <p>Calcified</p>
+            </div>
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/subtle.png" alt="Subtle nodule">
+                <p>Subtle (Low Contrast)</p>
             </div>
         </div>
     </div>
 
     <div class="container blog main">
         <h1>Method Overview</h1>
+        
         <p class="text">
-            Our framework combines a mask-conditioned Diffusion Transformer backbone with characteristic-specific LoRA adapters and a novel orthogonality-constrained merging strategy.
+            Our framework combines a mask-conditioned Diffusion Transformer backbone with characteristic-specific Low-Rank Adaptation (LoRA) modules. The key insight is that different characteristics can be learned as independent "directions" in the model's parameter space, which can then be composed for multi-characteristic synthesis.
         </p>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-35.png" alt="Method overview">
-            <p class="figure-caption">Method overview: Mask-conditioned diffusion with characteristic-specific LoRA adapters.</p>
+        <div class="figure-container large">
+            <img src="../assets/figures/nodule-synthesis/method_overview.png" alt="Method overview diagram">
+            <p class="figure-caption">Complete framework: Mask-conditioned diffusion backbone with characteristic-specific LoRA adapters and orthogonality-constrained merging.</p>
         </div>
 
         <h2>Training Pipeline</h2>
+        
+        <p class="text">
+            Training proceeds in four stages:
+        </p>
+
         <ol>
-            <li><p class="text"><b>Large-scale CXR pretraining:</b> Train base diffusion model on chest X-rays.</p></li>
-            <li><p class="text"><b>Nodule patch finetuning:</b> Condition on binary nodule masks for size/shape control.</p></li>
-            <li><p class="text"><b>Independent LoRA training:</b> Train separate LoRA adapters for each characteristic.</p></li>
-            <li><p class="text"><b>Joint training with orthogonality:</b> Enable multi-characteristic synthesis with reduced interference.</p></li>
+            <li>
+                <p class="text"><b>Large-scale CXR pretraining:</b> Train the base diffusion model on a large corpus of chest X-rays to learn the general distribution of CXR appearance.</p>
+            </li>
+            <li>
+                <p class="text"><b>Nodule patch finetuning:</b> Fine-tune on nodule patches with binary mask conditioning. This enables control over nodule size and location—the mask specifies where the nodule should appear.</p>
+            </li>
+            <li>
+                <p class="text"><b>Independent LoRA training:</b> Train separate LoRA adapters for each characteristic (texture, boundary, calcification, subtlety). Each adapter learns to steer generation toward its target attribute.</p>
+            </li>
+            <li>
+                <p class="text"><b>Joint training with orthogonality:</b> Fine-tune adapters together with an orthogonality constraint to enable stable multi-characteristic composition.</p>
+            </li>
         </ol>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-36.png" alt="Patch generation">
-            <p class="figure-caption">Given an original CXR patch and a binary nodule mask, the model generates a nodule within the masked region.</p>
-        </div>
-
-        <h2>Characteristic-Specific LoRA Adapters</h2>
+        <h2>Mask-Conditioned Generation</h2>
+        
         <p class="text">
-            For a frozen backbone weight W₀, we add low-rank updates:
-        </p>
-        <p class="text" style="text-align: center; font-family: monospace; font-size: 1.1rem;">
-            W = W₀ + α·A·B
-        </p>
-        <p class="text">
-            where A ∈ ℝ<sup>d×r</sup>, B ∈ ℝ<sup>r×k</sup>, and r ≪ min(d,k). The scaling factor α controls attribute strength.
+            Given an original CXR patch and a binary nodule mask, the model generates a realistic nodule within the masked region:
         </p>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-37.png" alt="Concept sliders">
-            <p class="figure-caption">The slider model generates samples by partially denoising, conditioned on target concepts. (Gandikota et al., 2023)</p>
-        </div>
-
-        <h2>Subtlety Control via Continuous LoRA Scaling</h2>
-        <p class="text">
-            Radiologist-annotated subtlety scores s ∈ {1,...,5} are mapped to LoRA scaling: α(s) = 2/(2+s). Lower α produces fainter nodules, enabling clinically meaningful difficulty control.
-        </p>
-
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-47.png" alt="Subtle nodules">
-            <p class="figure-caption">Subtle nodule generation with varying visibility levels.</p>
+        <div class="generation-demo">
+            <div style="text-align: center;">
+                <img src="../assets/figures/nodule-synthesis/og_patch.png" alt="Original patch">
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #555;">Original Patch</p>
+            </div>
+            <div style="text-align: center;">
+                <img src="../assets/figures/nodule-synthesis/mask.png" alt="Nodule mask" style="background: #333; padding: 10px;">
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #555;">Nodule Mask</p>
+            </div>
+            <div style="text-align: center;">
+                <img src="../assets/figures/nodule-synthesis/generated.png" alt="Generated patch">
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #555;">Generated (with nodule)</p>
+            </div>
         </div>
     </div>
 
     <div class="container blog main">
-        <h1>The Challenge: Multi-Characteristic Synthesis</h1>
+        <h1>Characteristic-Specific LoRA Adapters</h1>
+        
         <p class="text">
-            Nodule characteristics are <b>not mutually exclusive</b>. A regular nodule can be homogeneous or inhomogeneous, while being subtle or calcified. We want to control these combinations.
+            <b>Low-Rank Adaptation (LoRA)</b> provides an efficient way to adapt large pretrained models by learning low-rank updates to the weight matrices. For a frozen backbone weight W₀, we add:
         </p>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-51.png" alt="Multi-characteristic results">
-            <p class="figure-caption">Results of characteristic-specific LoRA training with multiple characteristics combined.</p>
+        <div class="math-block">
+            W = W₀ + α · A · B
+        </div>
+
+        <p class="text">
+            where A ∈ ℝ<sup>d×r</sup> and B ∈ ℝ<sup>r×k</sup> with rank r ≪ min(d, k). The scaling factor α controls the strength of the adaptation.
+        </p>
+
+        <p class="text">
+            We train separate LoRA modules for each characteristic:
+        </p>
+        <ul>
+            <li><p class="text"><b>Calcification adapter:</b> Learns to add bright calcium deposits.</p></li>
+            <li><p class="text"><b>Border regularity adapter:</b> Controls margin smoothness vs. spiculation.</p></li>
+            <li><p class="text"><b>Texture adapter:</b> Controls density uniformity.</p></li>
+            <li><p class="text"><b>Subtlety adapter:</b> Controls nodule visibility/contrast.</p></li>
+        </ul>
+
+        <h2>Subtlety Control via Continuous Scaling</h2>
+        
+        <p class="text">
+            For subtlety, we use radiologist-annotated scores s ∈ {1, 2, 3, 4, 5} and map them to LoRA scaling:
+        </p>
+
+        <div class="math-block">
+            α(s) = 2 / (2 + s)
+        </div>
+
+        <p class="text">
+            Lower α produces fainter, more subtle nodules; higher α increases visibility. This enables clinically meaningful difficulty control for training detection models.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>The Multi-Characteristic Challenge</h1>
+        
+        <p class="text">
+            Here's where it gets interesting. Nodule characteristics are <b>not mutually exclusive</b>. A real nodule might be:
+        </p>
+        <ul>
+            <li><p class="text">Irregular-shaped AND calcified</p></li>
+            <li><p class="text">Regular-shaped AND homogeneous</p></li>
+            <li><p class="text">Subtle AND inhomogeneous</p></li>
+        </ul>
+
+        <p class="text">
+            To generate such combinations, we need to <b>merge multiple LoRA adapters</b>. The naive approach is simple linear combination:
+        </p>
+
+        <div class="math-block">
+            W = W₀ + α₁·A₁·B₁ + α₂·A₂·B₂
         </div>
 
         <h2>Why Naive Merging Fails</h2>
+
         <p class="text">
-            Conventional LoRA merging (linear merge, switching) assumes uniform combination across layers, leading to:
+            Unfortunately, simply adding LoRA updates doesn't work well. We observed:
         </p>
         <ul>
             <li><p class="text">One characteristic being suppressed by another</p></li>
-            <li><p class="text">Weird or nonsensical outputs</p></li>
+            <li><p class="text">Synthetic-looking or nonsensical outputs</p></li>
+            <li><p class="text">Unpredictable interactions between adapters</p></li>
         </ul>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-53.png" alt="Bad outputs">
-            <p class="figure-caption">Naive merging produces synthetic-looking or incorrect outputs.</p>
+        <div class="warning-box">
+            <p class="text" style="margin: 0;">
+                <b>Root Cause:</b> LoRA weights are highly sparse (60–70% near zero), meaning a small subset of parameters drives most perceptual changes. When adapters share these critical parameters, they interfere destructively.
+            </p>
         </div>
 
         <p class="text">
-            We identified two key issues: <b>overlapping attention regions</b> and <b>non-orthogonal parameter spaces</b>. While overlapping attention can't be easily fixed, non-orthogonal weights can be addressed during training.
+            We identified two key issues:
         </p>
-
-        <div class="two-col-figures">
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-56.png" alt="Non-orthogonal weights problem">
-                <p class="figure-caption">Non-orthogonal LoRA weights cause interference during merging.</p>
-            </div>
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-58.png" alt="Orthogonality solution">
-                <p class="figure-caption">Orthogonality constraint can fix this issue.</p>
-            </div>
-        </div>
+        <ol>
+            <li><p class="text"><b>Overlapping attention regions:</b> Multiple adapters try to modify the same spatial locations. (Hard to fix—inherent to the task.)</p></li>
+            <li><p class="text"><b>Non-orthogonal parameter spaces:</b> Adapter updates are correlated, causing interference. (Fixable!)</p></li>
+        </ol>
     </div>
 
     <div class="container blog main">
         <h1>Orthogonality-Constrained LoRA Merging</h1>
+        
         <p class="text">
-            We introduce an orthogonality loss during LoRA composition training:
+            Our key contribution is an <b>orthogonality loss</b> that encourages adapters to operate in decoupled parameter subspaces:
         </p>
-        <p class="text" style="text-align: center; font-family: monospace; font-size: 1.1rem;">
-            L<sub>orth</sub> = ‖W₁W₂ᵀ‖²<sub>F</sub>
-        </p>
+
+        <div class="math-block">
+            L_orth = ‖W₁ · W₂ᵀ‖²_F
+        </div>
+
         <p class="text">
-            This encourages:
+            This Frobenius norm penalty pushes the adapter weight matrices to be orthogonal, meaning:
         </p>
         <ul>
             <li><p class="text"><b>Decoupled parameter subspaces:</b> Each characteristic controls different parts of the weight space.</p></li>
@@ -268,61 +406,104 @@
             <li><p class="text"><b>Reduced spatial competition:</b> Less interference during generation.</p></li>
         </ul>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-61.png" alt="Frobenius norm comparison">
-            <p class="figure-caption">Layer-wise Frobenius norm comparison: cross-trained (with orthogonality) vs. separately trained adapters.</p>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/frobenius_norm.png" alt="Frobenius norm comparison">
+            <p class="figure-caption">Layer-wise Frobenius norm comparison: cross-trained adapters (with orthogonality) vs. separately trained adapters. Lower norms indicate better decoupling.</p>
         </div>
     </div>
 
     <div class="container blog main">
-        <h1>Results</h1>
+        <h1>Results: Single Characteristic Generation</h1>
         
-        <h2>Characteristic Generation</h2>
         <p class="text">
-            Qualitative results showing controlled generation of different nodule characteristics:
+            Each LoRA adapter successfully generates nodules with its target characteristic. Here are grids of generated samples:
         </p>
 
-        <div class="two-col-figures">
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-42.png" alt="Homogeneous texture">
-                <p class="figure-caption">Homogeneous texture generation</p>
-            </div>
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-43.png" alt="Inhomogeneous texture">
-                <p class="figure-caption">Inhomogeneous texture generation</p>
-            </div>
+        <h3>Homogeneous Texture</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/homogeneous_grid.png" alt="Homogeneous texture grid">
+            <p class="figure-caption">Generated nodules with homogeneous (uniform) texture.</p>
         </div>
 
-        <div class="two-col-figures">
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-44.png" alt="Regular boundary">
-                <p class="figure-caption">Regular boundary morphology</p>
-            </div>
-            <div class="figure-container">
-                <img src="../assets/figures/qure/slide-45.png" alt="Irregular boundary">
-                <p class="figure-caption">Irregular boundary morphology</p>
-            </div>
+        <h3>Inhomogeneous Texture</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/inhomogeneous_grid.png" alt="Inhomogeneous texture grid">
+            <p class="figure-caption">Generated nodules with inhomogeneous (mixed) texture.</p>
         </div>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-46.png" alt="Calcified nodules">
-            <p class="figure-caption">Calcified nodule generation</p>
+        <h3>Regular Boundary</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/regular_grid.png" alt="Regular boundary grid">
+            <p class="figure-caption">Generated nodules with smooth, regular boundaries.</p>
         </div>
 
-        <h2>Radiologist Evaluation</h2>
+        <h3>Irregular Boundary</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/irregular_grid.png" alt="Irregular boundary grid">
+            <p class="figure-caption">Generated nodules with spiculated, irregular boundaries.</p>
+        </div>
+
+        <h3>Calcified</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/calcified_grid.png" alt="Calcified nodule grid">
+            <p class="figure-caption">Generated nodules with calcification (bright calcium deposits).</p>
+        </div>
+
+        <h3>Subtle</h3>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/subtle_grid.png" alt="Subtle nodule grid">
+            <p class="figure-caption">Generated subtle nodules with low contrast.</p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Results: Multi-Characteristic Synthesis</h1>
         
-        <h3>Task 1: Realism</h3>
         <p class="text">
-            50 pulmonary nodules (25 real + 25 synthetic) were shown to 3 expert radiologists:
+            With orthogonality-constrained training, we can generate nodules with multiple simultaneous characteristics:
         </p>
+
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/multi_char_results.png" alt="Multi-characteristic results">
+            <p class="figure-caption">Multi-characteristic generation examples: (left) calcified + irregular, (center) calcified + homogeneous, (right) regular + homogeneous.</p>
+        </div>
+
+        <h3>Example: Irregular + Calcified</h3>
+        <div class="nodule-showcase">
+            <div class="nodule-item">
+                <img src="../assets/figures/nodule-synthesis/irregular_calcified.png" alt="Irregular calcified nodule">
+                <p>Irregular boundary with calcification</p>
+            </div>
+        </div>
+
+        <h2>Method Comparison</h2>
+        
+        <p class="text">
+            We compare our orthogonality-constrained approach against naive merging strategies:
+        </p>
+
+        <div class="figure-container large">
+            <img src="../assets/figures/nodule-synthesis/method_comparison.png" alt="Method comparison">
+            <p class="figure-caption">Comparison of different LoRA merging strategies for multi-characteristic synthesis. Our orthogonality-constrained approach produces more realistic and controllable results.</p>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Radiologist Evaluation</h1>
+        
+        <h2>Task 1: Realism</h2>
+        <p class="text">
+            50 pulmonary nodules (25 real + 25 synthetic from our base diffusion model) were shown to 3 expert radiologists in a blinded study:
+        </p>
+
         <div class="highlight-box">
             <p class="text" style="margin: 0;">
                 • <b>90%</b> of real nodules were correctly identified as real<br>
-                • <b>80%</b> of synthetic nodules were labeled as real (fooled the radiologists!)
+                • <b>80%</b> of synthetic nodules were labeled as real (fooling the radiologists!)
             </p>
         </div>
 
-        <h3>Task 2: Controllability</h3>
+        <h2>Task 2: Controllability</h2>
         <p class="text">
             For each characteristic, 10 nodules were generated using characteristic-specific LoRA adapters. Three radiologists verified whether the intended trait was present:
         </p>
@@ -331,40 +512,34 @@
             <thead>
                 <tr>
                     <th>Nodule Characteristic</th>
-                    <th>Agreement (%)</th>
+                    <th>Radiologist Agreement</th>
                 </tr>
             </thead>
             <tbody>
                 <tr><td>Calcification</td><td>80%</td></tr>
                 <tr><td>Regular border</td><td>90%</td></tr>
-                <tr><td>Irregular border</td><td>100%</td></tr>
+                <tr style="background: #d4edda;"><td><b>Irregular border</b></td><td><b>100%</b></td></tr>
                 <tr><td>Homogeneous texture</td><td>90%</td></tr>
-                <tr><td>Inhomogeneous texture</td><td>100%</td></tr>
+                <tr style="background: #d4edda;"><td><b>Inhomogeneous texture</b></td><td><b>100%</b></td></tr>
             </tbody>
         </table>
 
-        <h2>Multi-Characteristic Results</h2>
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-63.png" alt="Multi-characteristic qualitative">
-            <p class="figure-caption">Multi-characteristic generation: (a) calcified + irregular, (b) calcified + homogeneous, (c) regular + homogeneous</p>
-        </div>
-
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-64.png" alt="Method comparison">
-            <p class="figure-caption">Comparison across different LoRA merging methods for multi-characteristic synthesis.</p>
-        </div>
+        <p class="text">
+            High agreement rates confirm that our LoRA adapters successfully capture and reproduce the target characteristics.
+        </p>
     </div>
 
     <div class="container blog main">
-        <h1>Downstream Performance</h1>
+        <h1>Downstream Impact: Nodule Detection</h1>
+        
         <p class="text">
-            Adding synthetic data consistently improves nodule detection and segmentation across datasets:
+            The ultimate test: does synthetic data augmentation actually improve CAD performance? We trained nodule detection models with varying amounts of synthetic data:
         </p>
 
         <table class="results-table">
             <thead>
                 <tr>
-                    <th>Train Data</th>
+                    <th>Training Data</th>
                     <th colspan="2">In-house</th>
                     <th colspan="2">JSRT</th>
                     <th colspan="2">CheX-ray14</th>
@@ -381,7 +556,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>10k real</td>
+                    <td>10k real only</td>
                     <td>0.9705</td><td>0.3090</td>
                     <td>0.8560</td><td>0.2475</td>
                     <td>0.9008</td><td>0.5285</td>
@@ -398,37 +573,60 @@
                     <td>0.8940</td><td>0.2894</td>
                     <td>0.9315</td><td>0.5750</td>
                 </tr>
-                <tr style="background: #e8f4f8;">
+                <tr style="background: #d4edda;">
                     <td><b>10k real + 8k syn</b></td>
                     <td><b>0.9796</b></td><td><b>0.3274</b></td>
                     <td>0.8864</td><td><b>0.2923</b></td>
                     <td><b>0.9341</b></td><td><b>0.5954</b></td>
+                </tr>
+                <tr>
+                    <td>10k real + 10k syn</td>
+                    <td>0.9801</td><td>0.3056</td>
+                    <td>0.9023</td><td>0.3091</td>
+                    <td>0.9318</td><td>0.5613</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="highlight-box">
             <p class="text" style="margin: 0;">
-                <b>Key Finding:</b> Best performance with 6k–8k synthetic samples. Beyond this, gains saturate or slightly regress.
+                <b>Key Finding:</b> Adding synthetic data consistently improves performance across all datasets. Best results with 6k–8k synthetic samples; beyond this, gains saturate or slightly regress (likely due to domain shift from too much synthetic data).
             </p>
         </div>
 
-        <div class="figure-container">
-            <img src="../assets/figures/qure/slide-67.png" alt="Synthetic data augmentation effect">
-            <p class="figure-caption">Effect of synthetic-data augmentation on nodule AUC scores across ChestX-ray14 and JSRT.</p>
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/augmentation_effect.png" alt="Augmentation effect">
+            <p class="figure-caption">Effect of synthetic data augmentation on nodule detection AUC across ChestX-ray14 and JSRT datasets.</p>
+        </div>
+
+        <h2>Characteristic-Specific Augmentation</h2>
+        
+        <p class="text">
+            We also evaluated whether characteristic-specific synthetic data helps train better classifiers for those characteristics:
+        </p>
+
+        <div class="figure-container medium">
+            <img src="../assets/figures/nodule-synthesis/characteristic_auc.png" alt="Characteristic-specific AUC">
+            <p class="figure-caption">Characteristic-specific LoRA adapter evaluation: augmentation improves both AUC and IoU across all radiological characteristics.</p>
         </div>
     </div>
 
     <div class="container blog main">
-        <h1>Abstract</h1>
+        <h1>Conclusion</h1>
+        
         <p class="text">
-            Early detection of lung cancer in chest radiographs (CXRs) is crucial for improving patient outcomes, yet nodule detection remains challenging due to their subtle appearance and variability in radiological characteristics like size, texture, and boundary. For robust analysis, this diversity must be well represented in training datasets for deep learning based Computer-Assisted Diagnosis (CAD) systems. However, assembling such datasets is costly and often impractical, motivating the need for realistic synthetic data generation.
+            We presented a diffusion-based framework for controllable lung nodule synthesis with several key contributions:
         </p>
+
+        <ul>
+            <li><p class="text"><b>Characteristic-specific LoRA adapters</b> that independently control texture, boundary, calcification, and subtlety.</p></li>
+            <li><p class="text"><b>Orthogonality-constrained merging</b> that enables stable multi-characteristic synthesis.</p></li>
+            <li><p class="text"><b>Demonstrated downstream benefit</b>: synthetic augmentation improves nodule detection across multiple benchmarks.</p></li>
+            <li><p class="text"><b>Radiologist-validated realism</b>: 80% of synthetic nodules fooled expert radiologists.</p></li>
+        </ul>
+
         <p class="text">
-            This paper proposes a novel diffusion-based framework with low-rank adaptation (LoRA) adapters for characteristic controlled nodule synthesis on CXRs. We address size and shape control through nodule mask conditioned training of the base diffusion model. To achieve individual characteristic control, we train separate LoRA modules for each radiological feature. For multi-characteristic control, we leverage LoRA composability and introduce a novel orthogonality loss term during composition training to overcome overlapping attention regions and non-orthogonal parameter spaces.
-        </p>
-        <p class="text">
-            Extensive experiments demonstrate improved downstream nodule detection, and radiologist evaluations confirm fine-grained controllability.
+            This work opens the door to targeted data augmentation—generating exactly the nodule types that are underrepresented in existing datasets to improve CAD system robustness.
         </p>
     </div>
 
