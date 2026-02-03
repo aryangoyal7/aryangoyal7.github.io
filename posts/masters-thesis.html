@@ -1,0 +1,67 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master’s Thesis — Aryan Goyal</title>
+    <meta name="description" content="Master’s thesis overview and links.">
+
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
+    <link href="../assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/personal.css" />
+
+    <script src="../assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title">Master’s Thesis</h1>
+                    <p class="author">Aryan Goyal • IIT Bombay • 2025 (ongoing)</p>
+                    <p class="abstract">
+                        Forecasting + computer vision frameworks to predict solid waste generation and estimate pile volumes.
+                    </p>
+                    <div class="cta-row">
+                        <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
+                        <a href="../assets/resume.pdf" class="button icon">Resume PDF <i class="fa-regular fa-file-pdf"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Abstract</h1>
+        <p class="text">
+            Developed forecasting models for India by adapting lagged efficiency trajectories from other economies, and built a 2D image-based volume estimation system using depth maps in a controlled setup to estimate waste pile volumes at scale.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Contributions</h1>
+        <ul>
+            <li><p class="text">Cross-country correlation + elasticity analysis of solid waste vs socioeconomic indicators; forecasting model for India.</p></li>
+            <li><p class="text">2D image-based volume estimation using depth maps (DINOv3) in a constrained geometry setup.</p></li>
+            <li><p class="text">Millimeter-level height correction reported in the volume estimation pipeline.</p></li>
+        </ul>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="../assets/scripts/main.js"></script>
+</body>
+</html>
+
+

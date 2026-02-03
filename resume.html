@@ -1,0 +1,67 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan Goyal — Resume</title>
+    <meta name="description" content="Resume for Aryan Goyal.">
+
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
+    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
+
+    <script src="assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title no-cover">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title">Resume</h1>
+                    <p class="author">Aryan Goyal</p>
+                    <p class="abstract">
+                        Download or view the latest PDF resume.
+                    </p>
+                    <div class="cta-row">
+                        <a href="index.html#resume" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
+                        <a href="assets/resume.pdf" class="button icon">Download PDF <i class="fa-regular fa-file-pdf"></i></a>
+                        <a href="mailto:garyan18@gmail.com" class="button icon">Email <i class="fa-regular fa-envelope"></i></a>
+                        <a href="https://github.com/aryangoyal7" class="button icon">GitHub <i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Resume PDF</h1>
+        <p class="text">
+            If the embedded viewer doesn’t load, use <a href="assets/resume.pdf">this direct PDF link</a>.
+        </p>
+        <div class="paper-card" style="padding: 0; overflow: hidden;">
+            <iframe
+                title="Aryan Goyal Resume"
+                src="assets/resume.pdf"
+                style="width: 100%; height: 1100px; border: 0;"
+            ></iframe>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="assets/scripts/main.js"></script>
+</body>
+</html>
+
+

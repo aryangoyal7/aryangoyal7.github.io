@@ -1,0 +1,109 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan Goyal — About</title>
+    <meta name="description" content="About Aryan Goyal.">
+
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
+    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
+
+    <script src="assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="top-nav">
+        <div class="container">
+            <div class="nav-inner">
+                <a class="brand" href="index.html">Aryan Goyal</a>
+                <div class="nav-links">
+                    <a href="about.html">About</a>
+                    <a href="index.html#research">Research</a>
+                    <a href="blogs.html">Blogs</a>
+                    <a href="resume.html">Resume</a>
+                    <a href="index.html#socials">Links</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title no-cover">
+            <div class="blog-intro">
+                <div class="hero-grid">
+                    <div>
+                        <h1 class="title">About Me</h1>
+                        <p class="author">Aryan Goyal</p>
+                        <p class="abstract">
+                            I’m an undergraduate at IIT Bombay, India. My research focuses on fine-grained computer vision and is evolving toward general perception.
+                        </p>
+                        <div class="cta-row">
+                            <a href="blogs.html" class="button icon">Blogs <i class="fa-regular fa-newspaper"></i></a>
+                            <a href="resume.html" class="button icon">Resume <i class="fa-regular fa-file-lines"></i></a>
+                            <a href="mailto:garyan18@gmail.com" class="button icon">Email <i class="fa-regular fa-envelope"></i></a>
+                        </div>
+                    </div>
+                    <div class="hero-photo">
+                        <img src="assets/figures/headshot.jpg" alt="Aryan Goyal" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Background</h1>
+        <div class="section-kicker">01 / Background</div>
+        <p class="text">
+            I’m currently an undergraduate student at IIT Bombay. I like building ML systems end-to-end: from data and training to evaluation and deployment.
+            I’m especially drawn to problems where small details matter (fine-grained recognition and medical imaging).
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Research</h1>
+        <div class="section-kicker">02 / Research</div>
+        <p class="text">
+            I work on computer vision with a focus on fine-grained perception and generative modeling. Recently, I’ve been exploring diffusion-based methods and
+            adapter-based finetuning (LoRA) for controllable synthesis—especially in chest radiographs.
+        </p>
+
+        <h2>Fine-grained computer vision</h2>
+        <p class="text">
+            I’m interested in recognition and detection settings where visual differences are subtle, and robustness/evaluation are as important as raw accuracy.
+        </p>
+
+        <h2>Generative modeling for perception</h2>
+        <p class="text">
+            I build controllable generative systems (diffusion + LoRA) for data synthesis and model improvement, with an emphasis on realism and downstream utility.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Hobbies</h1>
+        <div class="section-kicker">03 / Hobbies</div>
+        <p class="text">
+            When I’m not working, I enjoy building things (tools, small web projects), learning design, and exploring new ideas through writing.
+        </p>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="assets/scripts/main.js"></script>
+</body>
+</html>
+
+
+

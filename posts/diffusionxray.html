@@ -1,0 +1,88 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiffusionXRay — Aryan Goyal</title>
+    <meta name="description" content="DiffusionXRay: short technical write-up and links.">
+
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
+    <link href="../assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/personal.css" />
+
+    <script src="../assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title">DiffusionXRay</h1>
+                    <p class="author">Aryan Goyal • DEMI Workshop @ MICCAI 2025</p>
+                    <p class="abstract">
+                        A diffusion + GAN-based approach for enhancing digitally reconstructed chest radiographs, designed to preserve subtle, clinically critical details.
+                    </p>
+                    <div class="cta-row">
+                        <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
+                        <a href="#" class="button icon">Paper <i class="fa-regular fa-file-pdf"></i></a>
+                        <a href="#" class="button icon">Code <i class="fa-solid fa-code"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Motivation</h1>
+        <p class="text">
+            Many enhancement/super-resolution pipelines rely on unrealistic paired training data (e.g., bicubic degradation), which can wash out subtle findings. We reformulate the problem to learn realistic low→high quality mappings for chest X-rays.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Method</h1>
+        <p class="text">
+            A two-stage pipeline: (1) unsupervised style transfer to generate realistic paired low/high-quality X-rays, then (2) a conditional diffusion model trained on these pairs to produce high-quality reconstructions.
+        </p>
+
+        <h2>Key design choices</h2>
+        <ul>
+            <li><p class="text"><b>Realistic pairing</b>: learn the degradation distribution instead of assuming bicubic.</p></li>
+            <li><p class="text"><b>Conditional DDPM</b>: preserves fine-grained, clinically relevant details.</p></li>
+        </ul>
+    </div>
+
+    <div class="container blog main">
+        <h1>Results</h1>
+        <p class="text">
+            Improved PSNR from 20.08→27.50 and SSIM from 0.83→0.92 on ChestX-ray8; radiologist evaluation reported improved visibility/preservation of subtle nodules.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Citation</h1>
+<pre><code class="plaintext">@misc{yourname2026diffusionxray,
+  title   = {DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs},
+  author  = {Goyal, Aryan and Mittal, Ashish},
+  year    = {2025},
+}</code></pre>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="../assets/scripts/main.js"></script>
+</body>
+</html>
+
+

@@ -65,6 +65,43 @@ Clarity is an open-source, minimalist website template designed specifically for
 ## Usage
 Please follow the visual guidelines outlined in the [Clarity blog post](https://shikun.io/projects/clarity) or the `clarity.html` file to optimise visual layouts and design. Additionally, a minimalist example template, `minimal.html`, is provided to help you get started quickly.
 
+## Run locally (preview)
+This is a static site. From the repo root, run:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open:
+- `http://localhost:8000/` (redirects to `clarity.html`)
+- `http://localhost:8000/` (personal homepage: `index.html`)
+- `http://localhost:8000/resume.html`
+- `http://localhost:8000/posts/diffusionxray.html`
+- `http://localhost:8000/clarity.html` (original template demo)
+- `http://localhost:8000/minimal.html` (minimal template demo)
+
+## Deploy to GitHub Pages (main branch → root)
+1. Push this folder to a GitHub repository (default branch: `main`).
+2. On GitHub, go to **Settings → Pages**.
+3. Under **Build and deployment → Source**, select:
+   - **Branch**: `main`
+   - **Folder**: `/ (root)`
+4. Save. GitHub will build and host your site.
+
+Notes:
+- GitHub Pages serves `index.html` at `/`. This repo’s homepage is `index.html`.
+- For a *project* site, your URL will look like `https://<username>.github.io/<repo>/`.
+
+## Personalize this site (quick checklist)
+Edit these files:
+- `index.html`: name, bio, social links, and your paper/project list.
+- `resume.html`: your experience/education.
+- `posts/*.html`: one page per paper/project (blog-style write-up).
+
+Suggested replacements:
+- Replace `Your Name`, `you@example.com`, and `your-handle` placeholders throughout.
+- In **Research**, replace `#` links with real URLs (arXiv/PDF, code, demo).
+
 Clarity offers two font options: 
 1. [Charter](https://practicaltypography.com/charter.html) + [Poppins](https://fonts.google.com/specimen/Poppins): free fonts available for commercial use. 
 2.  [Tiempos Text](https://klim.co.nz/retail-fonts/tiempos-text/) + [Athletics](https://familytype.co/#athletics): licensed fonts with the trial license available for non-commercial use.

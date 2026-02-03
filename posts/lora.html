@@ -1,0 +1,83 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffusion-driven Fine-Grained Nodule Synthesis — Aryan Goyal</title>
+    <meta name="description" content="Diffusion-driven fine-grained nodule synthesis for chest X-rays (submitted to MIDL 2026).">
+
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
+    <link href="../assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/personal.css" />
+
+    <script src="../assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title">A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs</h1>
+                    <p class="author">Shreshtha Singh, Aryan Goyal, Ashish Mittal, Manoj Tadepalli, Piyush Kumar, Preetham Putha • MIDL 2026 (submission)</p>
+                    <p class="abstract">
+                        TL;DR: We build a diffusion–LoRA system that generates fine-grained, controllable lung nodules on CXRs and boosts downstream detection.
+                    </p>
+                    <div class="cta-row">
+                        <a href="../index.html#research" class="button icon">Back <i class="fa-solid fa-arrow-left"></i></a>
+                        <a href="https://openreview.net/forum?id=7DL7cu8Ui8&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DMIDL.io%2F2026%2FConference%2FAuthors%23your-submissions)" class="button icon">OpenReview <i class="fa-regular fa-file-lines"></i></a>
+                        <a href="#" class="button icon">Code <i class="fa-solid fa-code"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Overview</h1>
+        <p class="text">
+            Early detection of lung cancer in chest radiographs (CXRs) is critical, but nodule detection remains challenging due to subtle appearance and variability (size, texture, boundary, etc.). This work proposes a diffusion-based framework with LoRA adapters for characteristic-controlled nodule synthesis on CXRs to improve data diversity and downstream CAD performance.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Method</h1>
+        <h2>Training setup</h2>
+        <ul>
+            <li><p class="text"><b>Base model</b>: nodule mask–conditioned diffusion model to enable size/shape control.</p></li>
+            <li><p class="text"><b>Characteristic control</b>: train separate LoRA modules, each dedicated to a radiological feature.</p></li>
+            <li><p class="text"><b>Multi-characteristic synthesis</b>: compose/merge LoRAs to represent nodules with multiple simultaneous characteristics.</p></li>
+        </ul>
+
+        <h2>Key ideas</h2>
+        <ul>
+            <li><p class="text"><b>Dynamic LoRA composability</b>: revisit and improve LoRA merging strategies for controllable synthesis.</p></li>
+            <li><p class="text"><b>Orthogonality loss</b>: mitigate overlapping attention regions and non-orthogonal parameter spaces during LoRA composition training.</p></li>
+            <li><p class="text"><b>Evaluation</b>: experiments on in-house + public datasets show improved downstream detection; radiologist evaluation confirms controllability.</p></li>
+        </ul>
+    </div>
+
+    <div class="container blog main">
+        <h1>Abstract (from OpenReview)</h1>
+        <p class="text">
+            Early detection of lung cancer in chest radiographs (CXRs) is crucial for improving patient outcomes, yet nodule detection remains challenging due to their subtle appearance and variability in radiological characteristics like size, texture, and boundary. For robust analysis, this diversity must be well represented in training datasets for deep learning based Computer-Assisted Diagnosis (CAD) systems. However, assembling such datasets is costly and often impractical, motivating the need for realistic synthetic data generation. Existing methods lack fine-grained control over synthetic nodule generation, limiting their utility in addressing data scarcity. This paper proposes a novel diffusion-based framework with low-rank adaptation (LoRA) adapters for characteristic controlled nodule synthesis on CXRs. We begin by addressing size and shape control through nodule mask conditioned training of the base diffusion model. To achieve individual characteristic control, we train separate LoRA modules, each dedicated to a specific radiological feature. However, since nodules rarely exhibit isolated characteristics, effective multi-characteristic control requires a balanced integration of features. We address this by leveraging the dynamic composability of LoRAs and revisiting existing merging strategies. Building on this, we identify two key issues, overlapping attention regions and non-orthogonal parameter spaces. To overcome these limitations, we introduce a novel orthogonality loss term during LoRA composition training. Extensive experiments on both in-house and public datasets demonstrate improved downstream nodule detection. Radiologist evaluations confirm the fine-grained controllability of our generated nodules, and across multiple quantitative metrics, our method surpasses existing nodule generation approaches for CXRs.
+        </p>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="../assets/scripts/main.js"></script>
+</body>
+</html>
+
+

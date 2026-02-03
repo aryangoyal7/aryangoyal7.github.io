@@ -1,0 +1,235 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan Goyal — Personal Website</title>
+    <meta name="description" content="Personal website: research, writing, and resume.">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="robots" content="all">
+
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
+    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
+
+    <script src="assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="top-nav">
+        <div class="container">
+            <div class="nav-inner">
+                <a class="brand" href="index.html">Aryan Goyal</a>
+                <div class="nav-links">
+                    <a href="about.html">About</a>
+                    <a href="#research">Research</a>
+                    <a href="blogs.html">Blogs</a>
+                    <a href="resume.html">Resume</a>
+                    <a href="#socials">Links</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landing / Hero -->
+    <div class="container blog" id="first-content" style="background: linear-gradient(90deg, hsla(215, 75%, 92%, 1) 0%, hsla(26, 90%, 93%, 1) 100%);">
+        <div class="blog-title no-cover">
+            <div class="blog-intro">
+                <div class="hero-grid">
+                    <div>
+                        <p class="kicker">Hello — I’m</p>
+                        <h1 class="title">Aryan Goyal</h1>
+                        <p class="author">AI / ML Researcher • Builder</p>
+                        <p class="abstract">
+                            I'm an undergraduate at IIT Bombay, India. My research focuses on fine-grained computer vision. It is evolving towards general perception.
+                        </p>
+
+                        <div class="cta-row">
+                            <a href="#research" class="button icon">Research <i class="fa-solid fa-flask"></i></a>
+                            <a href="resume.html" class="button icon">Resume <i class="fa-regular fa-file-lines"></i></a>
+                            <a href="mailto:garyan18@gmail.com" class="button icon">Email <i class="fa-regular fa-envelope"></i></a>
+                        </div>
+
+                        <div class="social-row">
+                            <a class="social" href="https://github.com/aryangoyal7" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                            <a class="social" href="https://www.linkedin.com/in/aryan-goyal-8429611a7/" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                            <a class="social" href="https://x.com/home" aria-label="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                            <a class="social" href="https://scholar.google.com/citations?user=0anKTAkAAAAJ&hl=en" aria-label="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="hero-photo">
+                        <!-- Headshot -->
+                        <img src="assets/figures/headshot.jpg" alt="Aryan Goyal" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <div class="placeholder" style="display:none;">
+                            Add your photo at<br><code>assets/figures/headshot.jpg</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="container blog main first" id="about">
+        <h1>About</h1>
+        <p class="text">
+            I’m an undergraduate at IIT Bombay. I work on fine-grained computer vision and generative modeling, and I’m especially interested in building systems that generalize toward strong perception.
+        </p>
+
+        <h2>Interests</h2>
+        <ul>
+            <li><p class="text">Diffusion models, efficient finetuning, and robust evaluation.</p></li>
+            <li><p class="text">Medical imaging + trustworthy ML.</p></li>
+            <li><p class="text">Systems that make research reproducible and useful.</p></li>
+        </ul>
+    </div>
+
+    <!-- Research -->
+    <div class="container blog main" id="research">
+        <h1>Research</h1>
+        <p class="text">
+            Selected papers and write-ups. Each project has a short blog post page for context, results, and links.
+        </p>
+
+        <h2>Selected Work</h2>
+
+        <div class="paper-list">
+            <div class="paper-card">
+                <div class="paper-meta">
+                    <div class="paper-title">DiffusionXRay</div>
+                    <div class="paper-authors">Aryan Goyal, Ashish Mittal</div>
+                    <div class="paper-venue">DEMI Workshop @ MICCAI • 2025</div>
+                </div>
+                <div class="paper-links">
+                    <a class="button icon" href="posts/diffusionxray.html">Blog <i class="fa-regular fa-newspaper"></i></a>
+                    <a class="button icon" href="#" aria-label="Paper PDF">Paper <i class="fa-regular fa-file-pdf"></i></a>
+                    <a class="button icon" href="#" aria-label="Code">Code <i class="fa-solid fa-code"></i></a>
+                </div>
+            </div>
+
+            <div class="paper-card">
+                <div class="paper-meta">
+                    <div class="paper-title">Diffusion-driven Fine-Grained Nodule Synthesis</div>
+                    <div class="paper-authors">Aryan Goyal, Shreshtha Singh</div>
+                    <div class="paper-venue">MIDL • 2026 (submitted)</div>
+                </div>
+                <div class="paper-links">
+                    <a class="button icon" href="posts/lora.html">Blog <i class="fa-regular fa-newspaper"></i></a>
+                    <a class="button icon" href="https://openreview.net/forum?id=7DL7cu8Ui8&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DMIDL.io%2F2026%2FConference%2FAuthors%23your-submissions)" aria-label="OpenReview">Paper <i class="fa-regular fa-file-lines"></i></a>
+                    <a class="button icon" href="#" aria-label="Code">Code <i class="fa-solid fa-code"></i></a>
+                </div>
+            </div>
+
+            <div class="paper-card">
+                <div class="paper-meta">
+                    <div class="paper-title">Master’s Thesis</div>
+                    <div class="paper-authors">Aryan Goyal</div>
+                    <div class="paper-venue">IIT Bombay • 2025 (ongoing)</div>
+                </div>
+                <div class="paper-links">
+                    <a class="button icon" href="posts/masters-thesis.html">Blog <i class="fa-regular fa-newspaper"></i></a>
+                    <a class="button icon" href="assets/resume.pdf" aria-label="Resume PDF">Resume PDF <i class="fa-regular fa-file-pdf"></i></a>
+                </div>
+            </div>
+
+            <div class="paper-card">
+                <div class="paper-meta">
+                    <div class="paper-title">Patent: Synthetic Nodules in Medical Imaging</div>
+                    <div class="paper-authors">Aryan Goyal, Qure.ai Technologies Pvt. Ltd.</div>
+                    <div class="paper-venue">Indian Patent Application • 2025</div>
+                </div>
+                <div class="paper-links">
+                    <a class="button icon" href="posts/patent.html">Blog <i class="fa-regular fa-newspaper"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blogs (CTA) -->
+    <div class="container blog main">
+        <h1>Blogs</h1>
+        <p class="text">
+            I write project and paper notes with a thumbnail-first layout. See the full page here:
+            <a href="blogs.html">blogs.html</a>.
+        </p>
+    </div>
+
+    <!-- Resume -->
+    <div class="container blog main" id="resume">
+        <h1>Resume</h1>
+        <p class="text">
+            A concise, skimmable version of your experience. For the full version, see:
+            <a href="resume.html">resume.html</a>.
+        </p>
+
+        <div class="resume-grid">
+            <div class="resume-block">
+                <h2>Now</h2>
+                <p class="text"><b>AI Scientist Intern</b> @ Qure.ai (May ’24 – Present) — diffusion models for chest X-rays; 2 publications + 1 patent.</p>
+            </div>
+            <div class="resume-block">
+                <h2>Previously</h2>
+                <p class="text"><b>AI Research Intern</b> @ Uptrain.ai (YC W23), <b>Deep Learning Engineer Intern</b> @ UnScript.ai.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socials -->
+    <div class="container blog main" id="socials">
+        <h1>Links</h1>
+        <p class="text">Find me online:</p>
+        <div class="link-grid">
+            <a class="link-card" href="https://github.com/aryangoyal7">
+                <span>GitHub</span>
+                <i class="fa-brands fa-github"></i>
+            </a>
+            <a class="link-card" href="https://www.linkedin.com/in/aryan-goyal-8429611a7/">
+                <span>LinkedIn</span>
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a class="link-card" href="https://x.com/home">
+                <span>X / Twitter</span>
+                <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a class="link-card" href="https://scholar.google.com/citations?user=0anKTAkAAAAJ&hl=en">
+                <span>Google Scholar</span>
+                <i class="fa-solid fa-graduation-cap"></i>
+            </a>
+            <a class="link-card" href="mailto:garyan18@gmail.com">
+                <span>Email</span>
+                <i class="fa-regular fa-envelope"></i>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal • Built with the Clarity Template.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="assets/scripts/main.js"></script>
+    <script>
+        // Smooth scrolling for in-page links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                const id = a.getAttribute('href');
+                const el = document.querySelector(id);
+                if (!el) return;
+                e.preventDefault();
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', id);
+            });
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,124 @@
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryan Goyal — Blogs</title>
+    <meta name="description" content="Blogs and project write-ups by Aryan Goyal.">
+
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
+    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
+
+    <script src="assets/scripts/navbar.js"></script>
+</head>
+
+<body>
+    <div class="top-nav">
+        <div class="container">
+            <div class="nav-inner">
+                <a class="brand" href="index.html">Aryan Goyal</a>
+                <div class="nav-links">
+                    <a href="about.html">About</a>
+                    <a href="index.html#research">Research</a>
+                    <a href="blogs.html">Blogs</a>
+                    <a href="resume.html">Resume</a>
+                    <a href="index.html#socials">Links</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title no-cover">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title">Blogs</h1>
+                    <p class="author">Project write-ups, paper notes, and ideas.</p>
+                    <p class="abstract">
+                        Thumbnail-first posts (in the style you shared) that link to deeper pages.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main first">
+        <h1>Featured</h1>
+        <p class="text">
+            A curated list of write-ups. Full publication list stays on Google Scholar.
+        </p>
+
+        <div class="thumb-grid">
+            <a class="thumb-card" href="posts/lora.html">
+                <div class="thumb-frame" style="background: rgba(222, 232, 255, 0.55);">
+                    <div class="thumb-image">
+                        <img src="clarity/images/prismer.png" alt="Nodule synthesis thumbnail">
+                    </div>
+                    <div class="thumb-title">Diffusion–LoRA Nodule Synthesis</div>
+                    <div class="thumb-subtitle">
+                        <span class="pill">MIDL 2026</span>
+                        &nbsp; Fine-grained, controllable lung nodule generation on CXRs.
+                    </div>
+                </div>
+            </a>
+
+            <a class="thumb-card" href="posts/diffusionxray.html">
+                <div class="thumb-frame" style="background: rgba(241, 224, 224, 0.55);">
+                    <div class="thumb-image">
+                        <img src="clarity/images/vit.png" alt="DiffusionXRay thumbnail">
+                    </div>
+                    <div class="thumb-title">DiffusionXRay</div>
+                    <div class="thumb-subtitle">
+                        <span class="pill">MICCAI 2025</span>
+                        &nbsp; Realistic X-ray enhancement preserving subtle findings.
+                    </div>
+                </div>
+            </a>
+
+            <a class="thumb-card" href="posts/masters-thesis.html">
+                <div class="thumb-frame" style="background: rgba(236, 231, 224, 0.65);">
+                    <div class="thumb-image">
+                        <img src="clarity/images/residual.png" alt="Master's thesis thumbnail">
+                    </div>
+                    <div class="thumb-title">Master’s Thesis</div>
+                    <div class="thumb-subtitle">
+                        <span class="pill">IIT Bombay</span>
+                        &nbsp; Forecasting + vision pipelines for waste volume estimation.
+                    </div>
+                </div>
+            </a>
+
+            <a class="thumb-card" href="posts/patent.html">
+                <div class="thumb-frame" style="background: rgba(228, 236, 233, 0.65);">
+                    <div class="thumb-image">
+                        <img src="assets/figures/clarity_gradient_no_cover.png" alt="Patent thumbnail">
+                    </div>
+                    <div class="thumb-title">Patent: Synthetic Nodules</div>
+                    <div class="thumb-subtitle">
+                        <span class="pill">2025</span>
+                        &nbsp; A short public-facing overview (non-confidential).
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                © <span id="year"></span> Aryan Goyal
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="assets/scripts/main.js"></script>
+</body>
+</html>
+
+
+
