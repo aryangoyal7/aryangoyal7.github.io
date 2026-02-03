@@ -12,6 +12,139 @@
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/personal.css" />
 
     <script src="assets/scripts/navbar.js"></script>
+    <style>
+        /* Timeline styles */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 1.5rem 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #2196F3, #64B5F6, #BBDEFB);
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.75rem;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.35rem;
+            width: 12px;
+            height: 12px;
+            background: #2196F3;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #2196F3;
+        }
+        .timeline-item.current::before {
+            background: #4CAF50;
+            box-shadow: 0 0 0 2px #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 2px #4CAF50; }
+            50% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0.3); }
+            100% { box-shadow: 0 0 0 2px #4CAF50; }
+        }
+        .timeline-date {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.15rem;
+        }
+        .timeline-company {
+            font-size: 0.9rem;
+            color: #2196F3;
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+        }
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* Coursework pills */
+        .course-section {
+            margin-bottom: 1.25rem;
+        }
+        .course-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.5rem;
+        }
+        .course-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .course-pill {
+            display: inline-block;
+            background: #f0f4f8;
+            color: #444;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid #e0e4e8;
+        }
+        .course-pill.highlight {
+            background: #e3f2fd;
+            border-color: #bbdefb;
+            color: #1565c0;
+        }
+
+        /* Talks/Presentations */
+        .talk-card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #2196F3;
+        }
+        .talk-card .talk-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.35rem;
+        }
+        .talk-card .talk-venue {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .talk-card .talk-desc {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        .talk-card .talk-links {
+            margin-top: 0.75rem;
+        }
+        .talk-card .talk-links a {
+            font-size: 0.85rem;
+            margin-right: 1rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -38,7 +171,7 @@
                         <h1 class="title">About Me</h1>
                         <p class="author">Aryan Goyal</p>
                         <p class="abstract">
-                            I’m an undergraduate at IIT Bombay, India. My research focuses on fine-grained computer vision and is evolving toward general perception.
+                            I'm an undergraduate at IIT Bombay, India, pursuing a dual degree (B.Tech + M.Tech) in Environmental Science and Engineering with minors in Machine Learning & Data Science and Digital Health.
                         </p>
                         <div class="cta-row">
                             <a href="blogs.html" class="button icon">Blogs <i class="fa-regular fa-newspaper"></i></a>
@@ -58,35 +191,145 @@
         <h1>Background</h1>
         <div class="section-kicker">01 / Background</div>
         <p class="text">
-            I’m currently an undergraduate student at IIT Bombay. I like building ML systems end-to-end: from data and training to evaluation and deployment.
-            I’m especially drawn to problems where small details matter (fine-grained recognition and medical imaging).
+            I'm a dual-degree student at IIT Bombay. I like building ML systems end-to-end: from data and training to evaluation and deployment.
+            I'm especially drawn to problems where small details matter—fine-grained recognition, medical imaging, and controllable generation.
         </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Work Experience</h1>
+        <div class="section-kicker">02 / Experience</div>
+        
+        <div class="timeline">
+            <div class="timeline-item current">
+                <div class="timeline-date">May 2024 — Dec 2025</div>
+                <div class="timeline-title">AI Scientist Intern</div>
+                <div class="timeline-company">Qure.AI, Bengaluru</div>
+                <div class="timeline-desc">
+                    18+ months on the lung cancer team working on diffusion models for chest X-rays. Developed synthetic CXR generation pipelines preserving clinically critical features. Resulted in 2 publications (MICCAI, MIDL) and 1 patent.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">May 2025 — Sep 2025</div>
+                <div class="timeline-title">Founder</div>
+                <div class="timeline-company">MIRA: Multi-Agent AI for Education</div>
+                <div class="timeline-desc">
+                    Built an agentic AI platform with RAG for curriculum-specific content generation—"Cursor for Schools." Achieved adoption by 80+ users across two schools within 2 months.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Jan 2024 — Apr 2024</div>
+                <div class="timeline-title">AI Research Intern</div>
+                <div class="timeline-company">Uptrain.AI (YC W23)</div>
+                <div class="timeline-desc">
+                    Contributed to UpTrain's core evaluation platform for custom LLMs. Designed novel subjective metrics and authored technical blogs on LLM evaluations.
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Nov 2023 — Dec 2023</div>
+                <div class="timeline-title">Deep Learning Engineer Intern</div>
+                <div class="timeline-company">UnScript.AI</div>
+                <div class="timeline-desc">
+                    Worked on diffusion-based text-to-speech models for Hindi. Achieved effective speaker voice cloning using minimal audio samples.
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="container blog main">
         <h1>Research</h1>
-        <div class="section-kicker">02 / Research</div>
+        <div class="section-kicker">03 / Research</div>
         <p class="text">
-            I work on computer vision with a focus on fine-grained perception and generative modeling. Recently, I’ve been exploring diffusion-based methods and
-            adapter-based finetuning (LoRA) for controllable synthesis—especially in chest radiographs.
+            I work on computer vision with a focus on fine-grained perception and generative modeling. Recently, I've been exploring diffusion-based methods and
+            adapter-based finetuning (LoRA) for controllable synthesis—especially in medical imaging.
         </p>
 
-        <h2>Fine-grained computer vision</h2>
+        <h2>Fine-grained Computer Vision</h2>
         <p class="text">
-            I’m interested in recognition and detection settings where visual differences are subtle, and robustness/evaluation are as important as raw accuracy.
+            I'm interested in recognition and detection settings where visual differences are subtle, and robustness/evaluation are as important as raw accuracy.
         </p>
 
-        <h2>Generative modeling for perception</h2>
+        <h2>Generative Modeling</h2>
         <p class="text">
-            I build controllable generative systems (diffusion + LoRA) for data synthesis and model improvement, with an emphasis on realism and downstream utility.
+            I build controllable generative systems (diffusion + LoRA, flow models) for data synthesis and model improvement, with an emphasis on realism and downstream utility.
         </p>
     </div>
 
     <div class="container blog main">
-        <h1>Hobbies</h1>
-        <div class="section-kicker">03 / Hobbies</div>
+        <h1>Presentations & Talks</h1>
+        <div class="section-kicker">04 / Talks</div>
+        
+        <div class="talk-card">
+            <div class="talk-title">My Work at Qure.AI: Diffusion Models for Chest X-Rays</div>
+            <div class="talk-venue">Qure.AI Internal Presentation • February 2026</div>
+            <div class="talk-desc">
+                Comprehensive presentation covering DiffusionXRay (MICCAI 2025) and Controllable Nodule Synthesis (MIDL 2026). Includes methodology, results, and radiologist evaluations.
+            </div>
+            <div class="talk-links">
+                <a href="assets/figures/qure/Qure_Presentation.pdf" class="button icon">Slides <i class="fa-regular fa-file-pdf"></i></a>
+            </div>
+        </div>
+
+        <div class="talk-card">
+            <div class="talk-title">DiffusionXRay: Enhancing Digitally Reconstructed Radiographs</div>
+            <div class="talk-venue">DEMI Workshop @ MICCAI 2025</div>
+            <div class="talk-desc">
+                A two-stage diffusion + GAN pipeline for enhancing DRRs while preserving subtle clinical findings like lung nodules.
+            </div>
+            <div class="talk-links">
+                <a href="posts/diffusionxray.html" class="button icon">Blog <i class="fa-regular fa-newspaper"></i></a>
+            </div>
+        </div>
+
+        <div class="talk-card">
+            <div class="talk-title">Master's Thesis Defense (Stage 1)</div>
+            <div class="talk-venue">IIT Bombay • December 2025</div>
+            <div class="talk-desc">
+                Forecasting and volume estimation of municipal solid waste using machine learning. Cross-country analysis and DINOv3-based vision pipeline.
+            </div>
+            <div class="talk-links">
+                <a href="posts/masters-thesis.html" class="button icon">Blog <i class="fa-regular fa-newspaper"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Relevant Coursework</h1>
+        <div class="section-kicker">05 / Coursework</div>
+        
+        <div class="course-section">
+            <div class="course-label">Machine Learning & AI</div>
+            <div class="course-pills">
+                <span class="course-pill highlight">Advanced Topics in Machine Learning</span>
+                <span class="course-pill highlight">ML: Principles and Techniques</span>
+                <span class="course-pill">ML for Remote Sensing</span>
+                <span class="course-pill">Programming for Data Science</span>
+                <span class="course-pill">R&D Project (Digital Health) I & II</span>
+            </div>
+        </div>
+        
+        <div class="course-section">
+            <div class="course-label">Mathematics & CS</div>
+            <div class="course-pills">
+                <span class="course-pill">Linear Algebra</span>
+                <span class="course-pill">Differential Equations</span>
+                <span class="course-pill">Calculus I & II</span>
+                <span class="course-pill">Numerical Methods</span>
+                <span class="course-pill">Data Analysis & Interpretation</span>
+                <span class="course-pill">Computer Programming</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container blog main">
+        <h1>Beyond Work</h1>
+        <div class="section-kicker">06 / Hobbies</div>
         <p class="text">
-            When I’m not working, I enjoy building things (tools, small web projects), learning design, and exploring new ideas through writing.
+            When I'm not working, I enjoy building things (tools, small web projects), learning design, and exploring new ideas through writing. 
+            I also served as the Institute Web and Coding Convener at IIT Bombay, organizing 40+ events for 10K+ students.
         </p>
     </div>
 
@@ -104,6 +347,3 @@
     <script src="assets/scripts/main.js"></script>
 </body>
 </html>
-
-
-
