@@ -26,7 +26,7 @@ author:
   avatar           : "profile.png"
   name             : "Aryan Goyal"
   pronouns         : # example: "she/her"  
-  bio              : "[Brief Bio Placeholder: Please update this text with your brief bio via _config.yml.]"
+  bio              : "I work in AI research at IIT Bombay, focusing on Vision Language Action Models."
   location         : "Mumbai/Bangalore"
   employer         : ""
   uri              : # URL
