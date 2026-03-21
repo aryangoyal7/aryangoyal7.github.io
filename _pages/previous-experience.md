@@ -26,7 +26,7 @@ author_profile: true
 ## Research Assistant
 
 - [KCDH, IIT Bombay](https://www.kcdh.iitb.ac.in/) | Research Assistant with [Prof. Saket Choudhary](https://saket-choudhary.me/about/)  
-  I worked on problems at the intersection of computational biology and AI for health.
+  I worked on automated Karyptyping - classification and segmentation of chromosomes.
 
 - MeDAL Lab, IIT Bombay | Research Assistant with [Prof. Amit Sethi](https://www.ee.iitb.ac.in/~asethi/)  
   I contributed to medical AI research projects under the MeDAL group in the Department of Electrical Engineering at [IIT Bombay](https://www.iitb.ac.in/).
