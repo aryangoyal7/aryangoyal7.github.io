@@ -47,7 +47,7 @@ I write blogs about scrappy experiments to test small hypotheses and hunches tha
 
 ## Coursework
 
-- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization, Numerical Methods, Data Analysis and Interpretation, Probability and Stochastic Processes II.
+- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization.\
 - Machine Learning: Advanced Topics in Machine Learning, Machine Learning: Principles and Techniques, Machine Learning for Remote Sensing II, Programming for Data Science, Advanced Image Processing, R&D Project I (Digital Health), R&D Project II (Digital Health).
 
 ---
@@ -60,3 +60,6 @@ I write blogs about scrappy experiments to test small hypotheses and hunches tha
 - This is a follow-up to the doubt at the at talk - [Normalising flows and flow models slides followup ](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
 - [My work at Qure.AI](/files/Qure_Presentation%20(9).pdf) as an AI scientist intern for 20 months
 
+## Apart from work 
+
+I spend my time playing tennis, I like to grab a cold one with my friends and I make amazing hot pour-overs. I listen to all genres of music, I love listening to new music and making playlists for my friends.
