@@ -52,21 +52,11 @@ I write blogs about scrappy experiments to test small hypotheses and hunches tha
 
 ---
 
-## Technical Skills
 
-- Programming: Python
-- Areas: Mechanistic interpretability, diffusion models, medical imaging, LLM evaluation, speech synthesis
-
----
 
 ## Talks
 
-- [Normalising flows and flow models slides](/files/Normalising_flows_and_flow_models_slides.pdf)
-- [Normalising flows and flow models slides (alternate)](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
-- [Qure Presentation](/files/Qure_Presentation%20(9).pdf)
+- I gave a talk on [Normalising flows and flow models](/files/Normalising_flows_and_flow_models_slides.pdf) at MeDAL Labs, IIT Bombay
+- This is a follow-up to the doubt at the at talk - [Normalising flows and flow models slides followup ](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
+- [My work at Qure.AI](/files/Qure_Presentation%20(9).pdf) as an AI scientist intern for 20 months
 
----
-
-## Previous Experience
-
-See [Previous Experience](/previous-experience/) for internships, research assistantship, and teaching assistantship.
