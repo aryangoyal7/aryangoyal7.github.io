@@ -35,9 +35,10 @@ author_profile: true
 
 ## Teaching Assistant
 
+Grading papers, handling logisitcs for the course and invigilation during the exam.
+
 - ES-682: Numerical Methods for Environmental Systems | [Prof. Amritanshu Shriwastav](https://www.esed.iitb.ac.in/faculty/amritanshu-shriwastav) | Spring 2026  
-  I supported logistics and doubt-clearing for numerical methods, ODE/PDE methods, and stability analysis.
+
 
 - ES-201: Applied Environmental Microbiology and Ecology | [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh) | Autumn 2025  
-  I supported course delivery for 50+ students through logistics and evaluation support.  
-  Course context: [ESED, IIT Bombay](https://www.esed.iitb.ac.in/department)
+
