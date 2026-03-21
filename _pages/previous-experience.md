@@ -29,7 +29,9 @@ author_profile: true
   I worked on automated Karyptyping - classification and segmentation of chromosomes.
 
 - MeDAL Lab, IIT Bombay | Research Assistant with [Prof. Amit Sethi](https://www.ee.iitb.ac.in/~asethi/)  
-  I contributed to medical AI research projects under the MeDAL group in the Department of Electrical Engineering at [IIT Bombay](https://www.iitb.ac.in/).
+ Deployed and trained a cancer detection tumor model at TMC hospital, Mumbai.\
+ Worked on efficient sampling for flow models.
+
 
 ---
 
