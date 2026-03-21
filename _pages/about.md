@@ -7,11 +7,11 @@ redirect_from:
   - /about.html
 ---
 
-Hi, I'm Aryan Goyal.
-I study at [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).
-I work in AI research.
-I currently work on mechanistic interpretability for vision-language-action models.
-I previously worked on fine-grained medical imaging.
+Hi, I'm Aryan Goyal.\
+I study at [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
+I work in AI research.\
+I currently work on mechanistic interpretability for vision-language-action models.\
+I previously worked on fine-grained medical imaging.\
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
 
@@ -36,8 +36,11 @@ I write technical blogs on [Substack](https://substack.com/@aryanx07).
 ---
 
 ## Blog Posts
+I write blogs about scrappy experiments to test small hypotheses and hunches that come up during my research, but aren't worth a full publication. 
 
-- [How Fine-Tuning Rewires AI - A Mechanistic Interpretability Study](https://aryanx07.substack.com/p/how-fine-tuning-rewires-ai-a-mechanistic)
+- one of the first scrappy experiments from pizza labs --- studying training dynamics through a mechanistic interpretability lens.
+ [How Fine-Tuning Rewires AI - A Mechanistic Interpretability Study](https://aryanx07.substack.com/p/how-fine-tuning-rewires-ai-a-mechanistic)
+
 - [We Tried to Make LLM-GP Evolution Better](https://substack.com/@aryanx07/note/p-188603349)
 
 ---
