@@ -35,6 +35,13 @@ I am pursuing a double minor in Machine Learning and Data Science, and Digital H
 
 ---
 
+## Blog Posts
+
+- [How Fine-Tuning Rewires AI - A Mechanistic Interpretability Study](https://aryanx07.substack.com/p/how-fine-tuning-rewires-ai-a-mechanistic)
+- [We Tried to Make LLM-GP Evolution Better](https://substack.com/@aryanx07/note/p-188603349)
+
+---
+
 ## Coursework
 
 - Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization, Numerical Methods, Data Analysis and Interpretation, Probability and Stochastic Processes II.
