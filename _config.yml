@@ -23,12 +23,12 @@ repository               : "academicpages/academicpages.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
+  avatar           : "profile.jpg"
   name             : "Aryan Goyal"
   pronouns         : # example: "she/her"  
   bio              : "I work in AI research at Indian Institute of Technology Bombay, focusing on vision-language-action models."
   location         : "Mumbai/Bangalore"
-  employer         : ""
+  employer         : "Indian Institute of Technology Bombay"
   uri              : # URL
   email            : "garyan18@gmail.com" 
   substack         : "https://substack.com/@aryanx07" 

@@ -9,12 +9,16 @@ redirect_from:
 
 Hi, I'm Aryan Goyal.
 I study at [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).
+
 I work in AI research.
+
 I currently work on mechanistic interpretability for vision-language-action models.
+
 I previously worked on fine-grained medical imaging.
+
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
-I am pursuing a double minor in Machine Learning and Data Science, and Digital Health.
+
 
 {% include base_path %}
 
@@ -23,7 +27,7 @@ I am pursuing a double minor in Machine Learning and Data Science, and Digital H
 ## Education
 
 - [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
-- Double Minor: Machine Learning and Data Science, Digital Health
+- Double Minor in Machine Learning and Data Science, Digital Health
 
 ---
 
@@ -56,7 +60,7 @@ I am pursuing a double minor in Machine Learning and Data Science, and Digital H
 
 ---
 
-## Talks and Tutorials
+## Talks
 
 - [Normalising flows and flow models slides](/files/Normalising_flows_and_flow_models_slides.pdf)
 - [Normalising flows and flow models slides (alternate)](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
