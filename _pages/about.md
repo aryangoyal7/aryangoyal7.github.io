@@ -9,13 +9,9 @@ redirect_from:
 
 Hi, I'm Aryan Goyal.
 I study at [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).
-
 I work in AI research.
-
 I currently work on mechanistic interpretability for vision-language-action models.
-
 I previously worked on fine-grained medical imaging.
-
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
 
@@ -27,13 +23,13 @@ I write technical blogs on [Substack](https://substack.com/@aryanx07).
 ## Education
 
 - [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
-- Double Minor in Machine Learning and Data Science, Digital Health
+- Double Minor in Machine Learning and Data Science & Digital Health
 
 ---
 
 ## Publications
 - [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://conferences.miccai.org/2025/en/), 2025.
-- [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](/publication/2026-nodule-synthesis). [OpenReview](https://openreview.net/forum?id=7DL7cu8Ui8), MIDL 2026 (submitted).
+- [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](/publication/2026-nodule-synthesis). [OpenReview](https://openreview.net/forum?id=7DL7cu8Ui8), MIDL 2026 .
 - [ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education](https://openreview.net/). ICLR 2026 Workshop (submitted).
 - A System and Method for Projecting Synthetic Nodules in Medical Imaging. Indian Patent Application No. 202521024259 (filed).
 
