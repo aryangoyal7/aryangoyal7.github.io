@@ -14,7 +14,18 @@ I currently work on mechanistic interpretability for vision-language-action mode
 I previously worked on fine-grained medical imaging.
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
+I am pursuing a double minor in Machine Learning and Data Science, and Digital Health.
+
 {% include base_path %}
+
+---
+
+## Education
+
+- [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
+- Double Minor: Machine Learning and Data Science, Digital Health
+
+---
 
 ## Publications
 - [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://conferences.miccai.org/2025/en/), 2025.
@@ -22,11 +33,21 @@ I write technical blogs on [Substack](https://substack.com/@aryanx07).
 - [ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education](https://openreview.net/). ICLR 2026 Workshop (submitted).
 - A System and Method for Projecting Synthetic Nodules in Medical Imaging. Indian Patent Application No. 202521024259 (filed).
 
-## Blog Posts
+---
 
-{% for post in site.posts reversed %}
-  {% include archive-single.html %}
-{% endfor %}
+## Coursework
+
+- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization, Numerical Methods, Data Analysis and Interpretation, Probability and Stochastic Processes II.
+- Machine Learning: Advanced Topics in Machine Learning, Machine Learning: Principles and Techniques, Machine Learning for Remote Sensing II, Programming for Data Science, Advanced Image Processing, R&D Project I (Digital Health), R&D Project II (Digital Health).
+
+---
+
+## Technical Skills
+
+- Programming: Python
+- Areas: Mechanistic interpretability, diffusion models, medical imaging, LLM evaluation, speech synthesis
+
+---
 
 ## Talks and Tutorials
 
@@ -34,13 +55,7 @@ I write technical blogs on [Substack](https://substack.com/@aryanx07).
 - [Normalising flows and flow models slides (alternate)](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
 - [Qure Presentation](/files/Qure_Presentation%20(9).pdf)
 
-{% for post in site.talks reversed %}
-  {% include archive-single-talk.html %}
-{% endfor %}
-
-{% for post in site.tutorials reversed %}
-  {% include archive-single.html %}
-{% endfor %}
+---
 
 ## Previous Experience
 

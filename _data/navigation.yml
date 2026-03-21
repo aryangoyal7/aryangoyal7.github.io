@@ -11,8 +11,5 @@ main:
   - title: "Previous Experience"
     url: /previous-experience/
 
-  - title: "Blog Posts"
-    url: /year-archive/
-
   - title: "CV"
     url: /assets/cv.pdf
