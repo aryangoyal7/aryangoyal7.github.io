@@ -8,9 +8,10 @@ author_profile: true
 ## Internships
 
 - [Qure.ai](https://www.qure.ai/) | AI Scientist Intern | May 2024 - Present  
-  I contribute to the lung cancer team on diffusion models.  
+  I worked on with fine-grained medical imaging, particulary chest X-ray.
+  Worked on most impact aspects -  [characterisitic controllable synthetic data](https://arxiv.org/abs/2603.01659) and [Image enhancement of DRRs](https://arxiv.org/abs/2603.01686)
   This work led to two publications and one patent filing.  
-  I built synthetic chest X-ray generation pipelines that preserve clinically important details.
+  Special focus on  preserving clinically important details such as nodules.
 
 - [UpTrain](https://uptrain.ai/) ([YC W23](https://www.ycombinator.com/companies?batch=W23)) | AI Research Intern | Jan 2024 - Apr 2024  
   I worked on evaluation for custom LLMs and helped design subjective metrics.  
