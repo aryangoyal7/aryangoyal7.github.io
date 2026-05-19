@@ -39,22 +39,6 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 ---
 
-## Blog Posts
-I write blogs about scrappy experiments to test small hypotheses and hunches that come up during my research, but aren't worth a full publication. 
-
-- one of the first scrappy experiments from pizza labs --- studying training dynamics through a mechanistic interpretability lens.
- [How Fine-Tuning Rewires AI - A Mechanistic Interpretability Study](https://aryanx07.substack.com/p/how-fine-tuning-rewires-ai-a-mechanistic)
-
-- [We Tried to Make LLM-GP Evolution Better](https://substack.com/@aryanx07/note/p-188603349)
-
----
-
-## Talks
-
-- I gave a talk on [Normalising flows and flow models](/files/Normalising_flows_and_flow_models_slides.pdf) at MeDAL Labs, IIT Bombay
-- This is a follow-up to the doubt at the at talk - [Normalising flows and flow models slides followup ](/files/Normalising_flows_and_flow_models_slides%20(1).pdf)
-- [My work at Qure.AI](/files/Qure_Presentation%20(9).pdf) as an AI scientist intern for 20 months
-
 ## Apart from work 
 
 I spend my time playing tennis, I like to grab a cold one with my friends and I make amazing hot pour-overs. I listen to all genres of music, I love listening to new music and making playlists for my friends.
