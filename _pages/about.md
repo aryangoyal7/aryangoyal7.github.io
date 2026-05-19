@@ -8,10 +8,10 @@ redirect_from:
 ---
 
 Hi, I'm Aryan Goyal.\
-I study at [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
-I work in AI research.\
-I currently work on mechanistic interpretability for vision-language-action models.\
-I previously worked on fine-grained medical imaging.\
+I'm an undergraduate at the [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
+In Fall 2026, I'll be joining the [MS in Computer Vision](https://mscv.ri.cmu.edu/) program at the [Robotics Institute](https://www.ri.cmu.edu/), [School of Computer Science](https://www.cs.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/).\
+My research focuses on mechanistic interpretability and vision-language-action models.\
+Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qure.ai/).\
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
 
@@ -47,7 +47,7 @@ I write blogs about scrappy experiments to test small hypotheses and hunches tha
 
 ## Coursework
 
-- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization.\
+- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization.
 - Machine Learning: Advanced Topics in Machine Learning, Machine Learning: Principles and Techniques, Machine Learning for Remote Sensing II, Programming for Data Science, Advanced Image Processing, R&D Project I (Digital Health), R&D Project II (Digital Health).
 
 ---
