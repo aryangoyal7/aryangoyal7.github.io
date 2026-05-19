@@ -45,10 +45,11 @@ author_profile: true
 
 ## Teaching Assistant
 
-Grading papers, handling course logistics, and invigilation during exams.
+- ES-682: Numerical Methods for Environmental Systems | [Prof. Amritanshu Shriwastav](https://www.esed.iitb.ac.in/faculty/amritanshu-shriwastav) | Spring 2026  
+  Graded papers, ran course logistics, and invigilated exams.
 
-- ES-682: Numerical Methods for Environmental Systems | [Prof. Amritanshu Shriwastav](https://www.esed.iitb.ac.in/faculty/amritanshu-shriwastav) | Spring 2026
-- ES-201: Applied Environmental Microbiology and Ecology | [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh) | Autumn 2025
+- ES-201: Applied Environmental Microbiology and Ecology | [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh) | Autumn 2025  
+  Graded papers, ran course logistics, and invigilated exams.
 
 
 ---
