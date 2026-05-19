@@ -5,6 +5,14 @@ permalink: /previous-experience/
 author_profile: true
 ---
 
+## Education
+
+- B.Tech, [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
+- Double minor in Machine Learning from [C-MInDS](https://www.minds.iitb.ac.in/) and Digital Health from the [Koita Centre for Digital Health](https://www.kcdh.iitb.ac.in/)
+- Incoming MS in Computer Vision (Fall 2026), [Robotics Institute](https://www.ri.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/)
+
+---
+
 ## Internships
 
 - [Qure.ai](https://www.qure.ai/) | AI Scientist Intern | May 2024 - Dec 2024  
@@ -43,4 +51,12 @@ Grading papers, handling logisitcs for the course and invigilation during the ex
 
 
 - ES-201: Applied Environmental Microbiology and Ecology | [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh) | Autumn 2025  
+
+
+---
+
+## Coursework
+
+- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization.
+- Machine Learning: Advanced Topics in Machine Learning, Machine Learning: Principles and Techniques, Machine Learning for Remote Sensing II, Programming for Data Science, Advanced Image Processing, R&D Project I (Digital Health), R&D Project II (Digital Health).
 

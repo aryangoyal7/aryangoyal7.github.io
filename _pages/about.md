@@ -31,13 +31,6 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 
 
-## Education
-
-- [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
-- Double Minor in Machine Learning from [C-MInDS](https://www.minds.iitb.ac.in/) & Digital Health from [Koita Centre for Digital Health](https://www.kcdh.iitb.ac.in/)
-
----
-
 ## Publications
 - [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://arxiv.org/abs/2603.01686), 2025.
 - [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](https://arxiv.org/abs/2603.01659). MIDL 2026 .
@@ -55,15 +48,6 @@ I write blogs about scrappy experiments to test small hypotheses and hunches tha
 - [We Tried to Make LLM-GP Evolution Better](https://substack.com/@aryanx07/note/p-188603349)
 
 ---
-
-## Coursework
-
-- Math and CS: Linear Algebra, Differential Equations, Calculus I, Calculus II, Computer Programming and Utilization.
-- Machine Learning: Advanced Topics in Machine Learning, Machine Learning: Principles and Techniques, Machine Learning for Remote Sensing II, Programming for Data Science, Advanced Image Processing, R&D Project I (Digital Health), R&D Project II (Digital Health).
-
----
-
-
 
 ## Talks
 
