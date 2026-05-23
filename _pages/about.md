@@ -32,6 +32,7 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 
 ## Publications
+- [The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models](/files/hitchhikers-guide-mechinterp-vla.pdf). ICML 2026 (submitted).
 - [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://arxiv.org/abs/2603.01686), 2025.
 - [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](https://arxiv.org/abs/2603.01659). MIDL 2026 .
 - ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education. ICLR 2026 Workshop (submitted).
