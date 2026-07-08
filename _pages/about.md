@@ -10,7 +10,7 @@ redirect_from:
 Hi, I'm Aryan Goyal.\
 I'm an undergraduate at the [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
 In Fall 2026, I'll be joining the [MS in Computer Vision](https://mscv.ri.cmu.edu/) program at the [Robotics Institute](https://www.ri.cmu.edu/), [School of Computer Science](https://www.cs.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/).\
-My research focuses on mechanistic interpretability and vision-language-action models.\
+My research focuses on mechanistic interpretability and generalist robot policy.\
 Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qure.ai/).\
 I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
@@ -32,7 +32,7 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 
 ## Publications
-- [The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models](/files/hitchhikers-guide-mechinterp-vla.pdf). ICML 2026 (submitted).
+- [The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models](https://openreview.net/pdf?id=mS9nh3L3iN). ICML 2026 (accepted).
 - [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://arxiv.org/abs/2603.01686), 2025.
 - [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](https://arxiv.org/abs/2603.01659). MIDL 2026 .
 - ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education. ICLR 2026 Workshop (submitted).
