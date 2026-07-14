@@ -7,97 +7,101 @@ author_profile: true
 
 *I also wrote this up as a thread on X — [read it here](https://x.com/arygoy/status/2074891040184795258?s=20).*
 
-## The myth, and the myth-buster
-
-For years the standard story in robot learning has been: diffusion and flow policies beat plain
-regression policies because human demonstrations are **multi-modal** — at the same situation,
-different demonstrators do different valid things (grasp from the left *or* the right) — and
-regression averages those choices into a useless in-between action, while generative models can
-keep both.
-
-A recent paper, [*Much Ado About Noising* (Pan et al.)](https://arxiv.org/abs/2512.01809), put
-that story to the test and busted it. They rolled out trained **flow** policies on the standard
-benchmarks (Push-T, Kitchen, Tool-Hang) and found essentially **no multimodality in the trained
-policies at all**: freezing the noise, sampling it randomly, or even *averaging* many sampled
-actions changed task success by at most 0.04, and the sampled actions never formed distinct
-modes. Whatever makes generative policies win, it isn't mode-capturing.
-
-## Why I wanted to check diffusion too
-
-Two things made me curious:
-
-1. Their headline tests use **flow models** — a deterministic ODE whose only randomness is the
-   initial noise. A DDPM **diffusion** policy injects fresh noise at every denoising step, which
-   is a mechanically different (and arguably more robust) way of holding modes apart. A negative
-   result for flow doesn't automatically carry over.
-2. The paper itself admits its benchmarks may contain little multimodality to begin with. If the
-   data has no modes, no policy can show any — so the null could be a property of the *datasets*,
-   not the models.
-
-So the experiment: train **diffusion and flow policies, identical in every other way**, on data
-that *provably* contains modes, and re-run Pan et al.'s exact tests.
+One of the reasons GCPs (generative control policies, like flow and diffusion models) were
+considered better than RCPs (regression control policies) at task success is that they show
+multi-modal behavior: when the demonstrations contain several valid actions at the same
+situation, a generative model is theoretically capable of learning that full distribution,
+while regression averages the choices into a useless in-between action. However,
+[*Much Ado About Noising* (Pan et al.)](https://arxiv.org/abs/2512.01809) suggests this myth
+is busted, and provides evidence that GCPs in practice also collapse to a single mode — the
+**flow** policies they test behave essentially unimodally on the standard benchmarks — hence
+multi-modality is not the reason they win. In this blog post we perform the same evaluation,
+but on **diffusion** rather than flow, to check whether diffusion policies also collapse to a
+single mode, or whether there is a change in task success and multi-modality.
 
 ## Setup
 
-**Data.** The RoboMimic **multi-human** datasets (`can`, `square`, `transport` — six different
-operators demonstrating each task), plus `lift` (single proficient expert) as a control that
-should have almost no modes. Before training anything, I audited the data: find each state's
-nearest neighbours, cluster the actions taken there, and let an elbow criterion pick the number
-of modes. Result: **45–66% of states in the multi-human data genuinely carry two or more valid
-actions** (the control: 28%). The modes are real.
+We keep everything the same as the paper's evaluation scheme and change only the model under
+test: the same U-Net architecture, the same data and training recipe (400k steps, state
+observations), trained once with the DDPM **diffusion** objective and once with **flow
+matching** — only the training target equation differs. Every evaluation below is run
+identically on both.
 
-![Fraction of multi-modal states per dataset](/images/blog/mmc/e0_kstar_fraction.png)
+**How Pan et al. evaluate a learned policy's multi-modality** — three methods:
 
-Here is what that looks like at a single state — two cleanly separated action clusters in the
-multi-human data, one blob in the control:
+1. **Sampling-strategy test.** Roll out the *same* trained checkpoint three ways: noise frozen
+   at zero, noise sampled randomly, and the *average* of many sampled actions. If the policy
+   truly holds several modes, averaging blends them into an invalid action and success should
+   drop; if success barely changes (their largest gap was 0.04), the noise channel carries no
+   real modes.
+2. **Return-colored sample plot.** At an ambiguous state, sample many action chunks, embed
+   them in 2D, and color each by its Monte-Carlo return (did continuing from this action
+   succeed?). A multi-modal policy shows several separated clusters that are *all*
+   high-return. They found none.
+3. **Deterministic-expert control.** Retrain on demonstrations from a scripted, deterministic
+   expert (no multi-modality in the data at all) — if multi-modality explained the GCP
+   advantage, it should vanish there. It didn't. (We don't re-run this one; our near-unimodal
+   control dataset plays the same role.)
 
-![Action clusters at one state](/images/blog/mmc/method_step2_pca.png)
+## First: is the data itself multi-modal?
 
-**Policies.** The same U-Net architecture and training recipe (400k steps, state observations),
-trained twice per task: once with the DDPM diffusion objective, once with flow matching. Only
-the generative objective differs. Sanity check: my flow success rates reproduce the paper's own
-numbers task-for-task.
+A policy can only learn multi-modal behavior if the **demonstration data is multi-modal in
+the first place** — this is the paper's own caveat about its benchmarks. So before evaluating
+any policy, we check the data. We use the RoboMimic **multi-human** datasets (`can`, `square`,
+`transport` — six different operators demonstrating each task) plus `lift` from a single
+proficient expert as the control.
 
-## The two evaluation tests (theirs, unchanged)
+**The test:** for each state, collect the K = 32 most similar states across all
+demonstrations and gather the action chunks that were actually taken there. Then run k-means
+on those actions for k = 1, 2, 3, … and watch how much of the action variance each extra
+cluster removes. One blob of actions barely splits — the variance ratio stays near 1. Two
+(or three) genuinely different behaviors split cleanly — the ratio drops sharply, then
+flattens. The elbow of that curve is the number of modes at that state; a state is
+multi-modal if it has 2 or more.
 
-**Test 1 — does averaging hurt?** Roll out the *same* checkpoint three ways: noise frozen at
-zero, noise sampled normally, and the *mean* of 32 sampled actions. If the policy really holds
-several modes, averaging should blend them and success should drop. Pan et al.'s largest gap:
-**0.04**.
+The variance-drop curve at one state of each kind — the multi-human state has a sharp elbow
+at k = 2 (two real modes), the control state has none:
 
-**Test 2 — do sampled actions form modes?** At the most ambiguous state, sample many actions,
-plot them in 2D, and colour each by its Monte-Carlo return (did continuing from this action
-succeed?). A multi-modal policy shows several separated clusters that are *all* high-return.
-Pan et al. found none, anywhere.
+![Variance-reduction elbow](/images/blog/mmc/method_step2_ratio.png)
 
-## Results
+Aggregating over 5000 states per dataset: **45–66% of states in the multi-human datasets are
+multi-modal, versus 28% in the control** — and a quarter of the multi-modal states in the
+hardest sets carry three modes:
 
-**Test 1: the invariance breaks on multi-modal data — for both families.** On the control task
-the gap is 0.00, exactly reproducing the paper. But on `square` the gap opens to **0.30
-(diffusion) / 0.20 (flow)**, and on `transport` to 0.13 / 0.25. The noise channel clearly
-carries task-relevant modes once the data actually has them.
+![Fraction of multi-modal vs unimodal states per dataset](/images/blog/mmc/e0_kstar_fraction.png)
+
+So the modes are really in the data, and any collapse we see next is the policy's doing.
+
+## Results: the policies
+
+**Test 1 — sampling strategies.** On the control task the gap is 0.00, reproducing the
+paper's null exactly. On the multi-human data the invariance breaks for *both* families:
+averaging or freezing the noise changes success by up to 0.30 (diffusion) / 0.20 (flow) on
+`square`. Once the data has modes, the noise channel carries them.
 
 ![Success under three sampling strategies](/images/blog/mmc/sampling_grid.png)
 
-**Test 2: distinct high-return modes appear.** On `square`, diffusion's samples split into two
-separated high-return clusters — flow's don't (below, left vs right). On `transport`, both
-families show modes. This was the one real diffusion-vs-flow difference I found.
+**Test 2 — return-colored samples.** Distinct high-return modes *do* appear. On `square`,
+diffusion's 48 samples concentrate onto a few clearly separated actions — two distinct
+successful behaviors — while flow's 48 samples are near-copies of a single action (note the
+axis scales: flow's whole cloud spans ~100× less). On `transport`, both families show modes.
 
 | Diffusion on `square` — two modes | Flow on `square` — one mode |
 |---|---|
 | ![Diffusion samples](/images/blog/mmc/pan_tsneq_square_mh_diffusion_s0.png) | ![Flow samples](/images/blog/mmc/pan_tsneq_square_mh_flow_s0.png) |
 
-**The twist: capturing modes buys nothing.** Where diffusion captures a mode flow misses
-(`square`), the two tie on success (0.90 each). On `transport`, flow *wins* (0.55 vs 0.30)
-even though both show modes.
+**So: does diffusion collapse like flow?** Not here — and flow itself doesn't fully collapse
+on this data either. But the extra mode diffusion captures buys nothing: on `square` the two
+families tie on success (0.90 each), and on the hardest task (`transport`) flow *wins*
+(0.55 vs 0.30) even though both show modes.
 
 ## Takeaway
 
-- Pan et al.'s null result reproduces perfectly on low-multimodality data — but it's a property
-  of their **datasets**, not of generative policies. Give the policies multi-modal data and both
-  diffusion and flow visibly capture modes.
-- Their broader point survives, and gets sharper: even when diffusion captures modes that flow
-  drops, **it doesn't translate into better task performance**. The choice of generative
+- Pan et al.'s null reproduces perfectly on low-multimodality data — it is a property of
+  their **datasets**, not of generative policies. Given genuinely multi-modal demonstrations,
+  both diffusion and flow visibly capture modes.
+- Their broader conclusion survives and sharpens: even where diffusion captures a mode that
+  flow drops, **it does not translate into better task success**. The choice of generative
   objective still doesn't seem to be what matters.
 
 *Caveats: single seed, 40 evaluation episodes per cell, state-based observations. Data:
