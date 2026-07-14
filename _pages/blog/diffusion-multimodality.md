@@ -5,7 +5,7 @@ permalink: /blog/diffusion-multimodality/
 author_profile: true
 ---
 
-*I also wrote this up as a thread on X — [read it here](https://x.com/arygoy/status/2074891040184795258?s=20).*
+*I also wrote this up as a thread on X — [read it here](https://x.com/arygoy/status/2076910993125568610?s=20).*
 
 One of the reasons GCPs (generative control policies, like flow and diffusion models) were
 considered better than RCPs (regression control policies) at task success is that they show
