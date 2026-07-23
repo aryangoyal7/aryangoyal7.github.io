@@ -7,17 +7,29 @@ author_profile: true
 
 ## Open-loop and closed-loop stability
 
-Consider a robot arm carrying a peg across a table. If its hand drifts two millimeters off course, nothing happens: it arrives two millimeters to the side and the task still succeeds. Now consider the same arm halfway through inserting that peg into a tight hole. The same two millimeters means the peg catches the rim and jams. Same robot, same error, different outcome. Whether an error is absorbed or amplified is a property of the physics at each moment, and we measured it, timestep by timestep, across several open-source manipulation datasets.
+Consider a robot arm carrying a peg across a table. If its hand drifts two millimeters off course, nothing happens: it arrives two millimeters to the side and the task still succeeds. Now consider the same arm halfway through inserting that peg into a tight hole. The same two millimeters means the peg catches the rim and jams. Same robot, same error, different outcome. Whether an error is absorbed or amplified is a property of the physics at each moment, not of the robot or of the task as a whole.
 
-**Open-loop stability** asks: if a small mistake happens here and nobody reacts, does the error die out or grow? A moment is open-loop stable when the error dies out or persists harmlessly, and open-loop unstable when it grows.
+Open-loop and closed-loop stability are the control-theoretic names for the two versions of that question, and it is worth being precise about them, because everything below turns on the difference.
 
-**Closed-loop stability** asks: what if the robot reacts? A trained policy observes the scene and corrects at every step after the mistake. A moment is closed-loop stable when reacting shrinks the error, and closed-loop unstable when reacting makes it grow.
+**Open-loop stability** is a property of the plant alone. Hold the commands fixed to what the demonstration recorded, nudge the very first one slightly, and watch what the dynamics do to the resulting deviation over the next fraction of a second. If nearby trajectories are pulled back together, the moment contracts errors; if they are driven apart, it expands them. The rate of separation between two initially-close trajectories is a Lyapunov exponent, measured here over a finite window rather than asymptotically, because a manipulation episode is a sequence of short phases with no steady state to settle into. A negative rate means the error decays on its own; a positive one means it grows exponentially. No policy appears anywhere in this definition — it is a question about physics and contact geometry.
+
+**Closed-loop stability** asks the same question with the controller put back in the loop. After the identical nudge, the robot looks at the scene and issues a fresh command at every step, so what is measured is the plant and the feedback law together. Correcting is supposed to shrink the error. Whether it does is an empirical property of that policy at that state, and it can go either way: a correction computed from a slightly-off observation is itself slightly off, and injects error of its own.
+
+## Why this is worth measuring
+
+A policy trained by imitation makes a small error at every step, and those errors do not stay small. Each one nudges the robot toward states that appear less often in the demonstrations, where the policy is less reliable and errs by more, which nudges it further still. The consequence is that the cost of behavior cloning grows with the *square* of the task horizon rather than linearly with it ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)). Manipulation tasks are long — the tool_hang demonstrations used here run past six hundred steps — so this compounding, not per-step accuracy, is the dominant failure mode.
+
+The prescribed escape is action chunking. Rather than predicting one action and re-deciding at every timestep, the policy predicts a block of $k$ actions and executes the whole block open-loop before observing again; [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) both work this way. The horizon does not get any shorter, but the number of decision points along it falls from $T$ to $T/k$, and so does the number of chances to inject a fresh error. What is given up is reactivity: for the length of a chunk the robot is committed, and nothing that happens in the world can change what it does.
+
+So the choice is between long chunks and short chunks, and it is normally made once per task and then held fixed. Long chunks suppress compounding but ride out any disturbance blindly; short chunks stay responsive but re-inject policy noise at every step. Which one is right depends on whether the physics at the current moment forgives a mistake or punishes it — and that is not constant along a demonstration. The transport phase and the insertion in the peg example want opposite settings, and they are a second apart in the same episode.
+
+That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
 
 ## The possible combinations
 
 Each channel reports one of three classes: stable, unstable, or **deadband**, meaning the measured slope sits inside the probe's own noise floor, so neither call is confident (the algorithm section explains how that floor is set). Three classes on two channels gives nine combinations.
 
-What hangs on them is how many actions the robot should commit to before it looks at the world again. Write $k$ for that number: $k = 1$ is replanning at every step, and large $k$ means committing to a long stretch of actions. Two rules then fix every cell. The open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
+What hangs on them is the chunk length $k$: $k = 1$ is replanning at every step, and large $k$ means committing to a long stretch of actions. Two rules then fix every cell. The open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
 
 |                 | CL stable         | CL deadband       | CL unstable        |
 |-----------------|-------------------|-------------------|--------------------|
@@ -54,6 +66,27 @@ The corresponding scenes: a transport moment on the left (deadband), the gripper
 | Deadband moment | Unstable moment |
 | :---: | :---: |
 | ![Frame at a deadband timestep](/images/blog/stability/frame_square_gray.png) | ![Frame at an unstable timestep](/images/blog/stability/frame_square_red.png) |
+
+The point of the exercise is that this label moves as the demonstration does. Replaying a demo with its border tinted by the label active at each timestep makes the structure visible directly: red where the measured slope exceeds the deadband, gray inside it, with the running value of $\lambda$ printed along the top.
+
+<div style="display:flex; gap:1.2em; flex-wrap:wrap; justify-content:center; margin:1.5em 0;">
+  <figure style="flex:0 1 300px; margin:0; text-align:center;">
+    <video autoplay loop muted playsinline controls preload="metadata" style="width:100%; height:auto; border-radius:3px;">
+      <source src="/images/blog/stability/video_square_labeled.mp4" type="video/mp4">
+      <a href="/images/blog/stability/video_square_labeled.mp4">Download the square label video</a>
+    </video>
+    <figcaption style="font-size:0.8em; line-height:1.35; margin-top:0.5em;"><b>square</b> — approach is deadband, the border goes red as the gripper closes on the nut, back to deadband while carrying it, red again as the nut is lowered onto the peg.</figcaption>
+  </figure>
+  <figure style="flex:0 1 300px; margin:0; text-align:center;">
+    <video autoplay loop muted playsinline controls preload="metadata" style="width:100%; height:auto; border-radius:3px;">
+      <source src="/images/blog/stability/video_can_labeled.mp4" type="video/mp4">
+      <a href="/images/blog/stability/video_can_labeled.mp4">Download the can label video</a>
+    </video>
+    <figcaption style="font-size:0.8em; line-height:1.35; margin-top:0.5em;"><b>can</b> — a mostly-transport task. The long reach and the carry are both deadband; red appears only at the grasp and at the release into the bin.</figcaption>
+  </figure>
+</div>
+
+Two demonstrations are not a statistic, and the proportions below come from hundreds of them rather than from these two. What the videos are meant to show is the shape of the signal: the labels arrive in contiguous stretches tied to contact events, not as frame-to-frame flicker.
 
 ## Results
 
