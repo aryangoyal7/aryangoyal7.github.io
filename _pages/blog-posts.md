@@ -7,6 +7,9 @@ author_profile: true
 
 Short pieces on scrappy experiments — small hypotheses and hunches from my research that are interesting on their own but don't warrant a full publication. Occasionally, a non-research piece I felt compelled to write down.
 
+- [**Where Can a Robot Act Blind? Open-Loop and Closed-Loop Stability Regimes in Manipulation Datasets**](/blog/stability-regimes/)  
+  Perturbing one action per timestep across robomimic, MimicGen, and LIBERO-Long to map where physics forgives errors and where it punishes them. The surprise: at 90 to 99 percent of measured states, letting a trained policy react makes the divergence worse, not better.
+
 - [**Does Diffusion Actually Capture Multi-Modal Behavior?**](/blog/diffusion-multimodality/)  
   Re-running the *Much Ado About Noising* myth-buster tests with diffusion policies on genuinely multi-modal robot data. Also available as a [thread on X](https://x.com/arygoy/status/2076910993125568610?s=20).
 
