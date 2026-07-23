@@ -15,12 +15,17 @@ Consider a robot arm carrying a peg across a table. If its hand drifts two milli
 
 ## The possible combinations
 
-Each channel answers grow or not-grow, so every moment falls into one of four cases:
+Each channel reports one of three classes: stable, unstable, or **deadband**, meaning the measured slope sits inside the probe's own noise floor, so neither call is confident (the algorithm section explains how that floor is set). Three classes on two channels gives nine combinations.
 
-1. **Open-loop stable, closed-loop stable.** Errors are absorbed either way. Acting without feedback and acting with feedback both work.
-2. **Open-loop stable, closed-loop unstable.** Physics absorbs the error, but the policy's corrections add new error. Here reacting is the harmful choice.
-3. **Open-loop unstable, closed-loop stable.** Physics amplifies the error, and feedback corrects it faster than it grows. Here reacting is essential.
-4. **Open-loop unstable, closed-loop unstable.** Neither mode contains the error. Success depends on the task geometry guiding the state back, the way a hole guides a peg.
+What hangs on them is how many actions the robot should commit to before it looks at the world again. Write $k$ for that number: $k = 1$ is replanning at every step, and large $k$ means committing to a long stretch of actions. Two rules then fix every cell. The open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
+
+|                 | CL stable         | CL deadband       | CL unstable        |
+|-----------------|-------------------|-------------------|--------------------|
+| **OL stable**   | commit long $k$ | commit long $k$ | commit long $k$  |
+| **OL deadband** | commit long $k$ | commit long $k$ | commit long $k$  |
+| **OL unstable** | replan every step | short $k$       | intermediate $k$ |
+
+The interesting variation is confined to the open-loop-unstable row; everywhere else commitment wins. Taking the cells in turn: when physics absorbs the error but the policy's corrections add new error (top right), reacting is the harmful choice, so committing is not merely cheaper but safer. A deadband row behaves the same way and for a sharper reason — the plant contributes no error of its own there, so the policy is the only error source present, and each replan injects one fresh mistake that nothing absorbs; committing chunks of $k$ accumulates $T/k$ such mistakes over a $T$-step segment instead of $T$. In the bottom row, physics amplifies the error, and replanning at every step is right only where feedback genuinely rescues (bottom left). When both channels expand (bottom right), neither mode contains the error, success depends on the task geometry guiding the state back the way a hole guides a peg, and the best available compromise is an intermediate $k$ that keeps some reaction while injecting less policy noise.
 
 The results below show which of these actually occur in the data, and in what proportion.
 
@@ -68,7 +73,7 @@ The corresponding scenes: a transport moment on the left (deadband), the gripper
 
 ![Open-loop versus closed-loop divergence on lift](/images/blog/stability/fig_ol_vs_cl_lift.png)
 
-These policies are at 0.9 to 1.0 success, so the explanation is not policy quality. In regions where physics absorbs errors, the plant contributes no error of its own; the only error source present is the policy, and each reaction injects one more sample of it. Of the four combinations, case 3 (feedback rescues) is rare in our measurements, and case 2 (physics absorbs, reacting harms) is the most common state in these datasets.
+These policies are at 0.9 to 1.0 success, so the explanation is not policy quality. In regions where physics absorbs errors, the plant contributes no error of its own; the only error source present is the policy, and each reaction injects one more sample of it. Mapped onto the table above, the rescue cell (open-loop unstable, closed-loop stable) is rare in our measurements, while the cell where physics absorbs the error and reacting harms (open-loop stable, closed-loop unstable) is the most common state in these datasets. The whole closed-loop-stable column is thin for the same reason.
 
 **Summary.** Instability in these benchmarks concentrates in a few long contact segments, which the probe finds automatically. Outside them, the robot's own corrections are the dominant noise source. The map is cheap to compute and its primary channel needs no trained policy.
 
