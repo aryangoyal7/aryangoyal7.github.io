@@ -7,6 +7,9 @@ author_profile: true
 
 Short pieces on scrappy experiments — small hypotheses and hunches from my research that are interesting on their own but don't warrant a full publication. Occasionally, a non-research piece I felt compelled to write down.
 
+- [**Do You Need Vision to Predict Stability Regimes?**](/blog/vision-or-proprioception/)  
+  Ablating a frozen V-JEPA 2 video encoder against DINOv2 against nine numbers of joint state. The nine numbers win, and neither encoder pays for itself.
+
 - [**Open-Loop and Closed-Loop Stability Regimes in Open-Source Manipulation Datasets**](/blog/stability-regimes/)  
   Perturbing one action per timestep across robomimic, MimicGen, and LIBERO-Long to measure where errors are absorbed and where they grow. At 90 to 99 percent of measured states, letting a trained policy react makes the divergence worse, not better.
 
