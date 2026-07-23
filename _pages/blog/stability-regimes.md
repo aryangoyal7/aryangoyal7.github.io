@@ -7,13 +7,37 @@ author_profile: true
 
 ## Open-loop and closed-loop stability
 
-Consider a robot arm carrying a peg across a table. If its hand drifts two millimeters off course, nothing happens: it arrives two millimeters to the side and the task still succeeds. Now consider the same arm halfway through inserting that peg into a tight hole. The same two millimeters means the peg catches the rim and jams. Same robot, same error, different outcome. Whether an error is absorbed or amplified is a property of the physics at each moment, not of the robot or of the task as a whole.
+One question, asked once per timestep: an error occurs at this instant — do the dynamics absorb it or amplify it? Open-loop and closed-loop stability are the control-theoretic names for two versions of it, and everything below turns on the difference.
 
-Open-loop and closed-loop stability are the control-theoretic names for the two versions of that question, and it is worth being precise about them, because everything below turns on the difference.
+**Open-loop stability** is a property of the plant alone: the commands are held to what the demonstration recorded, nothing reacts, and what is left is physics and contact geometry. **Closed-loop stability** asks the same question with the controller back in the loop, so what is measured is the plant and the feedback law together. Correcting is supposed to shrink the error; whether it does is an empirical property of that policy at that state, and it can go either way, because a correction computed from a slightly-off observation is itself slightly off.
 
-**Open-loop stability** is a property of the plant alone. Hold the commands fixed to what the demonstration recorded, nudge the very first one slightly, and watch what the dynamics do to the resulting deviation over the next fraction of a second. If nearby trajectories are pulled back together, the moment contracts errors; if they are driven apart, it expands them. The rate of separation between two initially-close trajectories is a Lyapunov exponent, measured here over a finite window rather than asymptotically, because a manipulation episode is a sequence of short phases with no steady state to settle into. A negative rate means the error decays on its own; a positive one means it grows exponentially. No policy appears anywhere in this definition — it is a question about physics and contact geometry.
+**Making that precise.** Reset the simulator to the exact recorded state at time $t_0$ and run the next $K = 24$ steps (1.2 seconds at 20 Hz) twice. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. Each perturbed branch adds Gaussian noise to the position components of the first action only, never rotation and never the gripper, then replays the remaining $K-1$ actions exactly as recorded:
 
-**Closed-loop stability** asks the same question with the controller put back in the loop. After the identical nudge, the robot looks at the scene and issues a fresh command at every step, so what is measured is the plant and the feedback law together. Correcting is supposed to shrink the error. Whether it does is an empirical property of that policy at that state, and it can go either way: a correction computed from a slightly-off observation is itself slightly off, and injects error of its own.
+$$
+\tilde{a}_{t_0} = a_{t_0} + \varepsilon, \qquad \varepsilon \sim \mathcal{N}\left(0, \sigma_u^2 I_3\right)
+$$
+
+The error therefore enters through the actuation channel, the way a real policy error enters, and reaches the state only by passing through the plant. Writing $x^{\mathrm{nom}}$ for the task-space vector of the nominal branch and $x^{\mathrm{pert}}$ for that of the $n$-th perturbed branch, both at step $\tau$ after $t_0$, the divergence between them is
+
+$$
+d_n(\tau) = \left\lVert x^{\mathrm{pert}}_n(\tau) - x^{\mathrm{nom}}(\tau) \right\rVert_2
+$$
+
+If the moment amplifies errors this distance grows exponentially in $\tau$; if it absorbs them it decays. The rate is a finite-time Lyapunov exponent — finite-time because a manipulation episode is a sequence of short phases with no steady state to settle into — and it is estimated the textbook way (Benettin et al., 1980), as the least-squares slope of the branch-averaged log divergence $\ell(\tau) = \frac{1}{N} \sum_{n=1}^{N} \log d_n(\tau)$ against time, over $N = 8$ independent perturbations:
+
+$$
+\lambda(t_0) = \frac{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)\left(\ell(\tau) - \bar{\ell}\right)}{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)^2}
+$$
+
+So $\lambda(t_0) > 0$ means an error introduced at $t_0$ is amplified, and $\lambda(t_0) < 0$ means it is absorbed. The label is the sign of $\lambda$ read against a threshold $\delta$: **unstable** above $+\delta$, **stable** below $-\delta$, and **deadband** in between, meaning the slope falls inside the probe's own noise floor and the stamp is unproven either way. Crucially $\delta$ is not a tuned constant — it is the 95th percentile of $\lvert \lambda \rvert$ over free-space stamps of the same dataset, which is the measured noise floor of the probe itself, computed separately for every dataset.
+
+The closed-loop channel is the same probe with one substitution. After the identical injection, the perturbed branch is no longer replay: the trained policy $\pi$ picks a fresh action from its own camera observations at every step,
+
+$$
+\tilde{a}_{t_0 + \tau} = \pi\left(o_{t_0 + \tau}\right), \qquad \tau = 1, \ldots, K-1
+$$
+
+and $\lambda$ is computed from the resulting divergence exactly as above. Everything else — the injection, the window, the readout, the threshold — is held identical, so the two channels differ only in what happens after the error is introduced.
 
 ## Why this is worth measuring
 
@@ -21,13 +45,13 @@ A policy trained by imitation makes a small error at every step, and those error
 
 The prescribed escape is action chunking. Rather than predicting one action and re-deciding at every timestep, the policy predicts a block of $k$ actions and executes the whole block open-loop before observing again; [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) both work this way. The horizon does not get any shorter, but the number of decision points along it falls from $T$ to $T/k$, and so does the number of chances to inject a fresh error. What is given up is reactivity: for the length of a chunk the robot is committed, and nothing that happens in the world can change what it does.
 
-So the choice is between long chunks and short chunks, and it is normally made once per task and then held fixed. Long chunks suppress compounding but ride out any disturbance blindly; short chunks stay responsive but re-inject policy noise at every step. Which one is right depends on whether the physics at the current moment forgives a mistake or punishes it — and that is not constant along a demonstration. The transport phase and the insertion in the peg example want opposite settings, and they are a second apart in the same episode.
+So the choice is between long chunks and short chunks, and it is normally made once per task and then held fixed. Long chunks suppress compounding but ride out any disturbance blindly; short chunks stay responsive but re-inject policy noise at every step. Which one is right depends on whether the physics at the current moment forgives a mistake or punishes it — and that is not constant along a demonstration. A demonstration that carries an object across free space and then seats it into a tight fixture wants opposite settings for the two, and they are a second apart in the same episode.
 
 That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
 
 ## The possible combinations
 
-Each channel reports one of three classes: stable, unstable, or **deadband**, meaning the measured slope sits inside the probe's own noise floor, so neither call is confident (the algorithm section explains how that floor is set). Three classes on two channels gives nine combinations.
+Each channel reports one of the three classes above — stable, unstable, or deadband — so three classes on two channels gives nine combinations.
 
 What hangs on them is the chunk length $k$: $k = 1$ is replanning at every step, and large $k$ means committing to a long stretch of actions. Two rules then fix every cell. The open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
 
@@ -47,15 +71,15 @@ We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human dem
 
 The reason to label them: a stability map shows what kind of data a dataset contains, how much is transport where any policy coasts, how much is contact where errors compound and failures concentrate, and at exactly which timesteps demonstrations are fragile. All of this is available before any policy is evaluated on the data.
 
-## The algorithm
+## Running the probe
 
-For a given demonstration and timestep, reset the simulator to the exact recorded state and roll the next 1.2 seconds forward twice. The first run replays the demonstration's recorded actions exactly. The second replays the same actions, except a small Gaussian error is added to the position part of the first action. Track the distance between the two trajectories over the 24 control steps and fit the slope of its logarithm (a finite-time Lyapunov exponent). If the gap shrinks or stays flat, the timestep is open-loop stable; if it grows exponentially, open-loop unstable. We use 8 noise samples per timestep, a stamp every 2 steps, across hundreds of demonstrations per dataset.
+Stamps sit on a stride-2 grid, so $\lambda$ is measured every second timestep of every demonstration, across hundreds of demonstrations per dataset. Deadband stamps then inherit the label of their confident neighbors, and a median filter over roughly three consecutive stamps smooths the sequence; contiguous runs of one label are the segments. Nothing is segmented by hand.
 
-The closed-loop probe repeats the same experiment with one change: after the identical injected error, the perturbed run is no longer fixed playback. A trained diffusion policy picks a fresh action from its own camera observations at every step. We trained and verified these policies first (lift and can at 1.0 success, square and tool_hang at 0.9). The policies enter the labeling in exactly two places: their validation action error sets the size of the injected noise for both channels, and the closed-loop channel puts them in the loop.
+Each stamp looks $K$ steps ahead while the stamps themselves are two steps apart, so neighboring windows overlap almost entirely and a window near a regime boundary spans both a contracting stretch and a diverging one. That blend is the honest answer to the question the label asks: committing a chunk just before contact really is risky, because the contact falls inside the commitment window. A window that mixes the two regimes evenly produces a small slope, which lands in the deadband rather than forcing a confident call in the wrong direction. Segment edges therefore arrive slightly early going into an unstable stretch and roughly on time coming out, which is the direction of bias a safety label should have.
 
-Three details keep the measurement honest. The perturbation is applied to an action, never to the state, so errors enter the way real errors do. The noise magnitude equals the error a deployed policy actually makes, not an arbitrary constant. And a slope within the probe's own measured noise floor is labeled **deadband**, meaning no confident call either way; deadband stamps inherit the label of their confident neighbors instead of being forced into a wrong verdict.
+The one place a trained policy enters is $\sigma_u$ and the closed-loop channel. We trained and verified diffusion policies first (lift and can at 1.0 success, square and tool_hang at 0.9); their validation action RMSE sets $\sigma_u$, so the probe injects exactly the size of error a deployed policy actually makes rather than an arbitrary constant, and the closed-loop channel puts them in the loop. Ordinary policy rollouts play no part in labeling at all.
 
-The raw measurement on the square task looks like this. Thin gray lines are the 8 noise samples, blue is their mean, dashed orange is the fitted exponential whose slope is the label:
+The raw measurement on the square task looks like this. Thin gray lines are the $N = 8$ perturbed branches, blue is their average, and the dashed orange line is the least-squares fit whose slope is $\lambda(t_0)$; the dotted horizontal line marks the injected magnitude $\sigma_u$. The vertical axis is logarithmic, so exponential growth appears straight:
 
 | Stable moment | Unstable moment |
 | :---: | :---: |
