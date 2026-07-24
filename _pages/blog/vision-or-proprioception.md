@@ -25,13 +25,13 @@ The model is a small attention head on frozen features. Nothing is fine-tuned. T
 | DINOv2, 1 frame, plus proprioception | 4M params | 0.863 |
 | DINOv2, 1 frame, vision only | 4M params | 0.844 |
 
-Nine numbers of joint state beat a 300M-parameter video transformer. Every addition of visual information made it slightly worse.
+Nine numbers, the gripper's position, orientation and finger width, beat a 300M-parameter video transformer. Every addition of visual information made it slightly worse.
 
 For scale, re-running one condition at a different seed moves the score by about 0.007, so the exact ordering sits near the edge of what a single seed resolves. The claim that survives that is not "proprioception wins." It is that vision adds nothing.
 
 ## Why
 
-Whether a small error grows depends on the contact configuration you are in right now: what is gripped, how tightly, how close the part is to the constraint that will jam it. Joint angles and gripper width already encode most of that. The camera is looking at a scene whose stability-relevant content is largely already present in the arm's own state.
+Whether a small error grows depends on the contact configuration you are in right now: what is gripped, how tightly, how close the part is to the constraint that will jam it. Where the gripper is, how it is oriented, and how far its fingers have closed already encode most of that. The camera is looking at a scene whose stability-relevant content is largely already present in the arm's own state.
 
 The same result says the 16-frame clip is not buying motion either. A single DINOv2 frame ties the video model to within noise. The quantity being predicted is a static property of the current configuration, not a property of the trajectory.
 
