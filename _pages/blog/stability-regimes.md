@@ -7,17 +7,17 @@ author_profile: true
 
 ## The curse of horizon
 
-A policy trained by imitation makes a small error at every step, and the errors do not cancel out. Each one pushes the robot slightly away from the situations the demonstrations covered, where the policy is less sure of itself, so the next error is bigger. Over a long task this compounding, not any single mistake, is what fails. The classical result says the total cost grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)), and newer theory shows that in continuous control it can even grow *exponentially* with it ([Simchowitz et al., 2025](https://arxiv.org/abs/2503.09722)).
+Unlike the symbolic world, where, on prediction of the next strong token, the agent is still in the distribution, a robot in robotic control: an agent could move away from his distribution as its error compounds along the horizon. The classical result says the total cost grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)), and newer theory shows that in continuous control it can even grow *exponentially* with it ([Simchowitz et al., 2025](https://arxiv.org/abs/2503.09722)).
 
-But whether an error compounds is not decided by the policy alone. It is decided by what the world and the controller do with the error next. That is what stability means here, and it comes in two versions.
+This error compounding is not only a function of policy, the trained policy of the agent, but also the dynamics of the world, which comprise the environment around it and the robotic controller. Either the error at the starting point could die down as it moves along the horizon, or it could compound with the horizon.
 
 ## Open-loop and closed-loop stability
 
 Suppose the robot's hand is nudged a few millimeters off course at one instant of a demonstration.
 
-**Open-loop stability** is the nobody-reacts version of what happens next. The recorded commands keep playing unchanged, and physics alone decides what the nudge becomes. Sometimes the scene corrects it for free: a peg sliding into a chamfered hole is guided back on course. Sometimes the scene amplifies it: a gripper closing on the thin edge of a part turns the same nudge into a slip. Open-loop stable means physics absorbs the error. Open-loop unstable means physics grows it.
+**Open-loop stability** this is a situation where once we observe an error, the error somehow funnels out with the horizon, and it is absorbed due to the dynamics. This is an ideal scenario where, without any policy property, the error is being eliminated. 
 
-**Closed-loop stability** asks the same question when the trained policy is allowed to look and correct at every step, so it measures the robot and its feedback together. Correcting sounds like it should always help, but each correction is computed from a slightly wrong observation, so it is itself slightly wrong. Closed-loop stable means the corrections genuinely pull the error down. Closed-loop unstable means they add more error than they remove.
+**Closed-loop stability** refers to a situation where, once the agent is off track, it makes an error. You need feedback from the policy to nudge it in the correct direction such that it goes back to its original track, or the error dies out via feedback from the policy.
 
 The link back to compounding is direct: an error only compounds if nothing absorbs it, and at any moment there are exactly two candidate absorbers, the physics and the policy's feedback. The two labels tell you which of them, if either, is working right now.
 
