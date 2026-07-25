@@ -47,6 +47,18 @@ The prescribed escape is action chunking. Rather than predicting one action and 
 
 So the choice is between long chunks and short chunks, and it is normally made once per task and then held fixed. Long chunks suppress compounding but ride out any disturbance blindly; short chunks stay responsive but re-inject policy noise at every step. Which one is right depends on whether the physics at the current moment forgives a mistake or punishes it, and that is not constant along a demonstration. A demonstration that carries an object across free space and then seats it into a tight fixture wants opposite settings for the two, and they are a second apart in the same episode.
 
+## Two ways out of the curse
+
+This is why the two stability labels are worth having: each one names a funnel that removes the horizon from the error bound, and they call for opposite chunk lengths. Call the size of a single policy mistake $\varepsilon$; it is the $\sigma_u$ measured below. The curse of horizon is the statement that deviation accumulated over $T$ steps grows with $T$. Whether it actually does depends on the regime.
+
+If a stretch is **open-loop stable**, the plant itself is the funnel. Commit a long chunk and do not react: the error injected at a replan has decayed by a factor $e^{-\lvert\lambda\rvert k}$ by the time the next replan arrives, so each new mistake lands on the shrunken remains of the last one and the total deviation stays near $\varepsilon$ however long the stretch runs. The horizon has dropped out of the bound. Reacting here is worse than unnecessary: it injects a fresh $\varepsilon$ into states that physics was already cleaning up.
+
+If a stretch is **open-loop unstable but closed-loop stable**, the funnel is made of corrections instead of physics. Committing is what fails, because $k$ blind steps let the error grow to $\varepsilon\, e^{\lambda k}$, exponential in the chunk length. Replan every step instead: if each correction removes a fixed fraction of the error, leaving $\rho < 1$ of it, the deviation settles near $\varepsilon / (1 - \rho)$. The horizon has dropped out again, through the other channel.
+
+![The two funnels: plant contraction under commitment, feedback contraction under replanning](/images/blog/stability/fig_funnel.png)
+
+With neither funnel available nothing contracts, mistakes pile up, and the worst case is the quadratic bound of [Ross et al., 2011](https://arxiv.org/abs/1011.0686): cost growing like $\varepsilon T^2$. Read this way, the curse is not a law of imitation learning. It is what happens when the execution mode ignores the regime. Each moment of a demonstration offers at most one funnel, and the chunk length is the dial that selects it: long $k$ harvests the plant's funnel, $k = 1$ harvests the feedback funnel. The labels say which funnel exists at each timestep.
+
 That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
 
 ## The possible combinations
