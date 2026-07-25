@@ -21,7 +21,7 @@ Suppose the robot's hand is nudged a few millimeters off course at one instant o
 
 The link back to compounding is direct: an error only compounds if nothing absorbs it, and at any moment there are exactly two candidate absorbers, the physics and the policy's feedback. The two labels tell you which of them, if either, is working right now.
 
-They also tell you how to act, through one specific knob. Modern imitation policies like [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) predict a chunk of $k$ actions and execute the whole chunk blindly before observing again. Small $k$ means react often; large $k$ means commit. And one $k$ per task cannot be right, because a demonstration that carries an object through free space and then seats it into a tight fixture wants opposite settings, seconds apart.
+ Modern imitation policies like [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) have the option of either predicting k action chunks and executing them at once, or they could take one action and then ask the policy to compute again and predict the next action. This, however, should be dependent upon the stability regime
 
 ## The combinations, and what to do in each
 
