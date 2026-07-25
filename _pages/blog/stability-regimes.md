@@ -47,9 +47,9 @@ That is what sent us to the data. We labeled sixteen open-source datasets stamp 
 
 One measurement answers one question: if an error of realistic size were injected at time $t_0$ of this demonstration, would it grow or shrink over the next 1.2 seconds? Four steps.
 
-**Step 1. Rewind.** Reset the simulator to the exact recorded state at $t_0$. This is the step that needs a simulator; there is no rewind button on the real world.
+First, reset the simulator to the exact recorded state at $t_0$. This is the step that needs a simulator; there is no rewind button on the real world.
 
-**Step 2. Nudge once, then replay.** Run the next $K = 24$ steps (1.2 seconds at 20 Hz) two ways. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. The perturbed branch adds Gaussian noise to the position components of the *first* action only, never rotation and never the gripper, then replays the rest exactly as recorded:
+Second, run the next $K = 24$ steps (1.2 seconds at 20 Hz) two ways. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. The perturbed branch adds Gaussian noise to the position components of the *first* action only, never rotation and never the gripper, then replays the rest exactly as recorded:
 
 $$
 \tilde{a}_{t_0} = a_{t_0} + \varepsilon, \qquad \varepsilon \sim \mathcal{N}\left(0, \sigma_u^2 I_3\right)
@@ -57,7 +57,7 @@ $$
 
 The noise scale $\sigma_u$ is the measured action error of a trained policy (details below), so the injected mistake is the size a deployed policy actually makes. Because it enters through the action, it reaches the state the way a real policy error does: by passing through the plant.
 
-**Step 3. Watch the gap.** At every step $\tau$ after the nudge, record the distance between the two branches in task space:
+Third, at every step $\tau$ after the nudge, record the distance between the two branches in task space:
 
 $$
 d_n(\tau) = \left\lVert x^{\mathrm{pert}}_n(\tau) - x^{\mathrm{nom}}(\tau) \right\rVert_2
@@ -65,7 +65,7 @@ $$
 
 One nudge could be lucky, so repeat with $N = 8$ independent nudges and average the log of the gap: $\ell(\tau) = \frac{1}{N} \sum_{n} \log d_n(\tau)$.
 
-**Step 4. Fit a slope.** If the moment amplifies errors the gap grows exponentially, which makes $\ell(\tau)$ a straight rising line; if it absorbs them, a falling one. So the answer is the least-squares slope of $\ell(\tau)$ against time:
+Fourth, fit a slope. If the moment amplifies errors the gap grows exponentially, which makes $\ell(\tau)$ a straight rising line; if it absorbs them, a falling one. So the answer is the least-squares slope of $\ell(\tau)$ against time:
 
 $$
 \lambda(t_0) = \frac{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)\left(\ell(\tau) - \bar{\ell}\right)}{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)^2}
@@ -85,17 +85,15 @@ and everything else, the injection, the window, the slope, the threshold, is hel
 
 ## The datasets
 
-We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), two MimicGen datasets (stack and square variants), and all ten LIBERO-Long files. They cover the difficulty range of benchmark manipulation, from lift, where a cube is picked off an open table, to tool_hang, where a frame is threaded onto a thin stand at millimeter tolerance.
-
-The reason to label them: a stability map shows what kind of data a dataset contains, how much is transport where any policy coasts, how much is contact where errors compound and failures concentrate, and at exactly which timesteps demonstrations are fragile. All of this is available before any policy is evaluated on the data.
+We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), two MimicGen datasets (stack and square variants), and all ten LIBERO-Long files. They cover the difficulty range of benchmark manipulation, from lift, where a cube is picked off an open table, to tool_hang, where a frame is threaded onto a thin stand at millimeter tolerance. The result is a map, available before any policy is evaluated, of how much of each dataset is free transport and exactly where its demonstrations are fragile.
 
 ## Running the probe
 
-Stamps sit on a stride-2 grid, so $\lambda$ is measured every second timestep of every demonstration, across hundreds of demonstrations per dataset. Deadband stamps then inherit the label of their confident neighbors, and a median filter over roughly three consecutive stamps smooths the sequence; contiguous runs of one label are the segments. Nothing is segmented by hand.
+$\lambda$ is measured every second timestep of every demonstration, across hundreds of demonstrations per dataset. Deadband stamps inherit the label of their confident neighbors, a median filter over about three stamps smooths the sequence, and contiguous runs of one label are the segments. Nothing is segmented by hand.
 
-Each stamp looks $K$ steps ahead while the stamps themselves are two steps apart, so neighboring windows overlap almost entirely and a window near a regime boundary spans both a contracting stretch and a diverging one. That blend is the honest answer to the question the label asks: committing a chunk just before contact really is risky, because the contact falls inside the commitment window. A window that mixes the two regimes evenly produces a small slope, which lands in the deadband rather than forcing a confident call in the wrong direction. Segment edges therefore arrive slightly early going into an unstable stretch and roughly on time coming out, which is the direction of bias a safety label should have.
+Each stamp looks $K$ steps ahead, so a window that straddles a regime boundary blends both regimes, produces a small slope, and lands in the deadband to be resolved by its neighbors. The practical effect is that segment edges arrive slightly early on the way into an unstable stretch, which is the right direction for a safety label to err: committing a chunk just before contact really is risky, because the contact falls inside the commitment window.
 
-The one place a trained policy enters is $\sigma_u$ and the closed-loop channel. We trained and verified diffusion policies first (lift and can at 1.0 success, square and tool_hang at 0.9); their validation action RMSE sets $\sigma_u$, so the probe injects exactly the size of error a deployed policy actually makes rather than an arbitrary constant, and the closed-loop channel puts them in the loop. Ordinary policy rollouts play no part in labeling at all.
+A trained policy enters in exactly two places. Its validation action error sets $\sigma_u$, so the probe injects the size of mistake a deployed policy actually makes (we trained diffusion policies to 0.9 to 1.0 success first), and the closed-loop channel puts it in the loop. Policy rollouts play no part in labeling.
 
 The raw measurement on the square task looks like this. Thin gray lines are the $N = 8$ perturbed branches, blue is their average, and the dashed orange line is the least-squares fit whose slope is $\lambda(t_0)$; the dotted horizontal line marks the injected magnitude $\sigma_u$. The vertical axis is logarithmic, so exponential growth appears straight:
 
@@ -146,24 +144,24 @@ A handful of demonstrations is not a statistic, and the proportions below come f
 
 ## Results
 
-**Most timesteps are neutral; unstable ones are a minority and they cluster.** Across every suite, a quarter to a third of timesteps are confidently unstable and the rest are deadband. Confidently stable stamps are almost nonexistent: 0 to 4 percent per dataset, essentially only where a mechanism guides the motion, as in the LIBERO stove task above. The can task, chosen as a mostly-transport control, has the smallest unstable share:
+**Most timesteps are neutral, and the unstable ones cluster.** In every suite a quarter to a third of timesteps are confidently unstable and almost all the rest are deadband. Confidently stable stamps are 0 to 4 percent, found essentially only where a mechanism guides the motion, as in the LIBERO stove task above. Can, the mostly-transport control, has the smallest unstable share:
 
 ![Regime proportions per dataset](/images/blog/stability/fig_regimes.png)
 
-**The distribution of slopes is one-sided.** Every dataset shows a median near zero, a short left tail, and a long right tail of strong expansion. Moments are either roughly neutral or strongly divergent, with little in between:
+**The slopes are one-sided.** Every dataset has a median near zero, a short left tail, and a long right tail: moments are either roughly neutral or strongly divergent, rarely in between:
 
 ![Lambda distribution per dataset](/images/blog/stability/fig_lambda_dist.png)
 
-**Labels form long contiguous bands, not scattered noise.** 82 to 94 percent of open-loop stamp mass sits in runs of three stamps or more, six or more consecutive timesteps carrying the same label. The bands align with grasps, insertions, and handoffs, and the alignment holds across demonstrations of the same task. On tool_hang, the hardest task, 40 percent of stamps are unstable and the bands sit exactly on the threading phases:
+**Labels form long bands, not scattered noise.** 82 to 94 percent of stamp mass sits in runs of six or more consecutive timesteps, and the bands sit on grasps, insertions, and handoffs, consistently across demonstrations of the same task. On tool_hang, the hardest task, 40 percent of stamps are unstable, aligned with the threading phases:
 
 ![Label timeline for tool_hang](/images/blog/stability/timeline_tool_hang.png)
 
-**Reacting usually makes divergence worse.** On the same states where fixed playback absorbs the injected error, letting the trained policy react at every step makes the divergence positive at 90 to 99 percent of timesteps: 99.3 percent on lift, 90.4 on can, 93.0 on square, 97.6 on tool_hang. Both histograms below measure the same lift states with the same injected error; open loop (blue) sits at zero, closed loop (magenta) shifts positive almost everywhere:
+**Reacting usually makes divergence worse.** On the same states where fixed playback absorbs the injected error, letting the trained policy react at every step makes the divergence positive at 90 to 99 percent of timesteps (99.3 on lift, 90.4 on can, 93.0 on square, 97.6 on tool_hang). Open loop (blue) sits at zero; closed loop (magenta) shifts positive almost everywhere:
 
 ![Open-loop versus closed-loop divergence on lift](/images/blog/stability/fig_ol_vs_cl_lift.png)
 
-These policies are at 0.9 to 1.0 success, so the explanation is not policy quality. In regions where physics absorbs errors, the plant contributes no error of its own; the only error source present is the policy, and each reaction injects one more sample of it. Mapped onto the table above, the rescue cell (open-loop unstable, closed-loop stable) is rare in our measurements, while the cell where physics absorbs the error and reacting harms (open-loop stable, closed-loop unstable) is the most common state in these datasets. The whole closed-loop-stable column is thin for the same reason.
+These policies are at 0.9 to 1.0 success, so this is not policy quality. Where physics absorbs errors the policy is the only error source present, and every reaction injects one more sample of it. In the table's terms: the rescue cell (open-loop unstable, closed-loop stable) is rare, and the cell where physics absorbs the error while reacting harms is the most common state in these datasets.
 
-**Summary.** The stability regime is not a property of a task; it changes within a demonstration, several times, in long bands tied to contact events. Instability concentrates in those few bands, which the probe finds automatically. Outside them, the robot's own corrections are the dominant noise source. The map is cheap to compute and its primary channel needs no trained policy.
+**Summary.** The stability regime is not a property of a task; it changes within a demonstration, several times, in long bands tied to contact events. Instability concentrates in those bands, which the probe finds automatically. Outside them, the robot's own corrections are the dominant noise source. The map is cheap to compute and its primary channel needs no trained policy.
 
 *The probe constants, per-suite determinism checks, and full per-dataset statistics are in the project's technical report; this post kept only what is needed to read the figures.*
