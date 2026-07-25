@@ -7,11 +7,41 @@ author_profile: true
 
 ## Open-loop and closed-loop stability
 
-One question, asked once per timestep: an error occurs at this instant. Do the dynamics absorb it or amplify it? Open-loop and closed-loop stability are the control-theoretic names for two versions of that question, and everything below turns on the difference.
+Watch a robot replay a recorded demonstration, and suppose its hand is nudged a few millimeters off course at one instant. Two futures are possible: the error fades as the motion continues, or it grows until the task fails. Which one happens is a property of that moment, and there are two versions of the question depending on who is allowed to respond.
 
-**Open-loop stability** is a property of the plant alone: the commands are held to what the demonstration recorded, nothing reacts, and what is left is physics and contact geometry. **Closed-loop stability** asks the same question with the controller back in the loop, so what is measured is the plant and the feedback law together. Correcting is supposed to shrink the error. Whether it does is an empirical property of that policy at that state, and it can go either way, because a correction computed from a slightly-off observation is itself slightly off.
+**Open-loop stability** is the nobody-reacts version. The recorded commands keep playing unchanged, and physics alone decides. A peg entering a chamfered hole gets guided back on course; a gripper closing on the thin edge of a part turns the same nudge into a slip. **Closed-loop stability** is the same question with the trained policy allowed to look and correct at every step, so it measures the robot and its feedback law together. Correcting sounds like it should always help, but a correction computed from a slightly-off observation is itself slightly off, so reacting can shrink the error or feed it. Which way it goes is an empirical property of that policy at that state.
 
-**Making that precise.** Reset the simulator to the exact recorded state at time $t_0$ and run the next $K = 24$ steps (1.2 seconds at 20 Hz) twice. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. Each perturbed branch adds Gaussian noise to the position components of the first action only, never rotation and never the gripper, then replays the remaining $K-1$ actions exactly as recorded:
+The reason to care is a design choice inside modern imitation policies. [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) do not decide one action at a time; they predict a chunk of $k$ actions and execute the whole block blindly before observing again. Small $k$ means reacting often, large $k$ means committing. The right setting at any moment depends exactly on the two stabilities above, and it is not constant: a demonstration that carries an object across free space and then seats it into a tight fixture wants opposite settings, seconds apart, in the same episode.
+
+## The possible combinations
+
+At each moment, each channel is stable or unstable, and our measurement (defined below) also reports a *deadband* when it cannot certify either direction. Three classes on two channels gives nine combinations, and two rules fix every cell: the open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
+
+|                 | CL stable         | CL deadband       | CL unstable        |
+|-----------------|-------------------|-------------------|--------------------|
+| **OL stable**   | commit long $k$ | commit long $k$ | commit long $k$  |
+| **OL deadband** | commit long $k$ | commit long $k$ | commit long $k$  |
+| **OL unstable** | replan every step | short $k$       | intermediate $k$ |
+
+The interesting variation is confined to the open-loop-unstable row. Everywhere else committing wins: when physics absorbs errors, or contributes none of its own, the policy is the only error source present, and every extra replan is one extra mistake injected into a plant that was doing fine. In the bottom row physics amplifies errors, so replanning at every step is right where feedback genuinely rescues (bottom left), and when both channels expand (bottom right) the best available compromise is an intermediate $k$ that keeps some reaction while injecting less policy noise.
+
+## Two ways out of the curse
+
+The stakes are set by the curse of horizon. An imitation policy errs a little at every decision, each error drifts the robot toward states the demonstrations cover less well, and the worst-case cost of this compounding grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)). Manipulation demonstrations are long; the tool_hang demonstrations used here run past six hundred steps. The two labels matter because each names a funnel that removes the horizon from that bound, and they call for opposite chunk lengths.
+
+Call the size of a single policy mistake $\varepsilon$; it is the $\sigma_u$ measured below. If a stretch is **open-loop stable**, the plant itself is the funnel. Commit a long chunk and do not react: the error injected at a replan has decayed by a factor $e^{-\lvert\lambda\rvert k}$ by the time the next replan arrives, so each new mistake lands on the shrunken remains of the last one and the total deviation stays near $\varepsilon$ however long the stretch runs. The horizon has dropped out of the bound. Reacting here is worse than unnecessary: it injects a fresh $\varepsilon$ into states that physics was already cleaning up.
+
+If a stretch is **open-loop unstable but closed-loop stable**, the funnel is made of corrections instead of physics. Committing is what fails, because $k$ blind steps let the error grow to $\varepsilon\, e^{\lambda k}$, exponential in the chunk length. Replan every step instead: if each correction removes a fixed fraction of the error, leaving $\rho < 1$ of it, the deviation settles near $\varepsilon / (1 - \rho)$. The horizon has dropped out again, through the other channel.
+
+![The two funnels: plant contraction under commitment, feedback contraction under replanning](/images/blog/stability/fig_funnel.png)
+
+With neither funnel available nothing contracts, mistakes pile up, and the quadratic worst case is what remains. Read this way, the curse is not a law of imitation learning. It is what happens when the execution mode ignores the regime. Each moment of a demonstration offers at most one funnel, and the chunk length is the dial that selects it: long $k$ harvests the plant's funnel, $k = 1$ harvests the feedback funnel. The labels say which funnel exists at each timestep.
+
+That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
+
+## Measuring it
+
+**The probe.** Reset the simulator to the exact recorded state at time $t_0$ and run the next $K = 24$ steps (1.2 seconds at 20 Hz) twice. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. Each perturbed branch adds Gaussian noise to the position components of the first action only, never rotation and never the gripper, then replays the remaining $K-1$ actions exactly as recorded:
 
 $$
 \tilde{a}_{t_0} = a_{t_0} + \varepsilon, \qquad \varepsilon \sim \mathcal{N}\left(0, \sigma_u^2 I_3\right)
@@ -38,44 +68,6 @@ $$
 $$
 
 and $\lambda$ is computed from the resulting divergence exactly as above. Everything else, the injection, the window, the readout, the threshold, is held identical, so the two channels differ only in what happens after the error is introduced.
-
-## Why this is worth measuring
-
-A policy trained by imitation makes a small error at every step, and those errors do not stay small. Each one nudges the robot toward states that appear less often in the demonstrations, where the policy is less reliable and errs by more, which nudges it further still. The consequence is that the cost of behavior cloning grows with the *square* of the task horizon rather than linearly with it ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)). Manipulation tasks are long. The tool_hang demonstrations used here run past six hundred steps, so this compounding, not per-step accuracy, is the dominant failure mode.
-
-The prescribed escape is action chunking. Rather than predicting one action and re-deciding at every timestep, the policy predicts a block of $k$ actions and executes the whole block open-loop before observing again; [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) both work this way. The horizon does not get any shorter, but the number of decision points along it falls from $T$ to $T/k$, and so does the number of chances to inject a fresh error. What is given up is reactivity: for the length of a chunk the robot is committed, and nothing that happens in the world can change what it does.
-
-So the choice is between long chunks and short chunks, and it is normally made once per task and then held fixed. Long chunks suppress compounding but ride out any disturbance blindly; short chunks stay responsive but re-inject policy noise at every step. Which one is right depends on whether the physics at the current moment forgives a mistake or punishes it, and that is not constant along a demonstration. A demonstration that carries an object across free space and then seats it into a tight fixture wants opposite settings for the two, and they are a second apart in the same episode.
-
-## Two ways out of the curse
-
-This is why the two stability labels are worth having: each one names a funnel that removes the horizon from the error bound, and they call for opposite chunk lengths. Call the size of a single policy mistake $\varepsilon$; it is the $\sigma_u$ measured below. The curse of horizon is the statement that deviation accumulated over $T$ steps grows with $T$. Whether it actually does depends on the regime.
-
-If a stretch is **open-loop stable**, the plant itself is the funnel. Commit a long chunk and do not react: the error injected at a replan has decayed by a factor $e^{-\lvert\lambda\rvert k}$ by the time the next replan arrives, so each new mistake lands on the shrunken remains of the last one and the total deviation stays near $\varepsilon$ however long the stretch runs. The horizon has dropped out of the bound. Reacting here is worse than unnecessary: it injects a fresh $\varepsilon$ into states that physics was already cleaning up.
-
-If a stretch is **open-loop unstable but closed-loop stable**, the funnel is made of corrections instead of physics. Committing is what fails, because $k$ blind steps let the error grow to $\varepsilon\, e^{\lambda k}$, exponential in the chunk length. Replan every step instead: if each correction removes a fixed fraction of the error, leaving $\rho < 1$ of it, the deviation settles near $\varepsilon / (1 - \rho)$. The horizon has dropped out again, through the other channel.
-
-![The two funnels: plant contraction under commitment, feedback contraction under replanning](/images/blog/stability/fig_funnel.png)
-
-With neither funnel available nothing contracts, mistakes pile up, and the worst case is the quadratic bound of [Ross et al., 2011](https://arxiv.org/abs/1011.0686): cost growing like $\varepsilon T^2$. Read this way, the curse is not a law of imitation learning. It is what happens when the execution mode ignores the regime. Each moment of a demonstration offers at most one funnel, and the chunk length is the dial that selects it: long $k$ harvests the plant's funnel, $k = 1$ harvests the feedback funnel. The labels say which funnel exists at each timestep.
-
-That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
-
-## The possible combinations
-
-Each channel reports one of the three classes above, stable, unstable, or deadband, so three classes on two channels gives nine combinations.
-
-What hangs on them is the chunk length $k$: $k = 1$ is replanning at every step, and large $k$ means committing to a long stretch of actions. Two rules then fix every cell. The open-loop class decides whether committing is safe, and the closed-loop class decides whether reacting helps or hurts.
-
-|                 | CL stable         | CL deadband       | CL unstable        |
-|-----------------|-------------------|-------------------|--------------------|
-| **OL stable**   | commit long $k$ | commit long $k$ | commit long $k$  |
-| **OL deadband** | commit long $k$ | commit long $k$ | commit long $k$  |
-| **OL unstable** | replan every step | short $k$       | intermediate $k$ |
-
-The interesting variation is confined to the open-loop-unstable row; everywhere else commitment wins. Taking the cells in turn: when physics absorbs the error but the policy's corrections add new error (top right), reacting is the harmful choice, so committing is not merely cheaper but safer. A deadband row behaves the same way and for a sharper reason. The plant contributes no error of its own there, so the policy is the only error source present, and each replan injects one fresh mistake that nothing absorbs; committing chunks of $k$ accumulates $T/k$ such mistakes over a $T$-step segment instead of $T$. In the bottom row, physics amplifies the error, and replanning at every step is right only where feedback genuinely rescues (bottom left). When both channels expand (bottom right), neither mode contains the error, success depends on the task geometry guiding the state back the way a hole guides a peg, and the best available compromise is an intermediate $k$ that keeps some reaction while injecting less policy noise.
-
-The results below show which of these actually occur in the data, and in what proportion.
 
 ## The datasets
 
