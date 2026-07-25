@@ -43,35 +43,45 @@ With neither funnel available nothing contracts, mistakes pile up, and the quadr
 
 That is what sent us to the data. We labeled sixteen open-source datasets stamp by stamp, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks, to find out how often a demonstration switches regime and where the mass of these datasets actually sits.
 
-## Measuring it
+## The algorithm
 
-**The probe.** Reset the simulator to the exact recorded state at time $t_0$ and run the next $K = 24$ steps (1.2 seconds at 20 Hz) twice. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. Each perturbed branch adds Gaussian noise to the position components of the first action only, never rotation and never the gripper, then replays the remaining $K-1$ actions exactly as recorded:
+One measurement answers one question: if an error of realistic size were injected at time $t_0$ of this demonstration, would it grow or shrink over the next 1.2 seconds? Four steps.
+
+**Step 1. Rewind.** Reset the simulator to the exact recorded state at $t_0$. This is the step that needs a simulator; there is no rewind button on the real world.
+
+**Step 2. Nudge once, then replay.** Run the next $K = 24$ steps (1.2 seconds at 20 Hz) two ways. The nominal branch replays the recorded actions $a_{t_0}, \ldots, a_{t_0 + K - 1}$ unchanged. The perturbed branch adds Gaussian noise to the position components of the *first* action only, never rotation and never the gripper, then replays the rest exactly as recorded:
 
 $$
 \tilde{a}_{t_0} = a_{t_0} + \varepsilon, \qquad \varepsilon \sim \mathcal{N}\left(0, \sigma_u^2 I_3\right)
 $$
 
-The error therefore enters through the actuation channel, the way a real policy error enters, and reaches the state only by passing through the plant. Writing $x^{\mathrm{nom}}$ for the task-space vector of the nominal branch and $x^{\mathrm{pert}}$ for that of the $n$-th perturbed branch, both at step $\tau$ after $t_0$, the divergence between them is
+The noise scale $\sigma_u$ is the measured action error of a trained policy (details below), so the injected mistake is the size a deployed policy actually makes. Because it enters through the action, it reaches the state the way a real policy error does: by passing through the plant.
+
+**Step 3. Watch the gap.** At every step $\tau$ after the nudge, record the distance between the two branches in task space:
 
 $$
 d_n(\tau) = \left\lVert x^{\mathrm{pert}}_n(\tau) - x^{\mathrm{nom}}(\tau) \right\rVert_2
 $$
 
-If the moment amplifies errors this distance grows exponentially in $\tau$; if it absorbs them it decays. The rate is a finite-time Lyapunov exponent. Finite-time because a manipulation episode is a sequence of short phases with no steady state to settle into, and it is estimated the textbook way (Benettin et al., 1980), as the least-squares slope of the branch-averaged log divergence $\ell(\tau) = \frac{1}{N} \sum_{n=1}^{N} \log d_n(\tau)$ against time, over $N = 8$ independent perturbations:
+One nudge could be lucky, so repeat with $N = 8$ independent nudges and average the log of the gap: $\ell(\tau) = \frac{1}{N} \sum_{n} \log d_n(\tau)$.
+
+**Step 4. Fit a slope.** If the moment amplifies errors the gap grows exponentially, which makes $\ell(\tau)$ a straight rising line; if it absorbs them, a falling one. So the answer is the least-squares slope of $\ell(\tau)$ against time:
 
 $$
 \lambda(t_0) = \frac{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)\left(\ell(\tau) - \bar{\ell}\right)}{\sum_{\tau=1}^{K} \left(\tau - \bar{\tau}\right)^2}
 $$
 
-So $\lambda(t_0) > 0$ means an error introduced at $t_0$ is amplified, and $\lambda(t_0) < 0$ means it is absorbed. We call one measured timestep of one demonstration a *stamp*, and the label of a stamp is the sign of $\lambda$ read against a threshold $\delta$: **unstable** above $+\delta$, **stable** below $-\delta$, and **deadband** in between, meaning the slope falls inside the probe's own noise floor and the stamp is unproven either way. Crucially $\delta$ is not a tuned constant. It is the 95th percentile of $\lvert \lambda \rvert$ over free-space stamps of the same dataset, which is the measured noise floor of the probe itself, computed separately for every dataset.
+This slope is a finite-time Lyapunov exponent, estimated the textbook way (Benettin et al., 1980). Finite-time because a manipulation episode is a sequence of short phases with no steady state to settle into.
 
-The closed-loop channel is the same probe with one substitution. After the identical injection, the perturbed branch is no longer replay: the trained policy $\pi$ picks a fresh action from its own camera observations at every step,
+**Reading the answer.** $\lambda > 0$ means the error was amplified, $\lambda < 0$ means it was absorbed. We call one measured timestep of one demonstration a *stamp*, and label it against a threshold $\delta$: **unstable** above $+\delta$, **stable** below $-\delta$, **deadband** in between, meaning the slope sits inside the probe's own noise and the stamp is unproven either way. $\delta$ is not a tuned constant. It is the 95th percentile of $\lvert \lambda \rvert$ over free-space stamps of the same dataset, the measured noise floor of the probe itself, computed separately for every dataset.
+
+**The closed-loop version.** Same four steps, one substitution in step 2: after the identical nudge, the perturbed branch is no longer replay. The trained policy $\pi$ picks a fresh action from its own camera observations at every step,
 
 $$
 \tilde{a}_{t_0 + \tau} = \pi\left(o_{t_0 + \tau}\right), \qquad \tau = 1, \ldots, K-1
 $$
 
-and $\lambda$ is computed from the resulting divergence exactly as above. Everything else, the injection, the window, the readout, the threshold, is held identical, so the two channels differ only in what happens after the error is introduced.
+and everything else, the injection, the window, the slope, the threshold, is held identical. The two channels therefore differ only in what happens after the error is introduced, which is exactly the difference the two labels are supposed to capture.
 
 ## The datasets
 
