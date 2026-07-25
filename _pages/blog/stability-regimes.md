@@ -5,11 +5,15 @@ permalink: /blog/stability-regimes/
 author_profile: true
 ---
 
+## The curse of horizon
+
+A policy trained by imitation makes a small error at every step, and the errors do not average out: each one drifts the robot toward states the demonstrations cover less well, where the next error is larger. The classical bound says the total cost of this compounding grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)), and in continuous control it is worse: even under exponentially stable dynamics, a smooth imitator's execution error can grow *exponentially* with the horizon ([Simchowitz et al., 2025](https://arxiv.org/abs/2503.09722)). Manipulation demonstrations run hundreds of steps, so compounding, not per-step accuracy, is the failure mode that matters.
+
+Whether an error compounds, though, is not decided by the policy alone. It is decided by the dynamics the error passes through, and those dynamics come in two versions depending on who is allowed to respond.
+
 ## Open-loop and closed-loop stability
 
-Watch a robot replay a recorded demonstration, and suppose its hand is nudged a few millimeters off course at one instant. Two futures are possible: the error fades as the motion continues, or it grows until the task fails. Which one happens is a property of that moment, and there are two versions of the question depending on who is allowed to respond.
-
-**Open-loop stability** is the nobody-reacts version. The recorded commands keep playing unchanged, and physics alone decides. A peg entering a chamfered hole gets guided back on course; a gripper closing on the thin edge of a part turns the same nudge into a slip. **Closed-loop stability** is the same question with the trained policy allowed to look and correct at every step, so it measures the robot and its feedback law together. Correcting sounds like it should always help, but a correction computed from a slightly-off observation is itself slightly off, so reacting can shrink the error or feed it. Which way it goes is an empirical property of that policy at that state.
+Suppose the robot's hand is nudged a few millimeters off course at one instant of a demonstration. **Open-loop stability** is the nobody-reacts version of what happens next: the recorded commands keep playing unchanged, and physics alone decides whether the error fades or grows. A peg entering a chamfered hole gets guided back on course; a gripper closing on the thin edge of a part turns the same nudge into a slip. **Closed-loop stability** is the same question with the trained policy allowed to look and correct at every step, so it measures the robot and its feedback law together. Correcting sounds like it should always help, but a correction computed from a slightly-off observation is itself slightly off, so reacting can shrink the error or feed it. Which way it goes is an empirical property of that policy at that state.
 
 The reason to care is a design choice inside modern imitation policies. [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) do not decide one action at a time; they predict a chunk of $k$ actions and execute the whole block blindly before observing again. Small $k$ means reacting often, large $k$ means committing. The right setting at any moment depends exactly on the two stabilities above, and it is not constant: a demonstration that carries an object across free space and then seats it into a tight fixture wants opposite settings, seconds apart, in the same episode.
 
@@ -27,9 +31,9 @@ The interesting variation is confined to the open-loop-unstable row. Everywhere 
 
 ## Two ways out of the curse
 
-The stakes are set by the curse of horizon. An imitation policy errs a little at every decision, each error drifts the robot toward states the demonstrations cover less well, and the worst-case cost of this compounding grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)). Manipulation demonstrations are long; the tool_hang demonstrations used here run past six hundred steps. The two labels matter because each names a funnel that removes the horizon from that bound, and they call for opposite chunk lengths.
+The two labels matter because each names a funnel that removes the horizon from the compounding bound of the opening section, and they call for opposite chunk lengths. Call the size of a single policy mistake $\varepsilon$; it is the $\sigma_u$ measured below.
 
-Call the size of a single policy mistake $\varepsilon$; it is the $\sigma_u$ measured below. If a stretch is **open-loop stable**, the plant itself is the funnel. Commit a long chunk and do not react: the error injected at a replan has decayed by a factor $e^{-\lvert\lambda\rvert k}$ by the time the next replan arrives, so each new mistake lands on the shrunken remains of the last one and the total deviation stays near $\varepsilon$ however long the stretch runs. The horizon has dropped out of the bound. Reacting here is worse than unnecessary: it injects a fresh $\varepsilon$ into states that physics was already cleaning up.
+If a stretch is **open-loop stable**, the plant itself is the funnel. Commit a long chunk and do not react: the error injected at a replan has decayed by a factor $e^{-\lvert\lambda\rvert k}$ by the time the next replan arrives, so each new mistake lands on the shrunken remains of the last one and the total deviation stays near $\varepsilon$ however long the stretch runs. The horizon has dropped out of the bound. Reacting here is worse than unnecessary: it injects a fresh $\varepsilon$ into states that physics was already cleaning up.
 
 If a stretch is **open-loop unstable but closed-loop stable**, the funnel is made of corrections instead of physics. Committing is what fails, because $k$ blind steps let the error grow to $\varepsilon\, e^{\lambda k}$, exponential in the chunk length. Replan every step instead: if each correction removes a fixed fraction of the error, leaving $\rho < 1$ of it, the deviation settles near $\varepsilon / (1 - \rho)$. The horizon has dropped out again, through the other channel.
 
