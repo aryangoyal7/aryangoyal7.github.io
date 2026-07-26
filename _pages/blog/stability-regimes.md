@@ -7,19 +7,19 @@ author_profile: true
 
 ## The curse of horizon
 
-Unlike the symbolic world, where, on prediction of the next strong token, the agent is still in the distribution, a robot in robotic control: an agent could move away from his distribution as its error compounds along the horizon. The classical result says the total cost grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)), and newer theory shows that in continuous control it can even grow *exponentially* with it ([Simchowitz et al., 2025](https://arxiv.org/abs/2503.09722)).
+Unlike the symbolic world, where the agent is still in the distribution after predicting the next wrong token, in robotic control the agent can move away from its distribution as its error compounds along the horizon. The classical result says the total cost grows with the *square* of the task length ([Ross et al., 2011](https://arxiv.org/abs/1011.0686)), and newer theory shows that in continuous control it can even grow *exponentially* with it ([Simchowitz et al., 2025](https://arxiv.org/abs/2503.09722)).
 
-This error compounding is not only a function of policy, the trained policy of the agent, but also the dynamics of the world, which comprise the environment around it and the robotic controller. Either the error at the starting point could die down as it moves along the horizon, or it could compound with the horizon.
+This error compounding is not only a function of the trained policy of the agent, but also of the dynamics of the world, which comprise the environment around it and the robotic controller. The error at the starting point could either die down as it moves along the horizon, or compound with the horizon.
 
 ## Open-loop and closed-loop stability
 
 
-**Open-loop stability** this is a situation where once we observe an error, the error somehow funnels out with the horizon, and it is absorbed due to the dynamics. This is an ideal scenario where, without any policy property, the error is being eliminated. 
+**Open-loop stability** is a situation where, once we observe an error, the error somehow funnels out with the horizon and is absorbed by the dynamics. This is an ideal scenario where the error is eliminated without any property of the policy.
 
-**Closed-loop stability** refers to a situation where, once the agent is off track, it makes an error. You need feedback from the policy to nudge it in the correct direction such that it goes back to its original track, or the error dies out via feedback from the policy.
+**Closed-loop stability** refers to a situation where the agent makes an error and goes off track. You need feedback from the policy to nudge it in the correct direction, such that it goes back to its original track and the error dies out via the feedback from the policy.
 
 
- Modern imitation policies like [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) have the option of either predicting k action chunks and executing them at once, or they could take one action and then ask the policy to compute again and predict the next action. This, however, should be dependent upon the stability regime
+Modern imitation policies like [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) have the option of either predicting a chunk of $k$ actions and executing them at once, or taking one action and then asking the policy to compute again and predict the next action. This choice, however, should depend upon the stability regime.
 
 ## The combinations, and what to do in each
 
