@@ -13,19 +13,17 @@ This error compounding is not only a function of policy, the trained policy of t
 
 ## Open-loop and closed-loop stability
 
-Suppose the robot's hand is nudged a few millimeters off course at one instant of a demonstration.
 
 **Open-loop stability** this is a situation where once we observe an error, the error somehow funnels out with the horizon, and it is absorbed due to the dynamics. This is an ideal scenario where, without any policy property, the error is being eliminated. 
 
 **Closed-loop stability** refers to a situation where, once the agent is off track, it makes an error. You need feedback from the policy to nudge it in the correct direction such that it goes back to its original track, or the error dies out via feedback from the policy.
 
-The link back to compounding is direct: an error only compounds if nothing absorbs it, and at any moment there are exactly two candidate absorbers, the physics and the policy's feedback. The two labels tell you which of them, if either, is working right now.
 
  Modern imitation policies like [ACT](https://arxiv.org/abs/2304.13705) and [Diffusion Policy](https://arxiv.org/abs/2303.04137) have the option of either predicting k action chunks and executing them at once, or they could take one action and then ask the policy to compute again and predict the next action. This, however, should be dependent upon the stability regime
 
 ## The combinations, and what to do in each
 
-Our probe reports each channel as stable, unstable, or *deadband*, which means the measurement cannot certify either direction. Two channels with three answers each gives nine combinations, and two rules cover all of them: the open-loop answer says whether committing is safe, and the closed-loop answer says whether reacting helps.
+There are a few combinations possible for these regimes before we label the datasets and check. Let's see which combinations are possible.
 
 |                 | CL stable         | CL deadband       | CL unstable        |
 |-----------------|-------------------|-------------------|--------------------|
@@ -33,35 +31,35 @@ Our probe reports each channel as stable, unstable, or *deadband*, which means t
 | **OL deadband** | commit long $k$ | commit long $k$ | commit long $k$  |
 | **OL unstable** | replan every step | short $k$       | intermediate $k$ |
 
-In the top two rows physics either absorbs the error or adds none of its own, so the policy is the only remaining error source, and every extra replan is one extra mistake injected into a plant that was doing fine. Commit. In the bottom row physics grows the error, so it depends on the policy: replan every step where its feedback genuinely rescues, keep chunks short where the feedback is unproven, and when reacting also hurts, no mode contains the error and an intermediate $k$ is the least bad compromise.
+Open-loop stable means the physics of the plant and the dynamic environment will absorb the error. Closed-loop stable means the policy is performing well enough to correct the errors and put the agent back in the right direction. However, we might also see some deadband regions where we are unable to comment on the stability.
 
 ## Two ways out of the curse
 
-The two clean cells of that table are both funnels: places where compounding simply stops. Call the size of one policy mistake $\varepsilon$.
+The table gives us two ways to stop error compounding, and both of them work like a funnel. Let's say the size of one policy mistake is $\varepsilon$.
 
-If a stretch is open-loop stable, physics is the funnel, so commit. During a committed chunk the plant keeps shrinking the error, by a factor $e^{-\lvert\lambda\rvert k}$ over $k$ steps, so by the time the next replan arrives the previous mistake has mostly dissolved and mistakes never stack. The total deviation stays around $\varepsilon$ no matter how long the task runs. The horizon has dropped out. Reacting here would only inject fresh error into states physics was already cleaning up.
+If a stretch of the task is open-loop stable, physics is the funnel, so we should commit to a long chunk. During the chunk, the plant keeps shrinking the error by a factor of $e^{-\lvert\lambda\rvert k}$ over $k$ steps. By the time the next replan arrives, the previous mistake has mostly died out, so mistakes never stack up. The total deviation stays around $\varepsilon$ no matter how long the task is, and the horizon does not matter anymore. Reacting here would only inject fresh error into a system that was already correcting itself.
 
-If a stretch is open-loop unstable but closed-loop stable, feedback is the funnel, so replan. Committing is what fails there, because $k$ blind steps let the error grow like $\varepsilon\, e^{\lambda k}$. Correct at every step instead, with each correction removing a fixed fraction of the error, and the deviation settles near $\varepsilon / (1 - \rho)$, a constant. The horizon has dropped out again, through the other channel.
+If a stretch is open-loop unstable but closed-loop stable, feedback is the funnel, so we should replan at every step. Committing fails here, because $k$ blind steps let the error grow like $\varepsilon\, e^{\lambda k}$. If we correct at every step instead, each correction removes a fixed fraction of the error, and the deviation settles near a constant $\varepsilon / (1 - \rho)$. Again, the horizon does not matter anymore.
 
 ![The two funnels: plant contraction under commitment, feedback contraction under replanning](/images/blog/stability/fig_funnel.png)
 
-With neither funnel nothing contracts, and the compounding of the opening section is what remains. Read this way, the curse is not a law of imitation learning. It is what happens when the execution mode ignores the regime. The chunk length is the dial that picks a funnel: long $k$ harvests the physics funnel, $k = 1$ harvests the feedback funnel.
+If neither funnel exists, nothing shrinks the error, and we are back to the compounding from the first section. Seen this way, the curse of horizon is not a law of imitation learning. It is what happens when the execution mode ignores the stability regime. The chunk length is the dial that picks the funnel: a long chunk uses the physics funnel, and a chunk length of one uses the feedback funnel.
 
-So the practical question is whether real demonstrations actually contain different regimes, and where they sit: at contact events, in free motion, or nowhere. We labeled sixteen open-source datasets, timestep by timestep, to check.
+So the practical question is: do real demonstrations actually contain different regimes, and where do they sit? At contact events, in free motion, or nowhere? We labeled sixteen open-source datasets, timestep by timestep, to check this.
 
 ## The algorithm
 
-One measurement answers one question: if a realistic error were injected right here, would it grow or shrink over the next 1.2 seconds? Four steps.
+Each measurement answers one simple question: if a realistic error is injected right here, will it grow or shrink over the next 1.2 seconds? There are four steps.
 
-First, reset the simulator to the exact recorded state at time $t_0$. This is the step that needs a simulator; the real world has no rewind button.
+First, reset the simulator to the exact recorded state at time $t_0$. This step needs a simulator, because the real world has no rewind button.
 
-Second, play the next $K = 24$ steps (1.2 seconds) twice. The nominal run replays the recorded actions unchanged. The perturbed run adds a small random nudge to the position part of the first action only, then replays the rest unchanged:
+Second, play the next $K = 24$ steps (1.2 seconds) twice. The nominal run replays the recorded actions without any change. The perturbed run adds a small random nudge to the position part of the first action only, and then replays the rest without any change:
 
 $$
 \tilde{a}_{t_0} = a_{t_0} + \varepsilon, \qquad \varepsilon \sim \mathcal{N}\left(0, \sigma_u^2 I_3\right)
 $$
 
-The nudge size $\sigma_u$ is the measured action error of a trained policy, so we inject exactly the size of mistake a deployed policy makes.
+The nudge size $\sigma_u$ is the measured action error of a trained policy. So we inject exactly the size of mistake that a deployed policy makes.
 
 Third, at every step after the nudge, record the gap between the two runs:
 
@@ -69,33 +67,33 @@ $$
 d(\tau) = \left\lVert x^{\mathrm{pert}}(\tau) - x^{\mathrm{nom}}(\tau) \right\rVert_2
 $$
 
-One nudge could be lucky, so repeat with eight independent nudges and average the log of the gap.
+One nudge could be lucky, so we repeat this with eight independent nudges and average the log of the gap.
 
-Fourth, look at how that log gap moves across the window. If it climbs, errors amplify here; if it falls, they are absorbed. Its fitted slope is the stability number $\lambda$ (the standard finite-time Lyapunov exponent estimate, Benettin et al., 1980): positive means unstable, negative means stable.
+Fourth, look at how the log gap moves across the window. If it climbs, errors grow at this moment. If it falls, errors get absorbed. The fitted slope of this curve is our stability number $\lambda$ (the standard finite-time Lyapunov exponent estimate, Benettin et al., 1980). Positive means unstable, and negative means stable.
 
-One honesty rule on top: the probe has its own noise. We measure that noise on free-space moments of the same dataset, and any slope smaller than it is labeled deadband, meaning cannot tell. So every measured timestep ends up unstable, stable, or deadband.
+There is one honesty rule on top. The probe has its own noise. We measure that noise on the free-space moments of the same dataset, and any slope smaller than the noise is labeled deadband, which means we cannot tell. So every measured timestep ends up as unstable, stable, or deadband.
 
-The closed-loop label repeats the same four steps with one change. After the identical nudge, the perturbed run is no longer a replay: the trained policy picks a fresh action from its own camera view at every step, $\tilde{a}_{t_0+\tau} = \pi(o_{t_0+\tau})$. The two channels therefore differ only in what happens after the error appears, which is exactly the difference the two labels are meant to capture.
+The closed-loop label repeats the same four steps with one change. After the identical nudge, the perturbed run is not a replay anymore. The trained policy picks a fresh action from its own camera view at every step, $\tilde{a}_{t_0+\tau} = \pi(o_{t_0+\tau})$. So the two channels differ only in what happens after the error appears, and that is exactly the difference the two labels are meant to capture.
 
 ## The datasets
 
-We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), two MimicGen variants (stack and square), and all ten LIBERO-Long tasks. Sixteen datasets, every second timestep of every demonstration, the open-loop channel on all of them and the closed-loop channel on the four robomimic tasks. Deadband timesteps take the label of their confident neighbors and a small median filter smooths the sequence, so labels group into segments on their own; nothing is segmented by hand.
+We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), two MimicGen variants (stack and square), and all ten LIBERO-Long tasks. That is sixteen datasets in total, labeled at every second timestep of every demonstration. The open-loop channel was run on all of them, and the closed-loop channel on the four robomimic tasks. Deadband timesteps take the label of their confident neighbors, and a small median filter smooths the sequence. So the labels group into segments on their own, and nothing is segmented by hand.
 
 ## What the label looks like
 
-The raw measurement at one moment of the square task. Thin gray lines are the eight perturbed runs, blue is their average, and the dashed line is the fitted slope $\lambda$. The vertical axis is logarithmic, so exponential growth appears straight. At a stable moment the gap falls; at an unstable one it climbs:
+Here is the raw measurement at one moment of the square task. The thin gray lines are the eight perturbed runs, the blue line is their average, and the dashed line is the fitted slope $\lambda$. The vertical axis is logarithmic, so exponential growth looks like a straight line. At a stable moment the gap falls, and at an unstable moment it climbs:
 
 | Stable moment | Unstable moment |
 | :---: | :---: |
 | ![Divergence curve at a stable timestep](/images/blog/stability/curve_square_stable_0.png) | ![Divergence curve at an unstable timestep](/images/blog/stability/curve_square_unstable_0.png) |
 
-The scenes behind those two measurements: carrying the nut through free space on the left (deadband), the gripper engaging it on the right (unstable):
+These are the scenes behind those two measurements. On the left, the robot is carrying the nut through free space (deadband). On the right, the gripper is engaging the nut (unstable):
 
 | Deadband moment | Unstable moment |
 | :---: | :---: |
 | ![Frame at a deadband timestep](/images/blog/stability/frame_square_gray.png) | ![Frame at an unstable timestep](/images/blog/stability/frame_square_red.png) |
 
-And the label moves as the demonstration moves. In the videos the border color is the live label: red unstable, green stable, gray deadband, with the running $\lambda$ printed on top:
+The label also moves as the demonstration moves. In the videos below, the border color is the live label: red is unstable, green is stable, and gray is deadband, with the running $\lambda$ printed on top:
 
 <div style="display:flex; gap:1.2em; flex-wrap:wrap; justify-content:center; margin:1.5em 0;">
   <figure style="flex:0 1 300px; margin:0; text-align:center;">
@@ -128,26 +126,26 @@ And the label moves as the demonstration moves. In the videos the border color i
   </figure>
 </div>
 
-Four videos are examples, not evidence; the numbers below come from hundreds of demonstrations. What the videos show is the shape of the signal: the label switches several times inside a single demonstration, the switches sit on contact events, and the pattern repeats when the task repeats.
+The four videos are examples, not evidence. The numbers below come from hundreds of demonstrations. What the videos show is the shape of the signal: the label switches several times inside a single demonstration, the switches happen at contact events, and the pattern repeats when the task repeats.
 
 ## Results
 
-**Different regimes do exist inside a single task.** The first graph shows the share of each label per dataset. In every one of the sixteen, a quarter to a third of timesteps are confidently unstable and almost all the rest are deadband, so every task mixes fragile moments into mostly neutral motion. Confidently stable moments are rare everywhere (0 to 4 percent), essentially only the mechanically guided stove knob. Can, our transport-heavy control task, has the smallest unstable share, as it should:
+**Different regimes do exist inside a single task.** The first graph shows the share of each label in every dataset. In all sixteen, a quarter to a third of the timesteps are confidently unstable, and almost all the rest are deadband. So every task mixes fragile moments into mostly neutral motion. Confidently stable moments are rare everywhere (0 to 4 percent), and essentially the only one is the mechanically guided stove knob. Can, our transport-heavy control task, has the smallest unstable share, which is what we expected:
 
 ![Regime proportions per dataset](/images/blog/stability/fig_regimes.png)
 
-**Instability is the strong signal.** The histogram of the slopes is one-sided: most moments sit near zero, and the long tail is on the positive side only. In these datasets a moment is either roughly neutral or clearly divergent, rarely strongly self-correcting:
+**Instability is the strong signal.** The histogram of the slopes is one-sided. Most moments sit near zero, and the long tail is only on the positive side. In these datasets, a moment is either roughly neutral or clearly divergent. It is rarely strongly self-correcting:
 
 ![Lambda distribution per dataset](/images/blog/stability/fig_lambda_dist.png)
 
-**The unstable moments sit exactly where you would expect: at contact.** The timeline below stacks tool_hang demonstrations row by row. The labels come in long bands, not scattered dots (82 to 94 percent of label mass sits in runs of six or more consecutive timesteps), and the red bands line up with the grasps, insertions, and handoffs across demonstrations. On tool_hang, the hardest task, 40 percent of timesteps are unstable:
+**The unstable moments sit exactly where you would expect: at contact.** The timeline below stacks the tool_hang demonstrations row by row. The labels come in long bands, not scattered dots (82 to 94 percent of the label mass sits in runs of six or more consecutive timesteps). The red bands line up with the grasps, insertions, and handoffs across demonstrations. On tool_hang, the hardest task, 40 percent of the timesteps are unstable:
 
 ![Label timeline for tool_hang](/images/blog/stability/timeline_tool_hang.png)
 
-**Letting the policy react usually makes things worse.** The last graph compares the same lift states under the same nudge, with and without the policy correcting. Pure replay (blue) sits at zero: physics absorbs the nudge. With the policy correcting at every step (magenta), divergence turns positive at 90 to 99 percent of timesteps across the four tasks. These policies succeed 90 to 100 percent of the time, so this is not a bad-policy artifact. Where physics already absorbs errors, the policy is the only error source left, and every correction adds one more sample of it:
+**Letting the policy react usually makes things worse.** The last graph compares the same lift states under the same nudge, with and without the policy correcting. Pure replay (blue) sits at zero, because physics absorbs the nudge. With the policy correcting at every step (magenta), the divergence turns positive at 90 to 99 percent of the timesteps across the four tasks. These policies succeed 90 to 100 percent of the time, so this is not an artifact of a bad policy. Where physics already absorbs the errors, the policy is the only error source left, and every correction adds one more sample of it:
 
 ![Open-loop versus closed-loop divergence on lift](/images/blog/stability/fig_ol_vs_cl_lift.png)
 
-**Summary.** The stability regime is not a property of a task. It changes several times within a single demonstration, in long bands that sit on contact events: grasps, insertions, handoffs. Free motion is neutral ground where the robot's own corrections are the main source of error. The map is cheap to compute, and its primary channel needs no trained policy at all.
+**Summary.** The stability regime is not a property of a task. It changes several times within a single demonstration, in long bands that sit on contact events: grasps, insertions, and handoffs. Free motion is neutral ground, where the robot's own corrections are the main source of error. The map is cheap to compute, and its primary channel does not need a trained policy at all.
 
-*The probe constants, per-suite determinism checks, and full per-dataset statistics are in the project's technical report; this post kept only what is needed to read the figures.*
+*The probe constants, the determinism checks, and the full per-dataset statistics are in the project's technical report. This post kept only what is needed to read the figures.*
