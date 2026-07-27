@@ -8,11 +8,10 @@ redirect_from:
 ---
 
 Hi, I'm Aryan Goyal.\
-I'm an undergraduate at the [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
+I recently graduated from the [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
 In Fall 2026, I'll be joining the [MS in Computer Vision](https://mscv.ri.cmu.edu/) program at the [Robotics Institute](https://www.ri.cmu.edu/), [School of Computer Science](https://www.cs.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/).\
 My research focuses on mechanistic interpretability and generalist robot policy.\
-Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qure.ai/).\
-I write technical blogs on [Substack](https://substack.com/@aryanx07).
+Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qure.ai/).
 
 
 
@@ -26,7 +25,7 @@ I write technical blogs on [Substack](https://substack.com/@aryanx07).
 
 In December 2025, I changed the way I choose research problems. I grew more interested in fundamental questions than in specific heuristics — problems where the path forward is unclear and hard, but where progress would meaningfully move the field. My approach is to hold a hard, general problem as a north star and design pragmatic proxy experiments around it, with the constraint that success on those experiments should translate to real progress on the larger problem.
 
-I'm especially excited about the physical-intelligence space — it's remarkable to see robotics finally starting to work, though there is a long way to go. Vision-language-action (VLA) models are my primary focus, and I'm drawn to ideas that improve compositional generalization, and to experiments that surface evidence of emergent abilities in these models.
+I'm especially excited about the physical-intelligence space — it's remarkable to see robotics finally starting to work, though there is a long way to go. I am currently working on a long-horizon task.
 
 
 
