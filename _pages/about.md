@@ -25,7 +25,7 @@ Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qu
 
 In December 2025, I changed the way I choose research problems. I grew more interested in fundamental questions than in specific heuristics — problems where the path forward is unclear and hard, but where progress would meaningfully move the field. My approach is to hold a hard, general problem as a north star and design pragmatic proxy experiments around it, with the constraint that success on those experiments should translate to real progress on the larger problem.
 
-I'm especially excited about the physical-intelligence space — it's remarkable to see robotics finally starting to work, though there is a long way to go. I am currently working on a long-horizon task.
+I'm especially excited about the physical-intelligence space — it's remarkable to see robotics finally starting to work, though there is a long way to go. I am currently working on the long-horizon task problem.
 
 
 
