@@ -45,7 +45,7 @@ If a stretch is open-loop unstable but closed-loop stable, feedback is the funne
 
 If neither funnel exists, nothing shrinks the error, and we are back to the compounding from the first section. Seen this way, the curse of horizon is not a law of imitation learning. It is what happens when the execution mode ignores the stability regime. The chunk length is the dial that picks the funnel: a long chunk uses the physics funnel, and a chunk length of one uses the feedback funnel.
 
-So the practical question is: do real demonstrations actually contain different regimes, and where do they sit? At contact events, in free motion, or nowhere? We labeled sixteen open-source datasets, timestep by timestep, to check this.
+So the practical question is: do real demonstrations actually contain different regimes, and where do they sit? At contact events, in free motion, or nowhere? We labeled twenty open-source datasets, timestep by timestep, to check this.
 
 ## The algorithm
 
@@ -67,17 +67,17 @@ $$
 d(\tau) = \left\lVert x^{\mathrm{pert}}(\tau) - x^{\mathrm{nom}}(\tau) \right\rVert_2
 $$
 
-One nudge could be lucky, so we repeat this with eight independent nudges and average the log of the gap.
+One nudge could be lucky, so we repeat this with eight independent nudges. Each nudge gets its own fitted slope; their mean is the measurement, and their spread gives its standard error.
 
 Fourth, look at how the log gap moves across the window. If it climbs, errors grow at this moment. If it falls, errors get absorbed. The fitted slope of this curve is our stability number $\lambda$ (the standard finite-time Lyapunov exponent estimate, Benettin et al., 1980). Positive means unstable, and negative means stable.
 
-There is one honesty rule on top. The probe has its own noise. We measure that noise on the free-space moments of the same dataset, and any slope smaller than the noise is labeled deadband, which means we cannot tell. So every measured timestep ends up as unstable, stable, or deadband.
+There are two honesty rules on top. The first is about size: the slope has to be large enough to matter, and we set the bar at one doubling, or one halving, of the error over a 16-step chunk, $\lvert\lambda\rvert > \ln 2 / 16$. The second is about confidence: the eight nudges have to agree on the sign, so $\lvert\lambda\rvert$ must also exceed 2.365 times its own standard error (a two-sided 95 percent test with seven degrees of freedom). A timestep that clears both bars is unstable or stable by the sign of $\lambda$. Anything else is labeled deadband, which means we cannot tell. So every measured timestep ends up as unstable, stable, or deadband.
 
-The closed-loop label repeats the same four steps with one change. After the identical nudge, the perturbed run is not a replay anymore. The trained policy picks a fresh action from its own camera view at every step, $\tilde{a}_{t_0+\tau} = \pi(o_{t_0+\tau})$. So the two channels differ only in what happens after the error appears, and that is exactly the difference the two labels are meant to capture.
+The closed-loop label starts from the same state but changes what happens after the nudge. The perturbed run is not a replay anymore. The trained policy picks a fresh action from its own camera view at every step, $\tilde{a}_{t_0+\tau} = \pi(o_{t_0+\tau})$, and so does the nominal run. That raises a subtlety the first version of this post missed. A stochastic policy does not even reproduce its own trajectory, so two unperturbed policy runs drift apart at some rate $\lambda_{\mathrm{ctrl}}$ with no error injected at all. We therefore add two unperturbed control runs at every state and report the excess, $\lambda_{\mathrm{excess}} = \lambda_{\mathrm{pert}} - \lambda_{\mathrm{ctrl}}$: how much faster the nudged runs separate than the policy's own noise would. Both labels are measured at states the policy actually visits, with the open-loop one replaying the policy's planned 16-step chunk. So the two channels differ only in what happens after the error appears, and that is exactly the difference the two labels are meant to capture.
 
 ## The datasets
 
-We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), two MimicGen variants (stack and square), and all ten LIBERO-Long tasks. That is sixteen datasets in total, labeled at every second timestep of every demonstration. The open-loop channel was run on all of them, and the closed-loop channel on the four robomimic tasks. Deadband timesteps take the label of their confident neighbors, and a small median filter smooths the sequence. So the labels group into segments on their own, and nothing is segmented by hand.
+We labeled the four robomimic tasks (lift, can, square, tool_hang; 200 human demonstrations each), policy rollouts on lift and can, four MimicGen tasks (coffee preparation, nut assembly, square, stack), and all ten LIBERO-Long tasks. That is twenty datasets in total, labeled at every second timestep of every demonstration. The LIBERO-Long ten keep the earlier single-bar labels, because their simulator stack turned out not to be repeatable from run to run. The closed-loop channel was run on eight tasks across three platforms: the four robomimic tasks with our diffusion policies (lift and square complete at the time of writing, can and tool_hang still running), coffee and nut assembly with MimicGen policies, and four RoboCasa kitchen tasks with the GR00T N1.5 model, about 26,000 states in all, each measured both ways. Every timestep keeps its own label. Nothing is smoothed, and nothing is segmented by hand.
 
 ## What the label looks like
 
@@ -108,7 +108,7 @@ The label also moves as the demonstration moves. In the videos below, the border
       <source src="/images/blog/stability/video_can_labeled.mp4" type="video/mp4">
       <a href="/images/blog/stability/video_can_labeled.mp4">Download the can label video</a>
     </video>
-    <figcaption style="font-size:0.8em; line-height:1.35; margin-top:0.5em;"><b>can</b> (robomimic): a mostly-transport task. The long reach and the carry stay deadband; red appears only at the grasp and at the release into the bin.</figcaption>
+    <figcaption style="font-size:0.8em; line-height:1.35; margin-top:0.5em;"><b>can</b> (robomimic): a mostly-transport task. The long reach and the carry stay deadband; red appears only at the grasp and at the release into the bin, and the retreat afterwards, with the can at rest, is one of the rare green stretches.</figcaption>
   </figure>
   <figure style="flex:0 1 300px; margin:0; text-align:center;">
     <video autoplay loop muted playsinline controls preload="metadata" style="width:100%; height:auto; border-radius:3px;">
@@ -130,22 +130,31 @@ The four videos are examples, not evidence. The numbers below come from hundreds
 
 ## Results
 
-**Different regimes do exist inside a single task.** The first graph shows the share of each label in every dataset. In all sixteen, a quarter to a third of the timesteps are confidently unstable, and almost all the rest are deadband. So every task mixes fragile moments into mostly neutral motion. Confidently stable moments are rare everywhere (0 to 4 percent), and essentially the only one is the mechanically guided stove knob. Can, our transport-heavy control task, has the smallest unstable share, which is what we expected:
+**Different regimes do exist inside a single task.** The first graph shows the share of each label in every dataset. Across the ten two-bar datasets, 15 to 31 percent of the timesteps are confidently unstable, and most of the rest are deadband. So every task mixes fragile moments into mostly neutral motion. Confidently stable moments are rare everywhere (0 to 6 percent); the largest shares sit on the two MimicGen assembly tasks and on the mechanically guided stove knob of LIBERO. Can, our transport-heavy control task, has the smallest unstable share, which is what we expected:
 
 ![Regime proportions per dataset](/images/blog/stability/fig_regimes.png)
 
-**Instability is the strong signal.** The histogram of the slopes is one-sided. Most moments sit near zero, and the long tail is only on the positive side. In these datasets, a moment is either roughly neutral or clearly divergent. It is rarely strongly self-correcting:
+**Instability is the strong signal.** The graph of the slopes is one-sided. Most moments sit near zero, and the long tail is only on the positive side: the 95th percentile is between 0.10 and 0.18 per step in every dataset, while the 5th percentile never drops below $-0.05$. In these datasets, a moment is either roughly neutral or clearly divergent. It is rarely strongly self-correcting:
 
 ![Lambda distribution per dataset](/images/blog/stability/fig_lambda_dist.png)
 
-**The unstable moments sit exactly where you would expect: at contact.** The timeline below stacks the tool_hang demonstrations row by row. The labels come in long bands, not scattered dots (82 to 94 percent of the label mass sits in runs of six or more consecutive timesteps). The red bands line up with the grasps, insertions, and handoffs across demonstrations. On tool_hang, the hardest task, 40 percent of the timesteps are unstable:
+**The unstable moments sit exactly where you would expect: at contact.** The left panel below stacks the tool_hang demonstrations row by row. Even with no smoothing at all, the labels come in bands, not scattered dots: on tool_hang and square, more than half of the unstable mass sits in runs of six or more consecutive stamps, and the red bands line up with the grasps, insertions, and handoffs across demonstrations. On tool_hang, the hardest task, 31 percent of the timesteps are unstable. The right panel is the closed-loop channel on square, one row per policy rollout. The same contact events are where the policy's feedback gets tested, and this is where blue, the stable label, finally shows up:
 
-![Label timeline for tool_hang](/images/blog/stability/timeline_tool_hang.png)
+![Label timelines: tool_hang open loop, square closed loop](/images/blog/stability/timeline_tool_hang.png)
 
-**Letting the policy react usually makes things worse.** The last graph compares the same lift states under the same nudge, with and without the policy correcting. Pure replay (blue) sits at zero, because physics absorbs the nudge. With the policy correcting at every step (magenta), the divergence turns positive at 90 to 99 percent of the timesteps across the four tasks. These policies succeed 90 to 100 percent of the time, so this is not an artifact of a bad policy. Where physics already absorbs the errors, the policy is the only error source left, and every correction adds one more sample of it:
+**Letting the policy react does not make things worse. Its own noise does.** The first version of this post compared policy-driven runs against fixed replay at the same lift states, saw a positive divergence at 90 to 99 percent of the timesteps, and concluded that every correction adds one more error. The control runs show why that reading was wrong. Two unperturbed runs of the same diffusion policy separate from each other at a median rate of about 0.09 per step, which is roughly the rate we had blamed on the injected error. The raw number was the sampling noise of a stochastic policy, not compounding. Once that floor is subtracted, the closed-loop score is centred on zero on every platform (medians $-0.009$ on RoboCasa, $-0.020$ on robomimic, $-0.002$ on MimicGen), and on robomimic it leans negative: the policy pulls the nudged run back toward its own path. The graph below shows the same robomimic states measured both ways. The open-loop channel is hot, because the planned chunk amplifies a nudge about four times over 16 steps, while the corrected closed-loop channel sits at zero:
 
-![Open-loop versus closed-loop divergence on lift](/images/blog/stability/fig_ol_vs_cl_lift.png)
+![Open-loop versus closed-loop divergence on robomimic](/images/blog/stability/fig_ol_vs_cl.png)
 
-**Summary.** The stability regime is not a property of a task. It changes several times within a single demonstration, in long bands that sit on contact events: grasps, insertions, and handoffs. Free motion is neutral ground, where the robot's own corrections are the main source of error. The map is cheap to compute, and its primary channel does not need a trained policy at all.
+**Where physics fails and feedback works.** With both channels measured at the same states, the table from the start of the post can finally be filled in. The cell that calls for replanning at every step, open-loop unstable and closed-loop stable, holds about 1 percent of RoboCasa states, 2 percent of MimicGen states, and 9 percent of robomimic states (4 percent on lift, 15 percent on square) at the primary bars, and roughly twice that with the looser bar of $m = 1.5$. The opposite cell, where physics absorbs the error but the policy makes it worse, is essentially empty: 0.0 to 0.4 percent everywhere. Most states sit in the deadband on the closed-loop side, which is the honest answer when the policy's own noise is as large as the effect being measured.
+
+| | RoboCasa | MimicGen | robomimic | all |
+|---|:---:|:---:|:---:|:---:|
+| states measured both ways | 13,420 | 6,470 | 6,172 | 26,062 |
+| OL unstable and CL stable ($m = 2$) | 1.0% | 2.0% | 9.3% | 3.2% |
+| OL unstable and CL stable ($m = 1.5$) | 3.6% | 3.1% | 14.1% | 6.0% |
+| OL stable and CL unstable ($m = 2$) | 0.4% | 0.3% | 0.0% | 0.3% |
+
+**Summary.** The stability regime is not a property of a task. It changes several times within a single demonstration, in bands that sit on contact events: grasps, insertions, and handoffs. Free motion is neutral ground. The policy's corrections are not the villain we first took them for: once its sampling noise is measured and removed, feedback is neutral at most states and helpful at a minority of them, and that minority is largest exactly where the open-loop channel is hottest. The map is cheap to compute, and its primary channel does not need a trained policy at all.
 
 *The probe constants, the determinism checks, and the full per-dataset statistics are in the project's technical report. This post kept only what is needed to read the figures.*
