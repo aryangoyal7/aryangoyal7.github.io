@@ -9,7 +9,7 @@ author_profile: true
 
 - B.Tech, [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
 - Double minor in Machine Learning from [C-MInDS](https://www.minds.iitb.ac.in/) and Digital Health from the [Koita Centre for Digital Health](https://www.kcdh.iitb.ac.in/)
-- Incoming MS in Computer Vision (Fall 2026), [Robotics Institute](https://www.ri.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/)
+- Incoming MS in Computer Vision, [Robotics Institute](https://www.ri.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/)
 
 ---
 

@@ -9,7 +9,7 @@ redirect_from:
 
 Hi, I'm Aryan Goyal.\
 I recently graduated from the [Indian Institute of Technology Bombay](https://www.iitb.ac.in/).\
-In Fall 2026, I'll be joining the [MS in Computer Vision](https://mscv.ri.cmu.edu/) program at the [Robotics Institute](https://www.ri.cmu.edu/), [School of Computer Science](https://www.cs.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/).\
+I'm an incoming [MS in Computer Vision](https://mscv.ri.cmu.edu/) student at the [Robotics Institute](https://www.ri.cmu.edu/), [School of Computer Science](https://www.cs.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/).\
 My research focuses on mechanistic interpretability and generalist robot policy.\
 Previously, I worked on fine-grained medical imaging at [Qure.AI](https://www.qure.ai/).
 
