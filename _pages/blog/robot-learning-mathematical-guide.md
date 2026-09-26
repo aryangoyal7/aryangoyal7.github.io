@@ -2,7 +2,7 @@
 layout: single
 title: "Robot Learning: A Mathematical Guide to Training Policies"
 permalink: /blog/robot-learning-mathematical-guide/
-author_profile: true
+author_profile: false
 ---
 
 ## Introduction

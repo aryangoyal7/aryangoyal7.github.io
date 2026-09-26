@@ -2,7 +2,7 @@
 layout: archive
 title: "Blog Posts"
 permalink: /blog-posts/
-author_profile: true
+author_profile: false
 ---
 
 Short pieces on scrappy experiments — small hypotheses and hunches from my research that are interesting on their own but don't warrant a full publication. Occasionally, a non-research piece I felt compelled to write down.

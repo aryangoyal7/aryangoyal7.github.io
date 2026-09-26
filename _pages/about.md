@@ -31,11 +31,23 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 
 ## Publications
-- [The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models](https://openreview.net/pdf?id=mS9nh3L3iN). ICML 2026 (accepted).
-- [DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs](/publication/2025-diffusionxray). DEMI Workshop at [MICCAI](https://arxiv.org/abs/2603.01686), 2025.
-- [A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs](https://arxiv.org/abs/2603.01659). MIDL 2026 .
-- ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education. ICLR 2026 Workshop (submitted).
-- A System and Method for Projecting Synthetic Nodules in Medical Imaging. Indian Patent Application No. 202521024259 (filed).
+
+- **The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models**\
+  *ICML 2026* · [Paper](https://openreview.net/pdf?id=mS9nh3L3iN)
+
+- **A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs**\
+  *Medical Imaging with Deep Learning (MIDL), 2026* · [arXiv](https://arxiv.org/abs/2603.01659)
+
+- **DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs**\
+  *DEMI Workshop at MICCAI, 2025* · [arXiv](https://arxiv.org/abs/2603.01686) · [Project page](/publication/2025-diffusionxray)
+
+- **ACADEMIA: Curriculum-Aligned Multi-Agent Orchestration for K-12 Education**\
+  *Preprint, 2026*
+
+### Patents
+
+- **A System and Method for Projecting Synthetic Nodules in Medical Imaging**\
+  *Indian Patent Application No. 202521024259*
 
 ---
 

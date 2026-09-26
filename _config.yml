@@ -26,7 +26,7 @@ author:
   avatar           : "profile.png"
   name             : "Aryan Goyal"
   pronouns         : # example: "she/her"  
-  bio              : "Incoming CMU MS, B.Tech from IIT Bombay."
+  bio              : "Incoming CMU MS, B.Tech + M.Tech from IIT Bombay."
   location         : "Mumbai / Bangalore"
   employer         : "IIT Bombay → Carnegie Mellon (Incoming MSCV)"
   uri              : # URL
@@ -244,7 +244,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
       comments: true
       share: true
@@ -255,14 +255,14 @@ defaults:
       type: pages
     values:
       layout: single
-      author_profile: true
+      author_profile: false
   # _tutorials
   - scope:
       path: ""
       type: tutorials
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       share: true
       comments: true
   # _publications
@@ -271,7 +271,7 @@ defaults:
       type: publications
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       share: true
       comments: true
   # _portfolio
@@ -280,7 +280,7 @@ defaults:
       type: portfolio
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       share: true
       comment: true
   # _talks
@@ -289,7 +289,7 @@ defaults:
       type: talks
     values:
       layout: talk
-      author_profile: true
+      author_profile: false
       share: true
 
 

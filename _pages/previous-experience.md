@@ -2,13 +2,13 @@
 layout: archive
 title: "Previous Experience"
 permalink: /previous-experience/
-author_profile: true
+author_profile: false
 ---
 
 ## Education
 
-- B.Tech, [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
-- Double minor in Machine Learning from [C-MInDS](https://www.minds.iitb.ac.in/) and Digital Health from the [Koita Centre for Digital Health](https://www.kcdh.iitb.ac.in/)
+- B.Tech + M.Tech (Dual Degree), [Indian Institute of Technology Bombay](https://www.iitb.ac.in/)
+- Minor in Machine Learning and Data Science from [C-MInDS](https://www.minds.iitb.ac.in/)
 - Incoming MS in Computer Vision, [Robotics Institute](https://www.ri.cmu.edu/), [Carnegie Mellon University](https://www.cmu.edu/)
 
 ---
@@ -45,8 +45,11 @@ author_profile: true
 
 ## Teaching Assistant
 
-- ES-682: Numerical Methods for Environmental Systems | [Prof. Amritanshu Shriwastav](https://www.esed.iitb.ac.in/faculty/amritanshu-shriwastav) | Spring 2026
-- ES-201: Applied Environmental Microbiology and Ecology | [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh) | Autumn 2025
+- [IIT Bombay](https://www.iitb.ac.in/) | Teaching Assistant, ES-682 | Spring 2026  
+  Numerical Methods for Environmental Systems, with [Prof. Amritanshu Shriwastav](https://www.esed.iitb.ac.in/faculty/amritanshu-shriwastav).
+
+- [IIT Bombay](https://www.iitb.ac.in/) | Teaching Assistant, ES-201 | Autumn 2025  
+  Applied Environmental Microbiology and Ecology, with [Prof. Swatantra Pratap Singh](https://www.esed.iitb.ac.in/faculty/swatantra-pratap-singh).
 
 
 ---

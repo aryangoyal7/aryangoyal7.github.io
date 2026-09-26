@@ -2,7 +2,7 @@
 layout: single
 title: "Does Diffusion Actually Capture Multi-Modal Behavior? Re-Running a Myth-Buster's Tests"
 permalink: /blog/diffusion-multimodality/
-author_profile: true
+author_profile: false
 ---
 
 *I also wrote this up as a thread on X — [read it here](https://x.com/arygoy/status/2076910993125568610?s=20).*

@@ -2,7 +2,7 @@
 layout: single
 title: "Stable and Unstable Moments in Robot Demonstration Data"
 permalink: /blog/stability-regimes/
-author_profile: true
+author_profile: false
 ---
 
 ## The curse of horizon
