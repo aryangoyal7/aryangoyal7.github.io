@@ -33,7 +33,7 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 ## Publications
 
 - **The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models**\
-  *ICML 2026* · [Paper](https://openreview.net/pdf?id=mS9nh3L3iN)
+  *Mechanistic Interpretability Workshop at ICML, 2026* · [Paper](https://openreview.net/pdf?id=mS9nh3L3iN)
 
 - **A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs**\
   *Medical Imaging with Deep Learning (MIDL), 2026* · [arXiv](https://arxiv.org/abs/2603.01659)
