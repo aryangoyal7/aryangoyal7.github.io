@@ -25,6 +25,7 @@ citation: 'Goyal, A. (2026). &quot;The Hitchhiker&apos;s Guide to Mechanistic In
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <style>
 :root {
+  color-scheme: light;
   --bg: #fbfbf9;
   --surface: #ffffff;
   --surface-2: #f3f3ef;
@@ -46,27 +47,6 @@ citation: 'Goyal, A. (2026). &quot;The Hitchhiker&apos;s Guide to Mechanistic In
   --inject: #d9822b;
   --shadow: 0 1px 2px rgba(20,20,30,.05), 0 4px 16px rgba(20,20,30,.06);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141517; --surface: #1c1d20; --surface-2: #232428; --text: #e8e8e6; --muted: #a0a3aa; --border: #33353a;
-    --accent: #8aa8ff;
-    --pass: #5fce7c; --pass-bg: #1d3325; --part: #e0b34a; --part-bg: #3a3020; --fail: #ff8080; --fail-bg: #3d2224;
-    --ca: #8aa8ff; --ca-bg: #1f2a45; --ty: #b89bff; --ty-bg: #2c2346; --fm: #ff9f6b; --fm-bg: #3d2a1f; --pf: #5fd3c5; --pf-bg: #183633;
-    --vision: #1f2d45; --vision-b: #4c6fa8; --backbone: #26282d; --backbone-b: #4a4e57; --head: #1c3325; --head-b: #3f8a55; --bad: #3d2224; --bad-b: #a34f4f;
-    --inject: #f0a050;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.3);
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #141517; --surface: #1c1d20; --surface-2: #232428; --text: #e8e8e6; --muted: #a0a3aa; --border: #33353a;
-  --accent: #8aa8ff;
-  --pass: #5fce7c; --pass-bg: #1d3325; --part: #e0b34a; --part-bg: #3a3020; --fail: #ff8080; --fail-bg: #3d2224;
-  --ca: #8aa8ff; --ca-bg: #1f2a45; --ty: #b89bff; --ty-bg: #2c2346; --fm: #ff9f6b; --fm-bg: #3d2a1f; --pf: #5fd3c5; --pf-bg: #183633;
-  --vision: #1f2d45; --vision-b: #4c6fa8; --backbone: #26282d; --backbone-b: #4a4e57; --head: #1c3325; --head-b: #3f8a55; --bad: #3d2224; --bad-b: #a34f4f;
-  --inject: #f0a050;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.3);
-}
-
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
@@ -95,10 +75,6 @@ p { margin: .75em 0; }
 .topbar a { color: var(--text); }
 .topbar .crumbs { display: flex; gap: 14px; align-items: center; min-width: 0; }
 .topbar .crumbs a:first-child { font-weight: 600; }
-.theme-btn {
-  border: 1px solid var(--border); background: var(--surface); color: var(--text);
-  border-radius: 8px; padding: 4px 10px; font: inherit; font-size: .85rem; cursor: pointer;
-}
 
 /* ---------- layout ---------- */
 .shell { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: 1fr; }
@@ -394,7 +370,6 @@ ul.plain li { margin: 6px 0; }
 
 <div class="topbar">
   <div class="crumbs"><a href="/">Aryan Goyal</a><a href="/publications/" class="muted">Publications</a></div>
-  <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme">Theme</button>
 </div>
 
 <div class="shell">
@@ -1254,21 +1229,6 @@ ul.plain li { margin: 6px 0; }
     function done() { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); }
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () {});
   });
-
-  /* ---------------- theme ---------------- */
-  (function () {
-    var root = document.documentElement, btn = $("#themeBtn"), saved = null;
-    try { saved = localStorage.getItem("hg-theme"); } catch (e) {}
-    if (saved) root.setAttribute("data-theme", saved);
-    function isDark() { var t = root.getAttribute("data-theme"); return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches; }
-    function label() { btn.textContent = isDark() ? "Light" : "Dark"; }
-    btn.addEventListener("click", function () {
-      var next = isDark() ? "light" : "dark"; root.setAttribute("data-theme", next);
-      try { localStorage.setItem("hg-theme", next); } catch (e) {}
-      label();
-    });
-    label();
-  })();
 
   /* ---------------- init ---------------- */
   decorate(document);
