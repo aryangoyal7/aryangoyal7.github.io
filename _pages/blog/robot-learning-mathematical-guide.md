@@ -7,6 +7,11 @@ author_profile: false
 
 {:ext: target="_blank" rel="noopener"}
 
+<figure style="display: block; margin: 0 0 2em;">
+  <img src="/images/blog/robot-learning/cover-tin-robots.jpg" alt="Four vintage tin toy robots and a tin space station on a red museum shelf" style="display: block; width: 100%;">
+  <figcaption style="margin-top: 0.5em; font-size: 0.7em; line-height: 1.45; opacity: 0.8;">Vintage tin toy robots, the kind Andy Warhol painted for his 1983 <em>Toy Paintings</em> (see his <a href="https://www.bukowskis.com/en/auctions/635/366-andy-warhol-robot-toy-painting" target="_blank" rel="noopener"><em>Robot</em></a>). Warhol studied at Carnegie Tech, now CMU, which later opened the first robotics department in the U.S. and gave us ALVINN and DAgger. It's also where I'm headed next. Photo: <a href="https://commons.wikimedia.org/wiki/File:Istambul_-_Rahmi_M._Ko%C3%A7_Museum_-_Toy_robots_-_2026-03_-_p05.jpg" target="_blank" rel="noopener">Александр Сигачёв</a>, CC0.</figcaption>
+</figure>
+
 ## Introduction
 
 ## The control problem
