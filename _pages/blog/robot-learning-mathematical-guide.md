@@ -7,122 +7,452 @@ author_profile: true
 
 ## Introduction
 
-## Setup: one robot, two rollouts
+## The control problem
 
-Imagine a robot arm learning to reach for an object from demonstrations. A demonstration records how the robot moved; the learned policy must choose its own actions when it is run. The difference matters because each action changes the state from which the next action is chosen.
+Imagine a robot arm learning to reach for an object from demonstrations. A demonstration records a sequence of states and actions. At deployment, the learned policy chooses actions itself, and each action changes the state from which the next action will be chosen. This feedback between action and future state is what makes imitation learning different from ordinary supervised prediction.
 
-Let $x_t \in \mathbb{R}^d$ be the robot's state at timestep $t$, and let $u_t \in \mathcal{U} \subseteq \mathbb{R}^m$ be an action. The physical system evolves according to
-
-$$
-x_{t+1} = F(x_t, u_t),
-$$
-
-where $F$ is the deterministic dynamics. The policy receives an observation $o_t = G(x_t)$. Depending on the robot and task, $G$ may expose the complete state or only proprioceptive information, such as joint positions and velocities. The expert policy is $\pi^\star$; the learned policy is $\hat\pi$.
-
-Run each policy from the same initial conditions and we get two trajectories:
+Let $x_t \in \mathbb{R}^d$ be the robot's state at timestep $t$, and let $u_t \in \mathcal{U} \subseteq \mathbb{R}^m$ be an action. The physical system evolves according to the deterministic dynamics
 
 $$
-\text{Expert: } (x_1^\star,u_1^\star),(x_2^\star,u_2^\star),\ldots
+x_{t+1}=F(x_t,u_t).
+$$
+
+The policy receives an observation $o_t=G(x_t)$. Depending on the setup, $G$ may reveal the complete state or only proprioceptive information such as joint positions and velocities. We use $\pi^\star$ for the expert policy and $\hat\pi$ for the learned policy. The expert is a demonstrator and need not be globally optimal.
+
+Starting from the same initial conditions, the policies generate trajectories
+
+$$
+\text{Expert: }(x_1^\star,u_1^\star),(x_2^\star,u_2^\star),\ldots
 $$
 
 $$
-\text{Learner: } (\hat x_1,\hat u_1),(\hat x_2,\hat u_2),\ldots
+\text{Learner: }(\hat x_1,\hat u_1),(\hat x_2,\hat u_2),\ldots
 $$
 
-For a policy $\pi$, let $d_\pi^t$ be the distribution of states it visits at time $t$. Its average state distribution over the horizon is
+For policy $\pi$, let $d_\pi^t$ denote the state distribution at time $t$, and let
 
 $$
-d_\pi = \frac{1}{T}\sum_{t=1}^{T} d_\pi^t.
+d_\pi=\frac{1}{T}\sum_{t=1}^{T}d_\pi^t
 $$
 
-The learner starts with demonstrations from the expert, so training states come from $d_{\pi^\star}$. At deployment, the learner generates its own states, distributed according to $d_{\hat\pi}$. These distributions need not match: one different action can change the next state, and the learner then acts on that changed state. This is how a one-step discrepancy can become a different rollout.
+be the state distribution averaged over the episode. Demonstrations give us examples from $d_{\pi^\star}$. A learned policy, however, acts on states drawn from $d_{\hat\pi}$. In general these distributions differ: one action can change the next state, which changes the observation and the action chosen after it. The learner can therefore encounter states that were rare or absent in its demonstrations.
 
-## How far apart are the trajectories?
+$$
+d_{\hat\pi}\neq d_{\pi^\star}\quad\text{in general}.
+$$
 
-We can first measure the difference between the two paths at matching timesteps. Define the clipped trajectory error
+## Measuring the difference between trajectories
+
+One useful first question is how far the learner's rollout has moved from the expert's. At each timestep, compare their states and actions:
 
 $$
 \boxed{
-J_{\mathrm{Traj},T}(\hat\pi) = \mathbb E_{\hat\pi,\pi^\star} \left[ \sum_{t=1}^{T} \min \left\{ 1,\, \|\hat x_t-x_t^\star\|_2^2 + \|\hat u_t-u_t^\star\|_2^2 \right\} \right].
+J_{\mathrm{Traj},T}(\hat\pi)=\mathbb{E}_{\hat\pi,\pi^\star}\!\left[\sum_{t=1}^{T}\min\left\{1,\,\|\hat x_t-x_t^\star\|_2^2+\|\hat u_t-u_t^\star\|_2^2\right\}\right].
 }
 $$
 
-At time $t$, the state term
+The state term $\|\hat x_t-x_t^\star\|_2^2$ measures how far the learner has drifted from the demonstrated state. The action term $\|\hat u_t-u_t^\star\|_2^2$ measures how different its command is. The minimum caps the contribution from any one timestep at $1$. The expectation notation $\mathbb{E}_{\hat\pi,\pi^\star}$ averages over the learner and expert trajectories, including randomness in their initial conditions or policies when present. Thus, the clipped sum obeys
 
 $$
-\|\hat x_t-x_t^\star\|_2^2
+0\leq J_{\mathrm{Traj},T}(\hat\pi)\leq T.
 $$
 
-measures how far the learner has drifted from the expert, while
+This is a measure of trajectory mismatch. It is not yet the task's cost: a path can differ from a demonstration and still succeed, or remain close for much of the episode and then fail. To reason about task performance, we need a separate quantity.
+
+## Training error and deployment cost
+
+Let $c_t(x_t,u_t)\in[0,1]$ be the cost at timestep $t$, with smaller values indicating better performance. The expected cumulative cost of policy $\pi$ is
 
 $$
-\|\hat u_t-u_t^\star\|_2^2
+J(\pi)=\mathbb{E}_{\tau\sim\pi}\!\left[\sum_{t=1}^{T}c_t(x_t,u_t)\right]
 $$
 
-measures how different their actions are. The two terms add the state and action mismatch at that moment. The outer sum follows the gap across the rollout.
+This expectation averages over trajectories generated by $\pi$, including the initial-state distribution and any policy randomness. In particular, $J(\hat\pi)$ and $J(\pi^\star)$ are the expected costs of the learner and expert under the same setup.
 
-Why clip each timestep's contribution at $1$? Once the squared mismatch is large, making it larger should not let one timestep dominate the whole measure. The clipped term always lies between $0$ and $1$, so
-
-$$
-0 \leq J_{\mathrm{Traj},T}(\hat\pi) \leq T.
-$$
-
-This tells us how much the learner's path differs from the demonstration. It does not yet tell us whether the task succeeds. For that, we need to measure the cost of a rollout.
-
-## From path mismatch to task cost
-
-Let $c(x_t,u_t)\in[0,1]$ be the cost at one timestep, with lower cost meaning better performance. For a policy $\pi$, define its expected cumulative cost as
+Because each timestep's cost lies in $[0,1]$, the episode cost lies in $[0,T]$:
 
 $$
-J(\pi) = \mathbb{E}_{\tau\sim\pi}\left[\sum_{t=1}^{T} c(x_t,u_t)\right],
+0\leq J(\pi)\leq T.
 $$
 
-where the expectation averages over trajectories generated by that policy, including the initial-state distribution and any policy randomness. Thus, $J(\hat\pi)$ is the learner's expected task cost, and $J(\pi^\star)$ is the expert's expected cost under the same setup. The expert is our reference; it need not be globally optimal.
+For the stability-based smoothness result later, we also assume the per-step cost changes in a Lipschitz manner with the state and action; the displayed constants use the normalization in the tutorial's setup.
 
-Now we can ask the question behind the classical imitation-learning bound: if the learner makes few mistakes on expert states, how much worse could its actual rollout be?
-
-## The first bound: what can one mistake do?
-
-For this argument, a mistake means choosing an action different from the expert's. Let $e_{\hat\pi}(x)$ be the probability of such a disagreement at state $x$. Suppose its average under the expert's state distribution is at most $\epsilon$:
+We denote this quantity by
 
 $$
-\mathbb{E}_{x\sim d_{\pi^\star}}[e_{\hat\pi}(x)] \leq \epsilon.
+R_{\mathrm{cost}}(\hat\pi;\pi^\star)=J(\hat\pi)-J(\pi^\star).
 $$
 
-Until its first mistake, the learner is on the expert's path. At each expert timestep $t$, write the disagreement probability as
+Demonstrations also let us measure action-prediction error on expert states. If $u_t^\star=\pi^\star(o_t)$ and $\hat u_t$ is sampled from the learner at observation $o_t$, define
 
 $$
-q_t = \mathbb{E}_{x\sim d_{\pi^\star}^t}[e_{\hat\pi}(x)].
+R_{\mathrm{expert},L_p}(\hat\pi)
+=\sum_{t=1}^{T}\mathbb{E}_{x_t\sim d_{\pi^\star}^t}\!\left[\mathbb{E}_{\hat u_t\sim\hat\pi(o_t)}\|\hat u_t-u_t^\star\|_p^p\right]^{1/p}.
 $$
 
-Because $d_{\pi^\star}$ averages the expert's state distributions across the $T$ timesteps, the total probability of a first divergence is bounded by the sum of these per-step error probabilities:
+This is supervised action error measured on expert states, rather than the learner's own deployment states. The $L_1$ version accumulates action-error magnitudes across timesteps; the $L_2$ version gives larger errors more weight through squaring. The $L_2$ metric is common for regression, while an $L_1$ sum often enters naturally when cost changes smoothly with the action.
+
+The classical compounding-error result instead uses exact disagreement:
 
 $$
-\Pr(\text{at least one mistake})
-\leq \sum_{t=1}^{T} q_t
-= T\mathbb{E}_{x\sim d_{\pi^\star}}[e_{\hat\pi}(x)]
+R_{0,1}(\hat\pi)=\sum_{t=1}^{T}\mathbb{E}_{x_t\sim d_{\pi^\star}^t,\,\hat u_t\sim\hat\pi(o_t)}\left[\mathbf{1}\{\hat u_t\neq u_t^\star\}\right].
+$$
+
+For discrete actions, this asks a useful question: did the learner choose the same action as the expert? For continuous controls, exact equality is usually too strict. A tiny numerical difference counts just as much as a large one; we will return to this limitation after seeing what the bound says.
+
+## How an action error affects future cost
+
+Action error alone does not tell us how much task performance changes. The cost-to-go, or $Q$-function, measures the remaining cost after taking a particular action and then following the learner:
+
+$$
+Q_t^{\hat\pi}(x,u)
+=c_t(x,u)+\mathbb{E}_{\hat\pi}\!\left[\sum_{k=t+1}^{T}c_k(x_k,u_k)\,\middle|\,x_t=x,\,u_t=u\right].
+$$
+
+The relevant comparison is $Q_t^{\hat\pi}(x,\hat u)-Q_t^{\hat\pi}(x,u^\star)$. If this difference is small whenever the actions are close, a small imitation error has limited downstream cost. If the $Q$-function changes sharply with the action, even a small action error can have a large effect. The later bounds will ask what properties make this action-to-cost relationship manageable.
+
+## The classical compounding-error bound
+
+We can now state the baseline question precisely: if the learner rarely disagrees with the expert on expert states, what can we guarantee about its deployment cost? Let $e_{\hat\pi}(x)$ be the probability of an action disagreement at state $x$, and assume
+
+$$
+\mathbb{E}_{x\sim d_{\pi^\star}}[e_{\hat\pi}(x)]\leq\epsilon.
+$$
+
+The distribution $d_{\pi^\star}$ averages the expert's state distributions over the $T$ timesteps. Write
+
+$$
+q_t=\mathbb{E}_{x_t\sim d_{\pi^\star}^t}[e_{\hat\pi}(x_t)]
+$$
+
+for the disagreement probability at expert timestep $t$. The learner follows the same trajectory as the expert until its first disagreement. A union bound over the possible first-error timesteps gives
+
+$$
+\Pr(\text{at least one disagreement})
+\leq\sum_{t=1}^{T}q_t
+=T\mathbb{E}_{x\sim d_{\pi^\star}}[e_{\hat\pi}(x)]
 \leq T\epsilon.
 $$
 
-This is the union bound: with $T$ chances to make a mistake, an error rate of $\epsilon$ per average expert state allows up to $T\epsilon$ probability of diverging at least once.
-
-What happens after that first divergence? In the worst case, the learner never recovers. Since each timestep's cost is at most $1$, the extra cost over the remaining horizon is at most $T$. Multiplying this maximum damage by the probability of a mistake gives
+If no disagreement occurs, the learner and expert incur the same cost. In the worst case, after a disagreement the learner never recovers. Since each step's cost is at most $1$, the excess cost over the remaining horizon is at most $T$. Therefore,
 
 $$
 \begin{aligned}
 J(\hat\pi)-J(\pi^\star)
-&\leq \Pr(\text{at least one mistake})\,T \\
-&\leq (T\epsilon)T \\
-&= T^2\epsilon.
+&\leq \Pr(\text{at least one disagreement})\,T\\
+&\leq (T\epsilon)T\\
+&=T^2\epsilon.
 \end{aligned}
 $$
 
-Therefore,
+Equivalently,
 
 $$
-\boxed{J(\hat\pi) \leq J(\pi^\star)+T^2\epsilon.}
+\boxed{J(\hat\pi)\leq J(\pi^\star)+T^2\epsilon.}
 $$
 
-The two factors of $T$ describe different parts of the story. The first counts the growing number of opportunities to make a mistake; the second is the worst-case cost of continuing after the learner has left the expert's path. The quadratic bound is pessimistic because it assumes the robot cannot recover. Since the maximum episode cost is $T$, the additive term is already as large as that maximum when $\epsilon \geq 1/T$.
+The two factors of $T$ have different sources. The first counts the timesteps at which an error could occur; the second is the worst-case damage after the learner leaves the expert's trajectory. This is a deliberately cautious bound: it assumes no recovery. Since total episode cost is at most $T$, the additive guarantee can be as large as the entire cost range when $\epsilon\geq1/T$.
 
-There is one more limitation to keep in mind: $e_{\hat\pi}$ is a zero-one action disagreement. For continuous actions, even a tiny numerical difference counts as a mistake. So this bound explains how distribution shift can amplify errors, but it does not yet tell us how to measure useful errors for a real-valued robot controller. That is the next question.
+## When the robot can recover
+
+The quadratic bound treats every mistake as potentially damaging the rest of the episode. Many systems are more forgiving. Let $\kappa_i$ bound the largest additional expected cost after the first disagreement at timestep $i$, maximized over the relevant states and continuation policies. Let $\epsilon_i$ be the probability of disagreement at expert timestep $i$. The expected excess cost is then bounded by the sum of these per-timestep error probabilities weighted by their downstream penalties:
+
+$$
+J(\hat\pi)\leq J(\pi^\star)+\sum_{i=1}^{T}\epsilon_i\kappa_i
+=J(\pi^\star)+T\epsilon_\kappa,
+\qquad
+\epsilon_\kappa=\frac{1}{T}\sum_{i=1}^{T}\epsilon_i\kappa_i.
+$$
+
+If each mistake has downstream penalty at most a constant $K$, then with average error $\bar\epsilon=\frac{1}{T}\sum_i\epsilon_i$,
+
+$$
+J(\hat\pi)-J(\pi^\star)\leq KT\bar\epsilon.
+$$
+
+By contrast, if a mistake at time $i$ can cost nearly all of the remaining $T-i+1$ steps, the quadratic scaling returns. Recoverability controls the second factor in the classical bound: it replaces a worst-case horizon with a measured property of the task.
+
+## Training on states the learner visits
+
+Recoverability depends on the environment. Another way to address distribution shift is to collect training labels on states the learner actually reaches. DAgger does this iteratively. At round $i$, roll out a mixture of expert and learner policies,
+
+$$
+\pi_i=\beta_i\pi^\star+(1-\beta_i)\hat\pi_i,
+$$
+
+where the mixture means the expert is selected with probability $\beta_i$. Query the expert for the correct action at the visited states, add those state-action pairs to the dataset, and retrain. As the data accumulates, the learner is trained on states closer to its own rollout distribution.
+
+Let $\ell_i(\pi)=\mathbb{E}_{x\sim d_{\pi_i}}[\ell(x,\pi)]$ be policy $\pi$'s loss on the states collected at round $i$. The best policy in the class $\Pi$ in hindsight has average loss
+
+$$
+\epsilon_N=\min_{\pi\in\Pi}\frac{1}{N}\sum_{i=1}^{N}\ell_i(\pi).
+$$
+
+If the online learner used by DAgger has vanishing average regret, its average loss approaches this hindsight benchmark. Under the theorem's assumptions and with $N=\widetilde{O}(T)$ rounds, the learner-distribution guarantee has the form
+
+$$
+\mathbb{E}_{x\sim d_{\hat\pi}}[\ell(x,\hat\pi)]\leq\epsilon_N+O(1/T).
+$$
+
+When the chosen loss upper-bounds expert disagreement and the system has recoverability constant $\kappa$, the corresponding performance bound is
+
+$$
+J(\hat\pi)\leq J(\pi^\star)+\kappa T\epsilon_N+O(1).
+$$
+
+The finite-sample guarantee separates four sources of error:
+
+$$
+\begin{aligned}
+\text{loss on learner states}\;\leq\;&\underbrace{\hat\epsilon_N}_{\text{empirical training loss}}
++\underbrace{\gamma_N}_{\text{online-learning regret}}\\
+&+\underbrace{\Delta_{\mathrm{mix}}(\beta_{1:N})}_{\text{expert-mixing schedule}}
++\underbrace{\Delta_{\mathrm{sample}}(m)}_{\text{finite rollout data}}.
+\end{aligned}
+$$
+
+DAgger addresses distribution shift directly, but it requires access to an expert that can label learner-visited states and to an environment in which the learner can be rolled out.
+
+## How the training loss changes the guarantee
+
+The $T^2\epsilon$ result is a worst-case guarantee for exact action disagreement. It does not imply that every offline imitation objective must have the same horizon dependence. In the discrete-action setting, training with logarithmic loss can instead give a trajectory-distribution guarantee.
+
+To keep costs and rewards distinct, write $V(\pi)$ for expected cumulative reward, with larger values preferred. For a deterministic expert, one result is
+
+$$
+V(\pi^\star)-V(\hat\pi)
+\leq 4R\,D_H^2(P_{\hat\pi},P_{\pi^\star}),
+$$
+
+where $R$ is the range of cumulative reward and $D_H^2$ is squared Hellinger distance between the learner's and expert's trajectory distributions. For a finite policy class trained on $n$ demonstrations, with probability at least $1-\delta$,
+
+$$
+V(\pi^\star)-V(\hat\pi)
+\leq 8R\frac{\log(2|\Pi|/\delta)}{n}.
+$$
+
+This finite-class expression has no explicit horizon factor. For a stochastic expert, the guarantee also depends on the expert's value variance:
+
+$$
+V(\pi^\star)-V(\hat\pi)
+\leq \sqrt{6\sigma_\star^2D_H^2}
++O\!\left(R\log\frac{R}{\eta}\right)D_H^2+\eta,
+$$
+
+where $\eta$ is a positive tolerance. The variance term compares the expert's value $V_t^\star(x_t)$ with its action-value $Q_t^\star(x_t,u_t)$:
+
+$$
+\sigma_\star^2=\sum_{t=1}^{T}\mathbb{E}\left[(V_t^\star(x_t)-Q_t^\star(x_t,u_t))^2\right].
+$$
+
+These results show that the loss function matters: the quadratic horizon penalty is not universal across all objectives. The guarantees rely on discrete-action ingredients and should not be carried over automatically to continuous controls.
+
+## Conditions that limit error amplification
+
+Another route is to ask what makes the system itself insensitive to action errors. Two useful conditions on the $Q$-function lead to different bounds.
+
+If $Q_t$ is $L$-Lipschitz in its action argument,
+
+$$
+|Q_t(x,u)-Q_t(x,u')|\leq L\|u-u'\|,
+$$
+
+then the downstream cost difference is bounded by the expert-state $L_1$ action error:
+
+$$
+J(\hat\pi)-J(\pi^\star)\leq L R_{\mathrm{expert},L_1}(\hat\pi).
+$$
+
+Here small action errors produce proportionally small cost changes, so the amplification factor has no explicit dependence on $T$. A weaker condition is simply that $Q$ is bounded: if $0\leq Q_t(x,u)\leq B$, then
+
+$$
+J(\hat\pi)-J(\pi^\star)\leq B R_{0,1}(\hat\pi).
+$$
+
+This also gives a constant factor, but it uses zero-one disagreement and therefore inherits that metric's limitations for continuous actions.
+
+### Incremental stability and the geometric-series bound
+
+Lipschitz continuity of $Q$ is useful, but it raises another question: what properties of the physical system could make $Q$ smooth? Incremental stability gives one answer. A system is exponentially input-to-state stable, or $(C,\rho)$-E-IISS, when
+
+$$
+\|x_{t+1}-x'_{t+1}\|
+\leq C\rho^t\|x_1-x'_1\|
++\sum_{k=1}^{t}C\rho^{t-k}\|u_k-u'_k\|,
+\qquad C\geq1,\quad 0\leq\rho<1.
+$$
+
+The first term says that an initial-state perturbation decays. Each term in the sum says that the effect of an earlier action difference shrinks geometrically over time. Open-loop stability is a property of the plant itself; closed-loop stability is a property of the plant together with its feedback policy. A quadrotor, for example, can be unstable without feedback and stable under a suitable controller.
+
+Consider one action perturbation of size $\delta$. The resulting state differences are bounded successively by
+
+$$
+C\delta,\qquad C\rho\delta,\qquad C\rho^2\delta,\qquad \ldots
+$$
+
+Their total influence is bounded by a geometric series:
+
+$$
+C\delta(1+\rho+\rho^2+\cdots)
+=\frac{C}{1-\rho}\delta.
+$$
+
+If the learned policy is itself $L_{\hat\pi}$-Lipschitz in the state, then a state perturbation also changes future actions. Under regularity assumptions on the per-step cost, the resulting $Q$-Lipschitz constant is
+
+$$
+L_Q=\frac{C}{1-\rho}(2+L_{\hat\pi}),
+$$
+
+which gives
+
+$$
+J(\hat\pi)-J(\pi^\star)
+\leq \frac{C}{1-\rho}(2+L_{\hat\pi})R_{\mathrm{expert},L_1}(\hat\pi).
+$$
+
+The denominator comes directly from the geometric sum. If perturbations contract ($\rho<1$), their accumulated effect is bounded independently of the horizon. At the marginal case $\rho=1$, the sum grows as $O(T)$; for $\rho>1$, it grows exponentially with the horizon. Stability is therefore one concrete explanation for when the physical system corrects small errors instead of amplifying them.
+
+## Why continuous actions need different tools
+
+The exact-match metric becomes especially problematic for robotics because actions such as torques and joint velocities are real-valued. In the one-dimensional function class
+
+$$
+\mathcal{G}=\{g:[0,1]\to[-1,1]\text{ that are 1-Lipschitz}\},\qquad z\sim\mathrm{Unif}[0,1],
+$$
+
+the minimax expected zero-one error can remain $1$ for every sample size $n$:
+
+$$
+\forall n\in\mathbb{N},\qquad
+\inf_{\hat g}\sup_{g^\star\in\mathcal{G}}
+\mathbb{E}\left[\mathbf{1}\{\hat g(z)\neq g^\star(z)\}\right]=1.
+$$
+
+Yet the minimax squared regression error can decrease at the usual rate:
+
+$$
+\inf_{\hat g}\sup_{g^\star\in\mathcal{G}}
+\mathbb{E}\left[(\hat g(z)-g^\star(z))^2\right]\lesssim\frac{1}{n}.
+$$
+
+There is no contradiction. Predictions $0.53720$ and $0.53721$ are nearly identical under squared error but are always unequal under exact matching. For continuous actions, we need a metric that measures how close the actions are. That alone does not guarantee safety, because the system may be sensitive to small control differences.
+
+## A small controller error can change stability
+
+Consider a scalar linear system
+
+$$
+x_{t+1}=ax_t+bu_t.
+$$
+
+Suppose the expert uses feedback $u_t=-k^\star x_t$. The expert's closed-loop dynamics are
+
+$$
+x_{t+1}=(a-bk^\star)x_t=\rho x_t,
+\qquad |\rho|<1.
+$$
+
+With $x_1=1$, the expert states decay as $|x_t|=|\rho|^{t-1}$. Let the learner use $\hat u_t=-\hat kx_t$, where $\Delta k=\hat k-k^\star$. On expert states, its action error is
+
+$$
+|\hat u_t-u_t^\star|=|\Delta k|\,|\rho|^{t-1}.
+$$
+
+The horizon-average absolute action error on the expert trajectory is therefore
+
+$$
+R_{\mathrm{train}}
+=\frac{|\Delta k|}{T}\sum_{j=0}^{T-1}|\rho|^j
+=\frac{|\Delta k|}{T}\frac{1-|\rho|^T}{1-|\rho|}
+\approx\frac{|\Delta k|}{T(1-|\rho|)}
+$$
+
+for fixed $|\rho|<1$ and large $T$. It can be small because the expert's later states are close to equilibrium. But the learner's deployed closed-loop multiplier is
+
+$$
+\rho'=a-b\hat k=\rho-b\Delta k.
+$$
+
+If $|\rho'|>1$, the learner's state grows exponentially even though the expert's state decays. The example illustrates a possibility, not a claim that every parameter error is destabilizing: the sign and size of $\Delta k$ matter. It also shows why demonstrations near a stable trajectory may provide little evidence about behavior away from that trajectory.
+
+## What continuous-action lower bounds establish
+
+The scalar example demonstrates one failure mode. The lower bounds in the tutorial make a worst-case statement over constructed problem families: for some clipped-cost problems, rollout error can exceed expert-state $L_2$ imitation error by a factor exponential in the horizon,
+
+$$
+\text{worst-case }R_{\mathrm{cost}}
+\geq e^{\Omega(T)}\times
+\text{worst-case }R_{\mathrm{expert},L_2}.
+$$
+
+This is not a forecast for every robot. It says that low demonstration error alone does not rule out severe deployment error over the full class of problems considered.
+
+One more specific result uses $\bar\epsilon_n=n^{-s/k}$, with $s\geq2$ and dimension $d=k+2$. There is a family of incrementally stable instances on which a learner achieves
+
+$$
+\mathbb{E}R_{\mathrm{expert},L_2}\leq C_1\bar\epsilon_n
+$$
+
+for every instance, while every learner in the specified smooth Markov class has some instance with
+
+$$
+\mathbb{E}R_{\mathrm{cost}}
+\geq C_2\min\left\{1.05^T\bar\epsilon_n,\frac{1}{ML^2}\right\}.
+$$
+
+Here $C_1,C_2,M,L$ are the constants and problem parameters in that construction. A related strengthening makes the failure occur with constant probability, not only through a rare high-cost event:
+
+$$
+\mathbb{E}[\mathrm{cost}]
+\geq C_3\min\left\{1.05^T\bar\epsilon_n,L^{-2}M^{-1}\right\}
+\geq C_4,
+$$
+
+while the expert has zero cost on these instances.
+
+Adding state-independent noise to a smooth mean policy is not, by itself, a general escape from these lower bounds. The corresponding bounds can still contain an exponential term, with additional dependence on noise anti-concentration. More informative data or richer state-dependent stochastic behavior may change the setting, but simple randomization alone is not a guarantee.
+
+The tutorial also considers open-loop unstable systems whose expert-controlled closed loop is stable. For a constructed family,
+
+$$
+\mathbb{E}R_{\mathrm{expert},L_2}\leq C_1\bar\epsilon_n,
+\qquad
+\mathbb{E}R_{\mathrm{cost}}\geq C_2\min\{2^T\bar\epsilon_n,1\}.
+$$
+
+This result applies to a broad algorithm class, including nonsmooth, stochastic, and history-dependent policies. In that setting, changing only the policy representation cannot guarantee recovery from missing state coverage; the instability and available data matter as well.
+
+## Putting the results together
+
+The results answer different parts of the same question: when does a small training error imply good behavior at deployment?
+
+| What changes the guarantee? | Result | Interpretation |
+| --- | --- | --- |
+| Worst-case rollout | $J(\hat\pi)-J(\pi^\star)\leq T^2\epsilon$ | An error may happen at any step and may affect the full remaining episode. |
+| Recoverable task | $J(\hat\pi)-J(\pi^\star)\leq\sum_i\epsilon_i\kappa_i$ | The task's recovery behavior replaces the worst-case horizon. |
+| Learner-state data | DAgger bounds loss under $d_{\hat\pi}$ | Training includes states the policy actually visits. |
+| Log-loss, discrete actions | Hellinger / finite-class reward guarantees | The training objective can remove explicit horizon dependence under its assumptions. |
+| Smooth cost-to-go | $J(\hat\pi)-J(\pi^\star)\leq L R_{\mathrm{expert},L_1}$ | Action errors have proportional downstream cost. |
+| Incremental stability | Amplification scales as $C/(1-\rho)$ | Contracting dynamics limit the accumulated effect of perturbations. |
+| Continuous actions | Exact-match risk may stay at $1$; lower bounds can be exponential | Norm error is more informative, but it does not alone ensure stable deployment. |
+
+When evaluating an imitation-learning result, it helps to ask six questions in order:
+
+1. What is being optimized: task cost, reward, action error, or likelihood?
+2. On which states is the loss measured: expert states, learner states, or a mixture?
+3. What does one action error do to future states and cost?
+4. Which assumption controls amplification: horizon, recoverability, smooth $Q$, or stability?
+5. Are the actions discrete or continuous, and is the error metric appropriate?
+6. What behavior is not identified by the demonstrations?
+
+The central relationship is
+
+$$
+\text{training loss}
+\longrightarrow\text{action error}
+\longrightarrow\text{state error}
+\longrightarrow\text{future action errors}
+\longrightarrow\text{deployment cost}.
+$$
+
+Each result above controls a different part of this chain. The practical question is not simply whether training error is small, but what the data, loss, policy, and physical system together guarantee about the rollout.

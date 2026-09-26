@@ -8,7 +8,7 @@ author_profile: true
 Short pieces on scrappy experiments — small hypotheses and hunches from my research that are interesting on their own but don't warrant a full publication. Occasionally, a non-research piece I felt compelled to write down.
 
 - [**Robot Learning: A Mathematical Guide to Training Policies**](/blog/robot-learning-mathematical-guide/)\
-  How small action errors can send a learned robot onto a different path, and what the classical imitation-learning bound can guarantee.
+  A guided look at imitation error, compounding, DAgger, stability, and the limits of continuous-action learning guarantees.
 
 - [**Open-Loop and Closed-Loop Stability Regimes in Open-Source Manipulation Datasets**](/blog/stability-regimes/)  
   Perturbing one action per timestep across robomimic, MimicGen, LIBERO-Long, and RoboCasa to measure where errors are absorbed and where they grow. Once a stochastic policy's own sampling noise is subtracted, letting it react is neutral at most states and helpful at a few, not harmful.
