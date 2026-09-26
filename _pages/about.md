@@ -36,7 +36,7 @@ I'm especially excited about the physical-intelligence space — it's remarkable
   *Mechanistic Interpretability Workshop at ICML, 2026* · [Paper](https://openreview.net/pdf?id=mS9nh3L3iN) · [Project page](/publication/2026-hitchhikers-guide)
 
 - **A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs**\
-  *Medical Imaging with Deep Learning (MIDL), 2026* · [arXiv](https://arxiv.org/abs/2603.01659)
+  *Medical Imaging with Deep Learning (MIDL), 2026* · [arXiv](https://arxiv.org/abs/2603.01659) · [Project page](/publication/2026-nodule-synthesis)
 
 - **DiffusionXRay: A Diffusion and GAN-Based Approach for Enhancing Digitally Reconstructed Chest Radiographs**\
   *DEMI Workshop at MICCAI, 2025* · [arXiv](https://arxiv.org/abs/2603.01686) · [Project page](/publication/2025-diffusionxray)

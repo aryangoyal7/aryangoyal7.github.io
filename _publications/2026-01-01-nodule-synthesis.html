@@ -1,0 +1,942 @@
+---
+title: "A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs"
+collection: publications
+category: conferences
+layout: none
+permalink: /publication/2026-nodule-synthesis
+excerpt: 'A diffusion model that generates realistic lung nodules on chest X-rays with control over border, texture, calcification and subtlety, and uses them to train better nodule detectors.'
+date: 2026-01-01
+venue: 'Medical Imaging with Deep Learning (MIDL)'
+paperurl: 'https://arxiv.org/abs/2603.01659'
+citation: 'Goyal, A.*, Singh, S.*, Mittal, A.*, Tadepalli, M., Kumar, P., and Putha, P. (2026). &quot;A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs&quot;. Medical Imaging with Deep Learning (MIDL). (*equal contribution)'
+---
+{% raw %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controllable Nodule Synthesis</title>
+<meta name="description" content="A diffusion model that generates realistic lung nodules on chest X-rays with control over border, texture, calcification and subtlety.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #fbfbf9;
+  --surface: #ffffff;
+  --surface-2: #f3f3ef;
+  --text: #1c1d1f;
+  --muted: #5d6068;
+  --border: #e2e2dc;
+  --accent: #2a78d6;
+  --accent-bg: #e6f0fc;
+  --ours: #2a78d6;
+  --base: #eb6834;
+  --s3: #1baf7a;
+  --context: #b3b1aa;
+  --good: #1a7f37; --good-bg: #e3f3e7;
+  --shadow: 0 1px 2px rgba(20,20,30,.05), 0 4px 16px rgba(20,20,30,.06);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.65 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: .86em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 0; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: .75em 0; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+img { max-width: 100%; display: block; }
+
+.topbar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 20px; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); font-size: .92rem; }
+.topbar a { color: var(--text); }
+.topbar a:first-child { font-weight: 600; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: grid; grid-template-columns: minmax(0, 1fr); }
+main { min-width: 0; max-width: 820px; width: 100%; margin: 0 auto; }
+.toc { display: none; }
+@media (min-width: 1140px) {
+  .shell { grid-template-columns: 200px minmax(0, 820px); gap: 52px; justify-content: center; }
+  main { margin: 0; }
+  .toc { display: block; position: sticky; top: 72px; align-self: start; padding-top: 36px; font-size: .88rem; }
+  .toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--border); }
+  .toc a { display: block; padding: 5px 0 5px 14px; margin-left: -1px; color: var(--muted); border-left: 2px solid transparent; }
+  .toc a:hover { color: var(--text); text-decoration: none; }
+  .toc a.active { color: var(--text); border-left-color: var(--accent); font-weight: 500; }
+  .toc .toc-title { font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+}
+section { padding: 56px 0 8px; scroll-margin-top: 64px; }
+.kicker { font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.lead { font-size: 1.08rem; }
+
+/* hero */
+.hero { padding: 48px 0 8px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.badge { font-size: .8rem; font-weight: 500; padding: 3px 10px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); }
+.hero h1 { font-size: clamp(1.65rem, 3.8vw, 2.35rem); font-weight: 700; letter-spacing: -.02em; }
+.authors { margin-top: 16px; font-size: 1rem; }
+.authors span { white-space: nowrap; }
+.affil { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9px; background: var(--text); color: var(--bg); font-weight: 500; font-size: .93rem; border: 1px solid var(--text); cursor: pointer; font-family: inherit; }
+.btn:hover { text-decoration: none; opacity: .9; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-top: 18px; min-width: 0; }
+.panel.shadow { box-shadow: var(--shadow); }
+
+/* chips & tabs */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 99px; padding: 5px 13px; font: 500 .87rem Inter, sans-serif; cursor: pointer; }
+.chip:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.chip .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+/* method comparison */
+.cmp { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (min-width: 700px) { .cmp { grid-template-columns: 300px minmax(0, 1fr); } }
+.cmp-main img { width: 100%; border-radius: 10px; image-rendering: auto; }
+.cmp-cap { font-size: .9rem; margin-top: 10px; }
+.strip5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 14px; }
+.strip5 button { padding: 0; border: 2px solid transparent; border-radius: 8px; background: none; cursor: pointer; overflow: hidden; }
+.strip5 button[aria-pressed="true"] { border-color: var(--accent); }
+.strip5 span { display: block; font-size: .72rem; color: var(--muted); padding: 3px 0; text-align: center; font-weight: 500; }
+
+/* stat tiles */
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+@media (min-width: 760px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.stat .num { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.stat .num small { font-size: .95rem; font-weight: 500; color: var(--muted); }
+.stat .lbl { font-size: .84rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* explorer */
+.explorer-head { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.ex-panel { margin-top: 14px; }
+.ex-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.ex-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ex-title .tag { font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--muted); }
+.ex-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.metric { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.metric .m-lbl { font-size: .74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.metric .m-val { font-size: 1.2rem; font-weight: 700; margin-top: 2px; }
+.metric .m-sub { font-size: .8rem; color: var(--muted); line-height: 1.35; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.gallery.wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+figure { margin: 0; }
+.shot { cursor: zoom-in; border-radius: 8px; overflow: hidden; background: #222; }
+.shot img { width: 100%; }
+figcaption { font-size: .8rem; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+
+/* stepper */
+.steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+@media (min-width: 700px) { .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.step { text-align: left; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 10px 12px; cursor: pointer; font: inherit; color: var(--text); }
+.step .s-no { font-size: .74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.step .s-name { font-size: .9rem; font-weight: 600; line-height: 1.3; }
+.step[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg); }
+.step[aria-pressed="true"] .s-no { color: var(--accent); }
+.step-body { margin-top: 12px; }
+.step-body ul { margin: 8px 0 0; padding-left: 20px; }
+.step-body li { margin: 4px 0; }
+
+.triple { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.triple figure { text-align: center; }
+
+/* compare slider */
+.compare { position: relative; border-radius: 10px; overflow: hidden; user-select: none; touch-action: pan-y; background: #222; }
+.compare img { width: 100%; display: block; }
+.compare .top { position: absolute; inset: 0; clip-path: inset(0 50% 0 0); }
+.compare .handle { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); pointer-events: none; }
+.compare .handle::after { content: "\2194"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #222; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 1px 6px rgba(0,0,0,.3); }
+.compare .lab { position: absolute; top: 8px; font-size: .72rem; font-weight: 600; color: #fff; background: rgba(0,0,0,.55); padding: 2px 8px; border-radius: 6px; }
+.compare .lab.l { left: 8px; } .compare .lab.r { right: 8px; }
+.compare input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+
+/* equations */
+.eq { margin: 16px 0; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; overflow-y: hidden; min-width: 0; }
+.eq .katex-display { margin: 0; }
+.note { margin: 16px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 0 8px 8px 0; font-size: .95rem; }
+.note p { margin: .3em 0; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 14px; }
+@media (min-width: 640px) { .two { grid-template-columns: 1fr 1fr; } }
+.two > div { padding: 14px 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); font-size: .94rem; }
+.two h4 { font-size: .95rem; margin-bottom: 4px; }
+
+/* charts */
+.chart { margin-top: 10px; min-width: 0; }
+.chart-title { font-weight: 600; font-size: .98rem; }
+.chart-sub { font-size: .84rem; color: var(--muted); margin-top: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .82rem; color: var(--muted); margin: 10px 0 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.drow { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 36px; padding: 2px 0; border-radius: 6px; }
+@media (min-width: 640px) { .drow { grid-template-columns: 170px minmax(0, 1fr); } }
+.drow:hover { background: var(--surface-2); }
+.drow .rl { font-size: .86rem; line-height: 1.25; }
+.drow .rl.hl { font-weight: 600; }
+.track { position: relative; height: 34px; }
+.track .gridl { position: absolute; top: 4px; bottom: 4px; width: 1px; background: var(--border); }
+.track .link { position: absolute; top: 50%; height: 2px; background: var(--context); transform: translateY(-50%); }
+.track .dt { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid var(--surface); box-sizing: content-box; }
+.track .ci { position: absolute; height: 2px; transform: translateY(-50%); opacity: .55; }
+.track .ci::before, .track .ci::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: inherit; }
+.track .ci::before { left: 0; } .track .ci::after { right: 0; }
+.track .bar { position: absolute; left: 0; height: 12px; border-radius: 0 4px 4px 0; }
+.track .vl { position: absolute; top: 50%; transform: translateY(-50%); font-size: .76rem; font-weight: 600; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; background: var(--surface); padding: 0 3px; border-radius: 3px; }
+.drow:hover .track .vl { background: var(--surface-2); }
+.rl small { display: block; font-size: .76rem; color: var(--muted); font-weight: 400; }
+.axis { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 10px; }
+@media (min-width: 640px) { .axis { grid-template-columns: 170px minmax(0, 1fr); } }
+.axis .ticks { position: relative; height: 18px; font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.axis .ticks span { position: absolute; transform: translateX(-50%); }
+.tbl { margin-top: 8px; font-size: .85rem; }
+.tbl summary { cursor: pointer; color: var(--muted); font-size: .82rem; }
+.tbl table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+.tbl th, .tbl td { padding: 5px 8px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl-wrap { overflow-x: auto; }
+.ctl { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 12px; }
+.ctl .grp { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.ctl .grp-l { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 4px; }
+.seg { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 8px; padding: 4px 11px; font: 500 .84rem Inter, sans-serif; cursor: pointer; }
+.seg[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.tip { position: fixed; z-index: 70; pointer-events: none; background: var(--text); color: var(--bg); font-size: .8rem; line-height: 1.45; padding: 7px 10px; border-radius: 8px; max-width: 260px; opacity: 0; transition: opacity .08s; }
+.tip.show { opacity: 1; }
+.tip b { font-weight: 600; }
+svg text { font-family: Inter, sans-serif; }
+.linechart svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+/* results tabs */
+.rtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.rtab { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 9px; padding: 6px 12px; font: 500 .88rem Inter, sans-serif; cursor: pointer; }
+.rtab[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+.rpanel[hidden] { display: none; }
+.takeaway { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: var(--good-bg); font-size: .93rem; }
+.takeaway b { color: var(--good); }
+
+table.data { border-collapse: collapse; width: 100%; font-size: .9rem; }
+table.data th, table.data td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
+table.data th:first-child, table.data td:first-child { text-align: left; }
+table.data thead th { font-weight: 600; font-size: .82rem; color: var(--muted); }
+
+/* lightbox */
+.lb { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,12,.88); display: none; align-items: center; justify-content: center; padding: 24px; flex-direction: column; gap: 10px; }
+.lb.show { display: flex; }
+.lb img { max-width: min(1000px, 100%); max-height: 80vh; width: auto; border-radius: 8px; }
+.lb .lb-cap { color: #ddd; font-size: .9rem; max-width: 800px; text-align: center; }
+.lb button { position: absolute; top: 14px; right: 16px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; line-height: 1; }
+
+.bib { position: relative; }
+.bib pre { margin: 0; padding: 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); overflow-x: auto; font-size: .8rem; line-height: 1.55; font-family: "JetBrains Mono", monospace; }
+.copy { position: absolute; top: 10px; right: 10px; }
+footer { padding: 48px 0 64px; font-size: .85rem; color: var(--muted); }
+ul.plain { padding-left: 20px; }
+ul.plain li { margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><a href="/">Aryan Goyal</a><a href="/publications/" class="muted">Publications</a></div>
+
+<div class="shell">
+  <nav class="toc" aria-label="On this page">
+    <div class="toc-title">On this page</div>
+    <ol>
+      <li><a href="#summary">In short</a></li>
+      <li><a href="#explorer">Characteristics</a></li>
+      <li><a href="#method">How it works</a></li>
+      <li><a href="#subtlety">Subtlety slider</a></li>
+      <li><a href="#merging">Combining traits</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#data">Data and cost</a></li>
+      <li><a href="#cite">Citation</a></li>
+    </ol>
+  </nav>
+
+<main>
+
+<header class="hero">
+  <div class="badges"><span class="badge">Medical Imaging with Deep Learning (MIDL) 2026</span></div>
+  <h1>A Diffusion-Driven Fine-Grained Nodule Synthesis Framework for Enhanced Lung Nodule Detection from Chest Radiographs</h1>
+  <div class="authors"><span><strong>Aryan Goyal</strong>*,</span> <span>Shreshtha Singh*,</span> <span>Ashish Mittal*,</span> <span>Manoj Tadepalli,</span> <span>Piyush Kumar,</span> <span>Preetham Putha</span></div>
+  <div class="affil">Qure.ai · Indian Institute of Technology Bombay · *equal contribution</div>
+  <div class="btns">
+    <a class="btn" href="https://arxiv.org/abs/2603.01659">Paper</a>
+    <a class="btn ghost" href="https://github.com/shreshthasingh00/Nodule-Crafter-Diffusion-driven-Nodule-synthesis-on-CXR">Code</a>
+    <a class="btn ghost" href="#cite">BibTeX</a>
+  </div>
+
+  <div class="panel shadow" style="margin-top:28px">
+    <div class="cmp">
+      <div class="cmp-main"><img id="cmpImg" src="/assets/figures/nodule-synthesis/paper/cmp-ours.png" alt="Generated nodule on a chest X-ray patch"></div>
+      <div>
+        <div class="kicker">Same patch, five sources</div>
+        <h3 id="cmpName">Ours (diffusion)</h3>
+        <p class="cmp-cap" id="cmpText"></p>
+        <div class="strip5" id="cmpStrip"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="summary" style="padding-top:36px">
+  <div class="kicker">In short</div>
+  <h2>Realistic nodules, with control over what they look like</h2>
+  <p class="lead">Detecting lung nodules on chest X-rays is hard, partly because detectors don't see enough examples of every kind of nodule. We train a diffusion model that paints a nodule into any chosen spot of a real X-ray, and lets you choose its <strong>shape and size</strong> (through a mask), its <strong>border</strong>, its <strong>texture</strong>, whether it is <strong>calcified</strong>, and how <strong>subtle</strong> it is.</p>
+  <p>Each characteristic is learned by its own small add-on module (a LoRA adapter). To combine two characteristics in one nodule, we train the adapters with an extra loss that keeps them from interfering with each other. Adding the generated nodules to a detector's training data improves detection on in-house and public test sets.</p>
+  <div class="stats">
+    <div class="stat"><div class="num">80%</div><div class="lbl">of generated nodules judged <em>real</em> by a radiologist panel (real nodules: 90%)</div></div>
+    <div class="stat"><div class="num">0.902 <small>AUC</small></div><div class="lbl">on JSRT, up from 0.856 with real data alone</div></div>
+    <div class="stat"><div class="num">0.932 <small>AUC</small></div><div class="lbl">on ChestX-ray14, up from 0.901</div></div>
+    <div class="stat"><div class="num">40→52%</div><div class="lbl">of the most subtle JSRT nodules correctly classified</div></div>
+  </div>
+</section>
+
+<section id="explorer">
+  <div class="kicker">Explore by characteristic</div>
+  <h2>What each characteristic looks like, and how well it works</h2>
+  <p>Radiologists describe a nodule by a few traits that matter for diagnosis. Pick one to see its definition, examples generated by our model, and the numbers for that trait. Click any image to enlarge it.</p>
+  <div class="explorer-head chips" id="exChips"></div>
+  <div class="panel ex-panel" id="exPanel"></div>
+</section>
+
+<section id="method">
+  <div class="kicker">Method</div>
+  <h2>How it works</h2>
+  <p>The model is trained in three stages. The first two teach it to draw realistic nodules where a mask says; the third adds control over individual characteristics. Click a stage.</p>
+  <div class="steps" id="steps"></div>
+  <div class="panel step-body" id="stepBody"></div>
+
+  <figure class="panel" style="padding:14px">
+    <div class="shot" style="background:#fff"><img src="/assets/figures/nodule-synthesis/paper/pipeline.png" alt="Training pipeline with three stages" data-cap="Training pipeline. Stage 1 trains DiT-XL/2 on chest X-ray patches, Stage 2 fine-tunes it on nodule patches with masks, Stage 3.1 trains one LoRA adapter per characteristic, and Stage 3.2 trains two adapters jointly with the orthogonality loss."></div>
+    <figcaption>The full pipeline (Figure 3 of the paper). Flames mark trained parts; snowflakes mark frozen parts.</figcaption>
+  </figure>
+
+  <h3 style="margin-top:32px">From a mask to a nodule</h3>
+  <p>At test time you give the model an X-ray patch and a binary mask. It fills the masked region with a nodule of that shape and size and leaves the surrounding lung untouched. Drag the slider to compare the input and the output.</p>
+  <div class="panel">
+    <div class="two" style="margin-top:0;align-items:start">
+      <div style="padding:0;border:none">
+        <div class="compare" id="cmpBackbone">
+          <img src="/assets/figures/nodule-synthesis/paper/backbone-generated.png" alt="Generated patch">
+          <div class="top"><img src="/assets/figures/nodule-synthesis/paper/backbone-original.png" alt="Original patch"></div>
+          <div class="handle"></div><span class="lab l">Original</span><span class="lab r">Generated</span>
+          <input type="range" min="0" max="100" value="50" aria-label="Compare original and generated patch">
+        </div>
+      </div>
+      <div style="padding:0;border:none">
+        <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/paper/backbone-mask.png" alt="Binary nodule mask" data-cap="The binary mask that sets the nodule's position, size and shape."></div><figcaption>The mask used for this example. The model follows its position, size and shape.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+  <div class="gallery wide" style="margin-top:14px">
+    <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/sample1.png" alt="Generated example with ECG leads" data-cap="Input X-ray, generated patch, and the generated patch with the mask overlaid."></div><figcaption>Input X-ray, generated patch, and the patch with the mask overlaid. The nodule sits among ECG leads.</figcaption></figure>
+    <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/sample2.png" alt="Generated example near the heart border" data-cap="Input X-ray, generated patch, and the generated patch with the mask overlaid."></div><figcaption>Another example: input X-ray, generated patch, and the patch with its mask.</figcaption></figure>
+  </div>
+
+  <h3 style="margin-top:32px">Why separate adapters instead of one conditioning signal</h3>
+  <p>A natural idea is to feed the characteristic label into the model with classifier-free guidance (CFG), the same way the mask is fed in. In practice, guiding on both the mask and the labels made them compete and blurred the nodule's boundary. So the mask keeps CFG, and each characteristic gets its own LoRA adapter. The adapters follow their characteristic much more closely (lower FID is better):</p>
+  <div class="panel"><div id="chartCfg"></div></div>
+  <p class="small muted">A LoRA adapter freezes the model's weights \(W_0\) and learns a small low-rank update \(\Delta W = AB\) (rank 32 here). Each adapter adds about 6.2M parameters, under 1% of the frozen model, and sits in the attention layers of all 28 transformer blocks.</p>
+</section>
+
+<section id="subtlety">
+  <div class="kicker">Subtlety</div>
+  <h2>A slider for how hard a nodule is to see</h2>
+  <p>Radiologists graded each training nodule from 1 (most subtle) to 5 (most obvious). Rather than training one adapter per grade, we tie the grade to the adapter's strength \(\alpha\): subtle nodules are trained with a small \(\alpha\) and obvious ones with a large \(\alpha\),</p>
+  <div class="eq">\[ W = W_0 + \alpha(s)\,\Delta W, \qquad \alpha(s) = 2^{2+s}, \quad s \in \{1,\dots,5\}. \]</div>
+  <p>At generation time, turning \(\alpha\) down makes the same nodule fainter. Try it on one mask:</p>
+  <div class="panel">
+    <div class="two" style="margin-top:0;align-items:center">
+      <div style="padding:0;border:none"><div class="shot"><img id="subImg" src="/assets/figures/nodule-synthesis/paper/subtlety-a24.png" alt="Nodule at subtlety alpha 24" data-cap="Subtlety slider output."></div></div>
+      <div style="padding:0;border:none">
+        <div class="kicker">LoRA scale</div>
+        <div class="big" style="font-size:1.6rem;font-weight:700" id="subVal">α = 24</div>
+        <input type="range" id="subRange" min="0" max="2" step="1" value="0" style="width:100%;accent-color:var(--accent);margin-top:10px" aria-label="Subtlety level">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)"><span>more visible</span><span>more subtle</span></div>
+        <p class="small" id="subText" style="margin-top:12px"></p>
+      </div>
+    </div>
+  </div>
+  <p>Radiologists were shown sets of three such versions and asked to order them from most obvious to most subtle. The panel's majority order matched ours in <strong>80%</strong> of sets. Subtle nodules also helped the detector most where it was weakest; see the <a href="#results" data-rtab="subtle">subtle-nodule results</a>.</p>
+  <div class="gallery wide" style="margin-top:14px">
+    <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/subtle.png" alt="Subtle nodule example" data-cap="Input, generated subtle nodule, and the same patch with the mask overlaid."></div><figcaption>A subtle nodule: nearly invisible in the output; the mask shows where it is.</figcaption></figure>
+    <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/subtle_grid.png" alt="Subtle nodule with mask" data-cap="A subtle generated nodule, without and with the mask."></div><figcaption>Another subtle nodule, without and with its mask.</figcaption></figure>
+  </div>
+</section>
+
+<section id="merging">
+  <div class="kicker">Two characteristics at once</div>
+  <h2>Combining adapters without interference</h2>
+  <p>Real nodules rarely have just one trait. A benign nodule is often calcified <em>and</em> smooth; a worrying one is often irregular <em>and</em> uneven in texture. So we want to switch on two adapters at the same time.</p>
+  <div class="two">
+    <div><h4>Problem 1: they fight over the same pixels</h4>In natural images, a "style" adapter and an "object" adapter usually act on different parts of the image. Here every adapter acts on the same small nodule region, so their updates compete. One trait tends to dominate, and artifacts appear near the mask edge.</div>
+    <div><h4>Problem 2: their updates overlap</h4>Adapters trained separately end up pointing in similar directions in weight space. Most of an adapter's weights are near zero (60–70% below 0.01), so the few that matter collide when you average two adapters. This hurts every merging method we tried: linear merging, switching and ZipLoRA.</div>
+  </div>
+  <p style="margin-top:18px">Our fix is to train the two adapters together and add a penalty whenever their updates overlap:</p>
+  <div class="eq">\[ \mathcal{L}_{\text{orth}} = \big\lVert W_1 W_2^{\top} \big\rVert_F^2 \]</div>
+  <p>The penalty is zero when the two updates are orthogonal, meaning they change the model along independent directions. With it, simply averaging the adapters works, and each trait stays adjustable through its own \(\alpha\).</p>
+
+  <div class="panel">
+    <div class="chart-title">Linear merge vs. ours</div>
+    <div class="chart-sub">Pick a combination, then drag the slider across the patch.</div>
+    <div class="chips" id="mergeChips" style="margin-top:10px"></div>
+    <div style="max-width:420px;margin-top:12px">
+      <div class="compare" id="cmpMerge">
+        <img id="mergeOurs" src="/assets/figures/nodule-synthesis/paper/merge-ours-a.png" alt="Ours">
+        <div class="top"><img id="mergeLin" src="/assets/figures/nodule-synthesis/paper/merge-linear-a.png" alt="Linear merge"></div>
+        <div class="handle"></div><span class="lab l">Linear merge</span><span class="lab r">Ours</span>
+        <input type="range" min="0" max="100" value="50" aria-label="Compare linear merge and ours">
+      </div>
+    </div>
+    <p class="small" id="mergeText" style="margin-bottom:0"></p>
+  </div>
+
+  <div class="panel">
+    <figure><div class="shot" style="background:#fff;max-width:560px"><img style="margin-top:-3.5%" src="/assets/figures/nodule-synthesis/paper/frobenius-layers.png" alt="Layer-wise overlap between adapters: separate training vs cross-training" data-cap="Average overlap (Frobenius norm of W1 W2^T) between two adapters in each of the 28 transformer layers. Blue: adapters trained separately. Red: trained together with the orthogonality loss."></div>
+    <figcaption>Overlap between two adapters in each of the 28 transformer layers (lower is more independent). Blue: trained separately. Red: trained together with the orthogonality loss. Joint training cuts the overlap in almost every layer.</figcaption></figure>
+  </div>
+  <p>A fair worry is that the loss just shrinks the adapters toward zero, which would also make the overlap small. It doesn't: the jointly trained adapters actually have <em>larger</em> weights than separately trained ones, so the loss is separating their directions rather than switching them off.</p>
+  <div class="panel"><div id="chartMag"></div></div>
+  <div class="gallery wide" style="margin-top:14px">
+    <figure><div class="shot"><img src="/assets/figures/nodule-synthesis/irregular_calcified.png" alt="Irregular and calcified nodule" data-cap="A nodule generated with both the irregular-border and calcification adapters."></div><figcaption>Irregular border + calcified, generated with two adapters at once.</figcaption></figure>
+  </div>
+</section>
+
+<section id="results">
+  <div class="kicker">Results</div>
+  <h2>Does it help?</h2>
+  <p>We check three things: whether radiologists find the nodules realistic and correctly characterised, whether the nodules improve a detector, and how the model compares with other nodule generators.</p>
+  <div class="rtabs" role="tablist" id="rtabs">
+    <button class="rtab" role="tab" data-t="rad" aria-selected="true">Radiologists</button>
+    <button class="rtab" role="tab" data-t="det" aria-selected="false">Detection</button>
+    <button class="rtab" role="tab" data-t="gen" aria-selected="false">vs. other generators</button>
+    <button class="rtab" role="tab" data-t="char" aria-selected="false">Per characteristic</button>
+    <button class="rtab" role="tab" data-t="subtle" aria-selected="false">Subtle nodules</button>
+  </div>
+
+  <div class="rpanel panel" data-p="rad">
+    <p style="margin-top:0">Three experienced radiologists took three blinded tests. Results can be counted two ways: <strong>majority vote</strong> (the panel's decision per image) or <strong>pooled</strong> (every individual answer counted). Whiskers show 95% confidence intervals.</p>
+    <div class="ctl"><div class="grp"><span class="grp-l">Count</span><button class="seg" data-agg="maj" aria-pressed="true">Majority vote</button><button class="seg" data-agg="pool" aria-pressed="false">Pooled</button></div></div>
+    <div id="chartReal" style="margin-top:14px"></div>
+    <div id="chartVerify" style="margin-top:22px"></div>
+    <div id="chartRank" style="margin-top:22px"></div>
+    <div class="takeaway"><b>Takeaway:</b> most generated nodules pass as real, and radiologists recognise the intended trait in 80–100% of cases by majority vote. Calcification is the hardest trait to read reliably.</div>
+  </div>
+
+  <div class="rpanel panel" data-p="det" hidden>
+    <p style="margin-top:0">A detector (Swin-Tiny encoder with a U-Net++ head) is trained on 10k real nodules and about 100k normal X-rays, plus a growing number of generated nodules. Performance is measured on three test sets.</p>
+    <div class="ctl"><div class="grp"><span class="grp-l">Metric</span><button class="seg" data-met="auc" aria-pressed="true">AUC (classification)</button><button class="seg" data-met="iou" aria-pressed="false">IoU (segmentation)</button></div></div>
+    <div class="linechart" id="chartAug" style="margin-top:12px"></div>
+    <div class="takeaway"><b>Takeaway:</b> every amount of generated data raises AUC over real data alone on all three test sets. Gains level off or dip past a point: on in-house segmentation, 10k generated nodules ends slightly below the baseline (0.306 vs. 0.309 IoU). So more synthetic data is not always better.</div>
+  </div>
+
+  <div class="rpanel panel" data-p="gen" hidden>
+    <p style="margin-top:0">All generators were trained on the same in-house data. We compare two GANs (ACGAN, ReACGAN) and CR-Fill, the best inpainting method in the NODE21 generation challenge.</p>
+    <div class="ctl">
+      <div class="grp"><span class="grp-l">Show</span><button class="seg" data-gv="auc" aria-pressed="true">Detection AUC</button><button class="seg" data-gv="psnr" aria-pressed="false">PSNR</button><button class="seg" data-gv="ssim" aria-pressed="false">SSIM</button><button class="seg" data-gv="fid" aria-pressed="false">FID</button></div>
+      <div class="grp" id="gvSub"></div>
+    </div>
+    <div id="chartGen" style="margin-top:12px"></div>
+    <div class="takeaway" id="genTake"></div>
+  </div>
+
+  <div class="rpanel panel" data-p="char" hidden>
+    <p style="margin-top:0">A classifier with one output per characteristic is trained on 5k real nodules, then again with about 400 generated nodules per characteristic (2k in total) added. Segmentation IoU on the in-house test set:</p>
+    <div id="chartChar"></div>
+    <div class="takeaway"><b>Takeaway:</b> adding characteristic-specific nodules improves every characteristic, by 0.026 to 0.036 IoU.</div>
+  </div>
+
+  <div class="rpanel panel" data-p="subtle" hidden>
+    <p style="margin-top:0">JSRT grades its nodules from S1 (most subtle) to S5 (most obvious). We add 12k subtle nodules from the subtlety slider (\(\alpha &lt; 24\)) to training and measure classification accuracy at each grade.</p>
+    <div id="chartSubtle"></div>
+    <div class="takeaway"><b>Takeaway:</b> the gain is largest where the detector struggles most. On the most subtle nodules, sensitivity rises by 12 points.</div>
+  </div>
+</section>
+
+<section id="data">
+  <div class="kicker">Data and cost</div>
+  <h2>Datasets</h2>
+  <p>The in-house data has 1.2M frontal chest X-rays from partner hospitals, about 40k of them with nodules. Every nodule has a shape outline and characteristic labels from three experienced radiologists. JSRT and ChestX-ray14 are public test sets; their nodule boxes were refined into outlines with our segmentation model and checked by radiologists.</p>
+  <div class="panel tbl-wrap">
+    <table class="data">
+      <thead><tr><th></th><th>Diffusion train</th><th>Detector train</th><th>In-house test</th><th>JSRT test</th><th>ChestX-ray14 test</th></tr></thead>
+      <tbody>
+        <tr><td>All X-rays</td><td>1,100,000</td><td>100,000</td><td>12,000</td><td>247</td><td>500</td></tr>
+        <tr><td>With nodules</td><td>28,000</td><td>10,000</td><td>2,000</td><td>154</td><td>66</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 style="margin-top:28px">Compute</h3>
+  <ul class="plain">
+    <li><strong>Backbone:</strong> DiT-XL/2 (about 680M parameters, 28 transformer blocks) on 256×256 patches, encoded to 32×32 latents. Stage 1 took about a week and Stage 2 about two days, each on four NVIDIA L40 GPUs.</li>
+    <li><strong>Adapters:</strong> about 10 hours per characteristic on four L40s; 20–30 hours for a jointly trained pair.</li>
+    <li><strong>Generation:</strong> 250 DDIM steps, about 10 seconds per nodule.</li>
+  </ul>
+  <h3 style="margin-top:28px">Limitations</h3>
+  <p>Some combinations of adapters produce nodules outside what the model saw in training. We evaluate pairs of characteristics only. The loss extends to three or more adapters by penalising every pair, but the data has too few nodules labelled with several traits at once for a fair test, and many three-way combinations are rare in practice.</p>
+</section>
+
+<section id="cite">
+  <div class="kicker">Citation</div>
+  <h2>BibTeX</h2>
+  <div class="bib" style="margin-top:16px">
+    <button class="btn ghost copy" id="copyBib" type="button">Copy</button>
+<pre id="bibtex">@inproceedings{goyal2026nodule,
+  title     = {A Diffusion-Driven Fine-Grained Nodule Synthesis Framework
+               for Enhanced Lung Nodule Detection from Chest Radiographs},
+  author    = {Goyal, Aryan and Singh, Shreshtha and Mittal, Ashish and
+               Tadepalli, Manoj and Kumar, Piyush and Putha, Preetham},
+  booktitle = {Medical Imaging with Deep Learning (MIDL)},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2603.01659}
+}</pre>
+  </div>
+</section>
+
+<footer><a href="/">← Back to aryangoyal7.github.io</a></footer>
+</main>
+</div>
+
+<div class="tip" id="tip"></div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Enlarged image"><button type="button" aria-label="Close">×</button><img alt=""><div class="lb-cap"></div></div>
+
+<script>
+(function () {
+  "use strict";
+  var IMG = "/assets/figures/nodule-synthesis/", P = IMG + "paper/";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function press(btns, el) { btns.forEach(function (b) { b.setAttribute("aria-pressed", b === el ? "true" : "false"); }); }
+
+  /* ---------- tooltip ---------- */
+  var tip = $("#tip");
+  function showTip(html, x, y) {
+    tip.innerHTML = html; tip.classList.add("show");
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(Math.max(8, x + 14), window.innerWidth - w - 8), top = y - h - 12;
+    if (top < 8) top = y + 16;
+    tip.style.left = left + "px"; tip.style.top = top + "px";
+  }
+  function hideTip() { tip.classList.remove("show"); }
+
+  /* ---------- lightbox ---------- */
+  var lb = $("#lb"), lbImg = $("img", lb), lbCap = $(".lb-cap", lb);
+  document.addEventListener("click", function (e) {
+    var img = e.target.closest(".shot img");
+    if (img) { lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt; lbCap.textContent = img.getAttribute("data-cap") || img.alt || ""; lb.classList.add("show"); return; }
+    if (e.target === lb || e.target.closest("#lb button")) lb.classList.remove("show");
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") lb.classList.remove("show"); });
+
+  /* ---------- compare sliders ---------- */
+  function initCompare(box) {
+    var r = $("input", box), top = $(".top", box), h = $(".handle", box);
+    function upd() { var v = r.value; top.style.clipPath = "inset(0 " + (100 - v) + "% 0 0)"; h.style.left = v + "%"; }
+    r.addEventListener("input", upd); upd();
+  }
+  $all(".compare").forEach(initCompare);
+
+  /* ---------- hero comparison ---------- */
+  var METHODS = [
+    { id: "ground-truth", name: "Ground truth", text: "A real nodule on a real X-ray patch. The other four fill the same masked region." },
+    { id: "acgan", name: "ACGAN", text: "A widely used class-conditional GAN, trained on the same in-house data." },
+    { id: "reacgan", name: "ReACGAN", text: "A newer class-conditional GAN with a redesigned discriminator, trained on the same data." },
+    { id: "crfill", name: "CR-Fill", text: "An inpainting model, and the top performer in the NODE21 nodule generation challenge." },
+    { id: "ours", name: "Ours (diffusion)", text: "Our mask-conditioned diffusion model. On PSNR, SSIM and FID it is the closest of the four generators to real images (see results)." }
+  ];
+  (function () {
+    var strip = $("#cmpStrip"), img = $("#cmpImg"), name = $("#cmpName"), text = $("#cmpText"), btns = [];
+    METHODS.forEach(function (m) {
+      var b = document.createElement("button");
+      b.type = "button"; b.setAttribute("aria-pressed", "false"); b.setAttribute("aria-label", m.name);
+      b.innerHTML = '<img src="' + P + "cmp-" + m.id + '.png" alt=""><span>' + m.name.replace(" (diffusion)", "") + "</span>";
+      b.addEventListener("click", function () { sel(m, b); });
+      strip.appendChild(b); btns.push(b);
+    });
+    function sel(m, b) { img.src = P + "cmp-" + m.id + ".png"; img.alt = m.name; name.textContent = m.name; text.textContent = m.text; press(btns, b); }
+    sel(METHODS[4], btns[4]);
+  })();
+
+  /* ---------- chart helpers ---------- */
+  function fmt(v, d) { return (typeof d === "number") ? v.toFixed(d) : String(v); }
+  function esc(s) { return String(s).replace(/</g, "&lt;"); }
+
+  // Dot / dumbbell chart. cfg: {title, sub, series:[{name,color}], rows:[{label, hl, v:[..], ci:[[lo,hi],..]}], domain:[a,b], ticks:[..], dec, unit, better}
+  function dotChart(el, cfg) {
+    var a = cfg.domain[0], b = cfg.domain[1];
+    function pct(v) { return ((v - a) / (b - a)) * 100; }
+    var html = '<div class="chart"><div class="chart-title">' + cfg.title + "</div>" + (cfg.sub ? '<div class="chart-sub">' + cfg.sub + "</div>" : "");
+    if (cfg.series.length > 1) html += '<div class="legend">' + cfg.series.map(function (s) { return '<span><i style="background:' + s.color + '"></i>' + s.name + "</span>"; }).join("") + "</div>";
+    else html += '<div style="height:8px"></div>';
+    cfg.rows.forEach(function (r, ri) {
+      html += '<div class="drow" data-ri="' + ri + '"><div class="rl' + (r.hl ? " hl" : "") + '">' + r.label + '</div><div class="track">';
+      cfg.ticks.forEach(function (t) { html += '<div class="gridl" style="left:' + pct(t) + '%"></div>'; });
+      if (r.v.length === 2) {
+        var lo = Math.min(pct(r.v[0]), pct(r.v[1])), hi = Math.max(pct(r.v[0]), pct(r.v[1]));
+        html += '<div class="link" style="left:' + lo + "%;width:" + (hi - lo) + '%"></div>';
+      }
+      r.v.forEach(function (v, i) {
+        var col = r.colors ? r.colors[i] : cfg.series[i].color;
+        if (r.ci && r.ci[i]) html += '<div class="ci" style="top:50%;left:' + pct(r.ci[i][0]) + "%;width:" + (pct(r.ci[i][1]) - pct(r.ci[i][0])) + "%;background:" + col + '"></div>';
+        html += '<div class="dt" style="left:' + pct(v) + "%;background:" + col + '"></div>';
+      });
+      // value label: after the right-most point, or before it if near the edge
+      var maxI = r.v.indexOf(Math.max.apply(null, r.v)), minI = r.v.indexOf(Math.min.apply(null, r.v));
+      var labIdx = cfg.better === "lower" ? minI : maxI, lp = pct(r.v[labIdx]);
+      var label = r.v.length === 2 ? fmt(r.v[0], cfg.dec) + " → " + fmt(r.v[1], cfg.dec) : fmt(r.v[0], cfg.dec);
+      if (r.label2) label = r.label2;
+      var ext = r.v.map(pct);
+      if (r.ci) r.ci.forEach(function (c) { if (c) { ext.push(pct(c[0])); ext.push(pct(c[1])); } });
+      var right = Math.max.apply(null, ext), left = Math.min.apply(null, ext);
+      if (right < 62) html += '<span class="vl" style="left:calc(' + right + '% + 12px)">' + label + (cfg.unit || "") + "</span>";
+      else html += '<span class="vl" style="right:calc(' + (100 - left) + '% + 12px)">' + label + (cfg.unit || "") + "</span>";
+      html += "</div></div>";
+    });
+    html += '<div class="axis"><div></div><div class="ticks">' + cfg.ticks.map(function (t) { return '<span style="left:' + pct(t) + '%">' + fmt(t, cfg.tickDec) + (cfg.unit || "") + "</span>"; }).join("") + "</div></div>";
+    if (cfg.axisLabel) html += '<div class="axis"><div></div><div class="small muted" style="text-align:center">' + cfg.axisLabel + "</div></div>";
+    // table view
+    html += '<details class="tbl"><summary>Show as table</summary><div class="tbl-wrap"><table><thead><tr><th></th>' +
+      (cfg.series.length > 1 ? cfg.series.map(function (s) { return "<th>" + s.name + "</th>"; }).join("") : "<th>" + (cfg.series[0].name || "Value") + "</th>") +
+      (cfg.rows.some(function (r) { return r.ci; }) ? "<th>95% CI</th>" : "") + "</tr></thead><tbody>" +
+      cfg.rows.map(function (r) {
+        return "<tr><td>" + r.label + "</td>" + r.v.map(function (v) { return "<td>" + fmt(v, cfg.dec) + (cfg.unit || "") + "</td>"; }).join("") +
+          (r.ci ? "<td>" + r.ci.map(function (c) { return "[" + fmt(c[0], cfg.dec) + ", " + fmt(c[1], cfg.dec) + "]"; }).join(" ") + "</td>" : (cfg.rows.some(function (x) { return x.ci; }) ? "<td></td>" : "")) + "</tr>";
+      }).join("") + "</tbody></table></div></details></div>";
+    el.innerHTML = html;
+    $all(".drow", el).forEach(function (row) {
+      var r = cfg.rows[+row.getAttribute("data-ri")];
+      function h(e) {
+        var lines = r.v.map(function (v, i) {
+          var nm = cfg.series.length > 1 ? cfg.series[i].name : (cfg.series[0].name || "");
+          return (nm ? nm + ": " : "") + "<b>" + fmt(v, cfg.dec) + (cfg.unit || "") + "</b>" + (r.ci && r.ci[i] ? " <span style='opacity:.75'>[" + fmt(r.ci[i][0], cfg.dec) + ", " + fmt(r.ci[i][1], cfg.dec) + "]</span>" : "") + (r.extra && r.extra[i] ? " <span style='opacity:.75'>" + r.extra[i] + "</span>" : "");
+        });
+        showTip("<b>" + esc(r.label.replace(/<small>/g, " · ").replace(/<[^>]+>/g, "")) + "</b><br>" + lines.join("<br>") + (cfg.better ? "<br><span style='opacity:.75'>" + (cfg.better === "lower" ? "lower is better" : "higher is better") + "</span>" : ""), e.clientX, e.clientY);
+      }
+      row.addEventListener("mousemove", h); row.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  var OURS = "var(--ours)", BASE = "var(--base)", CTX = "var(--context)";
+
+  /* ---------- CFG vs LoRA FID ---------- */
+  dotChart($("#chartCfg"), {
+    title: "Characteristic fidelity: CFG labels vs. LoRA adapters", sub: "FID per characteristic, lower is better. Hover a row for ± standard deviation.",
+    series: [{ name: "CFG label control", color: BASE }, { name: "LoRA adapter (ours)", color: OURS }],
+    rows: [
+      { label: "Calcification", v: [15.87, 2.29], extra: ["± 1.51", "± 0.09"] },
+      { label: "Regular border", v: [4.04, 1.96], extra: ["± 0.84", "± 0.12"] },
+      { label: "Irregular border", v: [4.19, 2.90], extra: ["± 0.59", "± 0.03"] },
+      { label: "Homogeneous", v: [8.48, 5.71], extra: ["± 1.50", "± 0.36"] },
+      { label: "Inhomogeneous", v: [12.58, 8.13], extra: ["± 1.94", "± 0.28"] }
+    ], domain: [0, 18], ticks: [0, 5, 10, 15], dec: 2, tickDec: 0, better: "lower"
+  });
+
+  /* ---------- weight magnitude ---------- */
+  dotChart($("#chartMag"), {
+    title: "Adapter weight magnitude: separate vs. joint training", sub: "Higher after joint training in every pairing, so the loss is not just shrinking the adapters.",
+    series: [{ name: "Trained separately", color: BASE }, { name: "Trained jointly with the loss", color: OURS }],
+    rows: [
+      { label: "Calcified<small>paired with homogeneous</small>", v: [329.01, 430.89], extra: ["", "+31%"] },
+      { label: "Homogeneous<small>paired with calcified</small>", v: [388.23, 502.42], extra: ["", "+29%"] },
+      { label: "Irregular<small>paired with homogeneous</small>", v: [539.28, 711.84], extra: ["", "+32%"] },
+      { label: "Homogeneous<small>paired with irregular</small>", v: [388.23, 803.59], extra: ["", "+107%"] }
+    ], domain: [0, 900], ticks: [0, 300, 600, 900], dec: 0, tickDec: 0, better: null
+  });
+
+  /* ---------- explorer ---------- */
+  var CHARS = [
+    { id: "regular", name: "Regular border", color: "", count: "10,424",
+      def: "Smooth, well-defined edges with a clear boundary against the lung.", clinical: "Regular, well-defined margins are typically seen in stable, often benign nodules.",
+      agree: { maj: "90%", majk: "9/10", pool: "93%", poolk: "28/30" }, fid: [4.04, 1.96], iou: [0.2941, 0.3301],
+      imgs: [[P + "char-regular-1.png", "Regular border (paper, Figure 4)"], [P + "char-regular-2.png", "Regular border (paper, Figure 4)"], [IMG + "regular.png", "Input X-ray, output, output with mask", true], [IMG + "regular_grid.png", "Output, and output with mask", true]] },
+    { id: "irregular", name: "Irregular border", count: "5,153",
+      def: "Spiculated, lobulated or poorly defined edges that blend into the surrounding tissue.", clinical: "Irregular borders are commonly associated with malignancy.",
+      agree: { maj: "100%", majk: "10/10", pool: "90%", poolk: "27/30" }, fid: [4.19, 2.90], iou: [0.2733, 0.3080],
+      imgs: [[P + "char-irregular-1.png", "Irregular border (paper, Figure 4)"], [P + "char-irregular-2.png", "Irregular border (paper, Figure 4)"], [IMG + "irregular.png", "Input X-ray, output, output with mask", true], [IMG + "irregular_grid.png", "Output, and output with mask", true]] },
+    { id: "homogeneous", name: "Homogeneous", count: "4,640",
+      def: "Uniform density: the whole nodule has about the same brightness.", clinical: "Benign nodules are commonly homogeneous.",
+      agree: { maj: "90%", majk: "9/10", pool: "80%", poolk: "24/30" }, fid: [8.48, 5.71], iou: [0.2695, 0.3050],
+      imgs: [[P + "char-homogeneous-1.png", "Homogeneous texture (paper, Figure 4)"], [P + "char-homogeneous-2.png", "Homogeneous texture (paper, Figure 4)"], [IMG + "homogeneous.png", "Input X-ray, output, output with mask", true], [IMG + "homogeneous_grid.png", "Input X-ray, output, output with mask", true]] },
+    { id: "inhomogeneous", name: "Inhomogeneous", count: "5,883",
+      def: "Uneven density, with brighter and darker areas inside the nodule, for example from necrosis or blood vessels.", clinical: "Often linked to malignant processes.",
+      agree: { maj: "100%", majk: "9/9", pool: "81%", poolk: "22/27" }, fid: [12.58, 8.13], iou: [0.2706, 0.2963],
+      imgs: [[P + "char-inhomogeneous-1.png", "Inhomogeneous texture (paper, Figure 4)"], [P + "char-inhomogeneous-2.png", "Inhomogeneous texture (paper, Figure 4)"], [IMG + "inhomogeneous.png", "Input X-ray, output, output with mask", true], [IMG + "inhomogeneous_grid.png", "Output, and output with mask", true]] },
+    { id: "calcified", name: "Calcified", count: "7,875",
+      def: "Calcium deposits make the nodule brighter than the tissue around it. Calcified nodules are usually small.", clinical: "Calcification is frequently associated with benign nodules.",
+      agree: { maj: "80%", majk: "8/10", pool: "67%", poolk: "20/30" }, fid: [15.87, 2.29], iou: [0.2879, 0.3199],
+      imgs: [[P + "char-calcified-1.png", "Calcification (paper, Figure 4)"], [P + "char-calcified-2.png", "Calcification (paper, Figure 4)"], [IMG + "calcified.png", "Input X-ray, output, output with mask", true], [IMG + "calcified_grid.png", "Output, and output with mask", true]] },
+    { id: "subtle", name: "Subtle", count: "5,000 (graded 1–5)",
+      def: "Very little contrast with the surrounding lung, or partly hidden by ribs and vessels, so the nodule is easy to miss.", clinical: "Subtle nodules are the ones radiologists and detectors miss most often.",
+      subtle: true,
+      imgs: [[P + "subtlety-a24.png", "Subtlety slider, α = 24 (most visible)"], [P + "subtlety-a16.png", "Subtlety slider, α = 16"], [P + "subtlety-a12.png", "Subtlety slider, α = 12 (most subtle)"], [IMG + "subtle.png", "Input X-ray, output, output with mask", true], [IMG + "subtle_grid.png", "Output, and output with mask", true]] },
+    { id: "combined", name: "Two at once", count: "–",
+      def: "Two characteristics in the same nodule, generated by merging two adapters trained with the orthogonality loss.", clinical: "Real nodules usually show several traits together, for example calcified and smooth, or irregular and uneven.",
+      combined: true,
+      imgs: [[P + "merge-ours-a.png", "Calcified + irregular (ours)"], [P + "merge-ours-b.png", "Calcified + homogeneous (ours)"], [P + "merge-ours-c.png", "Regular + homogeneous (ours)"], [IMG + "irregular_calcified.png", "Irregular + calcified: input, output, output with mask", true]] }
+  ];
+  (function () {
+    var chips = $("#exChips"), panel = $("#exPanel"), btns = [];
+    CHARS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = c.name; b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { show(c, b); });
+      chips.appendChild(b); btns.push(b);
+    });
+    function metric(lbl, val, sub) { return '<div class="metric"><div class="m-lbl">' + lbl + '</div><div class="m-val">' + val + '</div><div class="m-sub">' + sub + "</div></div>"; }
+    function show(c, b) {
+      press(btns, b);
+      var m = "";
+      if (c.agree) {
+        m += metric("Radiologist agreement", c.agree.maj, "majority vote (" + c.agree.majk + "); pooled " + c.agree.pool + " (" + c.agree.poolk + ")");
+        m += metric("FID, LoRA vs. CFG", c.fid[1].toFixed(2), "vs. " + c.fid[0].toFixed(2) + " with CFG labels (lower is better)");
+        m += metric("Detector IoU", c.iou[0].toFixed(3) + " → " + c.iou[1].toFixed(3), "5k real → + generated nodules of this type");
+      } else if (c.subtle) {
+        m += metric("Ranking accuracy", "80%", "panel ordered 3 versions correctly (majority, 8/10); pooled 67% (20/30)");
+        m += metric("Most subtle JSRT nodules", "40% → 52%", "accuracy at grade S1 after adding 12k subtle nodules");
+        m += metric("Slider", "α = 2<sup>2+s</sup>", "grade s = 1…5 sets the adapter strength during training");
+      } else {
+        m += metric("Pairs tested", "3", "calcified + homogeneous, irregular + homogeneous, calcified + irregular");
+        m += metric("Loss weight", "0.5", "for the orthogonality term");
+        m += metric("Adapter overlap", "much lower", "in almost every layer vs. separate training (see below)");
+      }
+      m += metric("Training labels", c.count, "in-house nodules with this label");
+      var g = c.imgs.map(function (im) {
+        return '<figure' + (im[2] ? ' style="grid-column:span 2"' : "") + '><div class="shot"><img loading="lazy" src="' + im[0] + '" alt="' + im[1] + '" data-cap="' + c.name + ": " + im[1] + '"></div><figcaption>' + im[1] + "</figcaption></figure>";
+      }).join("");
+      panel.innerHTML = '<div class="ex-grid"><div><div class="ex-title"><h3>' + c.name + "</h3></div><p style=\"margin:.5em 0 0\">" + c.def + ' <span class="muted">' + c.clinical + "</span></p></div>" +
+        '<div class="ex-metrics">' + m + "</div>" +
+        '<div class="gallery">' + g + "</div>" +
+        (c.subtle ? '<p class="small muted" style="margin:0">Try the <a href="#subtlety">subtlety slider</a> for the same nodule at three strengths.</p>' : "") +
+        (c.combined ? '<p class="small muted" style="margin:0">See <a href="#merging">combining adapters</a> for the side-by-side comparison with linear merging.</p>' : "") + "</div>";
+    }
+    show(CHARS[0], btns[0]);
+  })();
+
+  /* ---------- stages ---------- */
+  var STAGES = [
+    { no: "Stage 1", name: "Learn chest X-rays", body: "<p style='margin-top:0'>A Diffusion Transformer (DiT-XL/2) is trained on about 2 million unlabelled chest X-ray patches. It learns what lungs, ribs, vessels and the heart border look like, without any notion of nodules yet.</p>" },
+    { no: "Stage 2", name: "Draw nodules inside a mask", body: "<p style='margin-top:0'>The model is fine-tuned on patches centred on real nodules, with each nodule's outline given as a binary mask. It learns to generate a nodule that fills the mask and blends into the lung around it.</p><ul><li>The mask sets <strong>position, size and shape</strong>.</li><li>Classifier-free guidance on the mask makes the model follow it more closely.</li></ul>" },
+    { no: "Stage 3.1", name: "One adapter per trait", body: "<p style='margin-top:0'>The backbone is frozen. For each characteristic, a small LoRA adapter is trained only on nodules with that label: calcified, regular border, irregular border, homogeneous, inhomogeneous, and subtlety.</p><ul><li>Switching an adapter on adds its trait; the rest of the model is unchanged.</li><li>For subtlety, the radiologist grade sets the adapter's strength, which gives a slider (<a href='#subtlety'>see below</a>).</li></ul>" },
+    { no: "Stage 3.2", name: "Train pairs together", body: "<p style='margin-top:0'>To combine two traits, the two adapters are trained together on batches from both datasets, with an extra loss that keeps their weight updates orthogonal. The merged adapters can then be averaged without one trait overpowering the other (<a href='#merging'>details</a>).</p>" }
+  ];
+  (function () {
+    var box = $("#steps"), body = $("#stepBody"), btns = [];
+    STAGES.forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "step"; b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<div class="s-no">' + s.no + '</div><div class="s-name">' + s.name + "</div>";
+      b.addEventListener("click", function () { press(btns, b); body.innerHTML = s.body; });
+      box.appendChild(b); btns.push(b);
+    });
+    press(btns, btns[0]); body.innerHTML = STAGES[0].body;
+  })();
+
+  /* ---------- subtlety slider ---------- */
+  (function () {
+    var LV = [
+      { a: 24, f: "subtlety-a24.png", t: "The strongest setting shown: the nodule is easy to spot." },
+      { a: 16, f: "subtlety-a16.png", t: "A weaker setting: same shape and place, lower contrast." },
+      { a: 12, f: "subtlety-a12.png", t: "The weakest setting shown: the nodule nearly disappears into the lung texture." }
+    ];
+    var r = $("#subRange"), img = $("#subImg"), v = $("#subVal"), t = $("#subText");
+    function upd() { var l = LV[+r.value]; img.src = P + l.f; img.alt = "Nodule at alpha " + l.a; img.setAttribute("data-cap", "Subtlety slider, α = " + l.a); v.textContent = "α = " + l.a; t.textContent = l.t + " The red outline marks the nodule."; }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  /* ---------- merge comparison ---------- */
+  (function () {
+    var C = [
+      { k: "a", name: "Calcified + irregular", t: "Target: a calcified nodule with an irregular border." },
+      { k: "b", name: "Calcified + homogeneous", t: "Target: a calcified nodule with uniform texture." },
+      { k: "c", name: "Regular + homogeneous", t: "Target: a smooth-bordered nodule with uniform texture." }
+    ];
+    var box = $("#mergeChips"), lin = $("#mergeLin"), ours = $("#mergeOurs"), t = $("#mergeText"), btns = [];
+    C.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = c.name; b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { press(btns, b); lin.src = P + "merge-linear-" + c.k + ".png"; ours.src = P + "merge-ours-" + c.k + ".png"; t.textContent = c.t + " In the paper's comparison, the orthogonal merge follows the mask and both target traits more closely than linear merging."; });
+      box.appendChild(b); btns.push(b);
+    });
+    btns[0].click();
+  })();
+
+  /* ---------- radiologist charts ---------- */
+  var RAD = {
+    maj: {
+      real: [{ label: "Real nodules", v: [0.900], ci: [[0.596, 0.982]] }, { label: "Generated nodules", v: [0.800], ci: [[0.490, 0.943]], hl: true }],
+      verify: [["Regular border", 0.900, [0.596, 0.982], "9/10"], ["Irregular border", 1.000, [0.722, 1.000], "10/10"], ["Homogeneous", 0.900, [0.596, 0.982], "9/10"], ["Inhomogeneous", 1.000, [0.701, 1.000], "9/9"], ["Calcified", 0.800, [0.490, 0.943], "8/10"]],
+      rank: [0.800, [0.490, 0.943], "8/10"]
+    },
+    pool: {
+      real: [{ label: "Real nodules", v: [0.867], ci: [[0.703, 0.947]] }, { label: "Generated nodules", v: [0.700], ci: [[0.521, 0.833]], hl: true }],
+      verify: [["Regular border", 0.933, [0.787, 0.982], "28/30"], ["Irregular border", 0.900, [0.744, 0.965], "27/30"], ["Homogeneous", 0.800, [0.627, 0.905], "24/30"], ["Inhomogeneous", 0.815, [0.633, 0.918], "22/27"], ["Calcified", 0.667, [0.488, 0.808], "20/30"]],
+      rank: [0.667, [0.488, 0.808], "20/30"]
+    }
+  };
+  function toPct(r) { return { label: r.label, hl: r.hl, v: r.v.map(function (x) { return x * 100; }), ci: r.ci.map(function (c) { return [c[0] * 100, c[1] * 100]; }) }; }
+  function drawRad(agg) {
+    var d = RAD[agg], lab = agg === "maj" ? "majority vote" : "pooled";
+    dotChart($("#chartReal"), { title: "Task 1 · Realism", sub: "Share judged “real” (" + lab + "). 25 real and 25 generated nodules, shuffled.", series: [{ name: "Judged real", color: OURS }], rows: d.real.map(toPct).map(function (r, i) { r.colors = [i === 0 ? CTX : OURS]; return r; }), domain: [0, 100], ticks: [0, 25, 50, 75, 100], dec: 1, tickDec: 0, unit: "%" });
+    dotChart($("#chartVerify"), { title: "Task 2 · Does the nodule show the intended trait?", sub: "Share answered “yes” (" + lab + "), 10 generated nodules per trait.", series: [{ name: "Answered yes", color: OURS }],
+      rows: d.verify.map(function (x) { return { label: x[0], v: [x[1] * 100], ci: [[x[2][0] * 100, x[2][1] * 100]], label2: (x[1] * 100).toFixed(1) + "% (" + x[3] + ")" }; }), domain: [0, 100], ticks: [0, 25, 50, 75, 100], dec: 1, tickDec: 0, unit: "%" });
+    $all("#chartVerify .vl").forEach(function (s) { s.textContent = s.textContent.replace(/%$/, ""); });
+    dotChart($("#chartRank"), { title: "Task 3 · Subtlety ordering", sub: "Share of sets where three versions of a nodule were put in the intended order (" + lab + ").", series: [{ name: "Correct order", color: OURS }],
+      rows: [{ label: "Correct order", v: [d.rank[0] * 100], ci: [[d.rank[1][0] * 100, d.rank[1][1] * 100]], label2: (d.rank[0] * 100).toFixed(1) + "% (" + d.rank[2] + ")" }], domain: [0, 100], ticks: [0, 25, 50, 75, 100], dec: 1, tickDec: 0, unit: "%" });
+    $all("#chartRank .vl").forEach(function (s) { s.textContent = s.textContent.replace(/%$/, ""); });
+  }
+  var aggBtns = $all("[data-agg]");
+  aggBtns.forEach(function (b) { b.addEventListener("click", function () { press(aggBtns, b); drawRad(b.getAttribute("data-agg")); }); });
+  drawRad("maj");
+
+  /* ---------- augmentation line chart ---------- */
+  var AUG = {
+    x: [0, 2, 4, 6, 8, 10],
+    auc: { "In-house": [0.9705, 0.9788, 0.9780, 0.9802, 0.9796, 0.9801], "JSRT": [0.8560, 0.8639, 0.8780, 0.8940, 0.8864, 0.9023], "ChestX-ray14": [0.9008, 0.9168, 0.9245, 0.9315, 0.9341, 0.9318] },
+    iou: { "In-house": [0.3090, 0.3222, 0.3197, 0.3247, 0.3274, 0.3056], "JSRT": [0.2475, 0.2743, 0.2589, 0.2894, 0.2923, 0.3091], "ChestX-ray14": [0.5285, 0.5293, 0.5500, 0.5750, 0.5954, 0.5613] }
+  };
+  var LCOL = { "In-house": "#2a78d6", "JSRT": "#eb6834", "ChestX-ray14": "#1baf7a" };
+  function drawAug(met) {
+    var el = $("#chartAug"), data = AUG[met], names = Object.keys(data);
+    var W = 640, H = 300, L = 52, R = 104, T = 14, B = 40;
+    var all = []; names.forEach(function (n) { all = all.concat(data[n]); });
+    var lo = met === "auc" ? 0.84 : 0.2, hi = met === "auc" ? 1.0 : 0.65, step = met === "auc" ? 0.04 : 0.1;
+    function x(v) { return L + (v / 10) * (W - L - R); }
+    function y(v) { return T + (1 - (v - lo) / (hi - lo)) * (H - T - B); }
+    var s = "";
+    for (var t = lo; t <= hi + 1e-9; t += step) {
+      s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="var(--border)"/>';
+      s += '<text x="' + (L - 8) + '" y="' + (y(t) + 4) + '" text-anchor="end" font-size="11" fill="var(--muted)">' + t.toFixed(2) + "</text>";
+    }
+    AUG.x.forEach(function (v) { s += '<text x="' + x(v) + '" y="' + (H - B + 18) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + (v === 0 ? "0" : v + "k") + "</text>"; });
+    s += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="11.5" fill="var(--muted)">generated nodules added to 10k real</text>';
+    var labY = [];
+    names.forEach(function (n) {
+      var d = data[n], path = d.map(function (v, i) { return (i ? "L" : "M") + x(AUG.x[i]).toFixed(1) + "," + y(v).toFixed(1); }).join("");
+      s += '<path d="' + path + '" fill="none" stroke="' + LCOL[n] + '" stroke-width="2" stroke-linejoin="round"/>';
+      d.forEach(function (v, i) { s += '<circle cx="' + x(AUG.x[i]) + '" cy="' + y(v) + '" r="4" fill="' + LCOL[n] + '" stroke="var(--surface)" stroke-width="2"/>'; });
+      labY.push({ n: n, y: y(d[d.length - 1]) });
+    });
+    labY.sort(function (a, b) { return a.y - b.y; });
+    for (var i = 1; i < labY.length; i++) if (labY[i].y - labY[i - 1].y < 14) labY[i].y = labY[i - 1].y + 14;
+    labY.forEach(function (l) { s += '<text x="' + (x(10) + 10) + '" y="' + (l.y + 4) + '" font-size="12" font-weight="600" fill="var(--text)">' + l.n + "</text>"; });
+    s += '<line id="xh" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" stroke="var(--muted)" stroke-dasharray="3 3" opacity="0"/>';
+    s += '<rect id="hit" x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="transparent"/>';
+    el.innerHTML = '<div class="chart-title">' + (met === "auc" ? "Nodule classification AUC" : "Best segmentation IoU") + ' vs. amount of generated data</div><div class="chart-sub">Higher is better. Hover to read values.</div>' +
+      '<div class="legend">' + names.map(function (n) { return '<span><i style="background:' + LCOL[n] + '"></i>' + n + "</span>"; }).join("") + "</div>" +
+      '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Line chart">' + s + "</svg>" +
+      '<details class="tbl"><summary>Show as table</summary><div class="tbl-wrap"><table><thead><tr><th>Generated</th>' + names.map(function (n) { return "<th>" + n + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      AUG.x.map(function (v, i) { return "<tr><td>" + (v ? "+" + v + "k" : "10k real only") + "</td>" + names.map(function (n) { return "<td>" + data[n][i].toFixed(4) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div></details>";
+    var svg = $("svg", el), hit = $("#hit", el), xh = $("#xh", el);
+    function move(e) {
+      var r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+      var idx = Math.round(((px - L) / (W - L - R)) * 10 / 2); idx = Math.max(0, Math.min(5, idx));
+      var xv = x(AUG.x[idx]); xh.setAttribute("x1", xv); xh.setAttribute("x2", xv); xh.setAttribute("opacity", "1");
+      showTip("<b>" + (idx ? "10k real + " + AUG.x[idx] + "k generated" : "10k real only") + "</b><br>" + names.map(function (n) { return n + ": <b>" + data[n][idx].toFixed(4) + "</b>"; }).join("<br>"), e.clientX, e.clientY);
+    }
+    hit.addEventListener("mousemove", move);
+    hit.addEventListener("mouseleave", function () { xh.setAttribute("opacity", "0"); hideTip(); });
+  }
+  var metBtns = $all("[data-met]");
+  metBtns.forEach(function (b) { b.addEventListener("click", function () { press(metBtns, b); drawAug(b.getAttribute("data-met")); }); });
+  drawAug("auc");
+
+  /* ---------- vs other generators ---------- */
+  var GEN = {
+    methods: ["Real data only", "ACGAN", "ReACGAN", "CR-Fill", "Ours (DiT-XL/2)"],
+    auc: { "JSRT": [0.8560, 0.8780, 0.8808, 0.8786, 0.9023], "ChestX-ray14": [0.9008, 0.9281, 0.9259, 0.9296, 0.9318] },
+    psnr: { "Full patch": [null, 37.18, 37.44, 37.93, 38.74], "Masked region": [null, 26.51, 27.54, 29.50, 34.26] },
+    ssim: { "Full patch": [null, 0.916, 0.916, 0.918, 0.920], "Masked region": [null, 0.768, 0.786, 0.830, 0.892] },
+    fid: { "Full patch": [null, 0.534, 0.604, 0.522, 0.390], "Masked region": [null, 0.831, 1.227, 0.781, 0.475] }
+  };
+  var GCFG = {
+    auc: { title: "Detection AUC after adding 10k generated nodules", dom: { "JSRT": [0.84, 0.92], "ChestX-ray14": [0.89, 0.94] }, ticks: { "JSRT": [0.84, 0.86, 0.88, 0.90, 0.92], "ChestX-ray14": [0.89, 0.90, 0.91, 0.92, 0.93, 0.94] }, dec: 4, tdec: 2, better: "higher",
+      take: "<b>Takeaway:</b> every generator helps, and ours helps most on both test sets." },
+    psnr: { title: "PSNR on ChestX-ray14 (dB)", dom: { "Full patch": [36, 40], "Masked region": [24, 36] }, ticks: { "Full patch": [36, 37, 38, 39, 40], "Masked region": [24, 28, 32, 36] }, dec: 2, tdec: 0, better: "higher",
+      take: "<b>Takeaway:</b> the gap is largest inside the masked region, where the nodule is drawn: 34.3 dB vs. 29.5 dB for the next best." },
+    ssim: { title: "SSIM on ChestX-ray14", dom: { "Full patch": [0.91, 0.925], "Masked region": [0.75, 0.9] }, ticks: { "Full patch": [0.91, 0.915, 0.92, 0.925], "Masked region": [0.75, 0.8, 0.85, 0.9] }, dec: 3, tdec: 3, better: "higher",
+      take: "<b>Takeaway:</b> on the full patch all methods are close, since most of the patch is untouched. Inside the mask ours is clearly best." },
+    fid: { title: "FID on ChestX-ray14", dom: { "Full patch": [0, 1.3], "Masked region": [0, 1.3] }, ticks: { "Full patch": [0, 0.4, 0.8, 1.2], "Masked region": [0, 0.4, 0.8, 1.2] }, dec: 3, tdec: 1, better: "lower",
+      take: "<b>Takeaway:</b> ours has the lowest FID, meaning its images are statistically closest to real ones, both over the whole patch and inside the mask." }
+  };
+  var gv = "auc", gsub = "JSRT";
+  function drawGen() {
+    var c = GCFG[gv], d = GEN[gv], keys = Object.keys(d);
+    if (keys.indexOf(gsub) < 0) gsub = keys[0];
+    $("#gvSub").innerHTML = keys.map(function (k) { return '<button class="seg" data-gs="' + k + '" aria-pressed="' + (k === gsub) + '">' + k + "</button>"; }).join("");
+    $all("[data-gs]").forEach(function (b) { b.addEventListener("click", function () { gsub = b.getAttribute("data-gs"); drawGen(); }); });
+    var rows = [];
+    GEN.methods.forEach(function (m, i) {
+      var v = d[gsub][i]; if (v === null) return;
+      rows.push({ label: m, v: [v], hl: i === 4, colors: [i === 4 ? OURS : (i === 0 ? BASE : CTX)] });
+    });
+    dotChart($("#chartGen"), { title: c.title + " · " + gsub, sub: (c.better === "lower" ? "Lower" : "Higher") + " is better. Axis does not start at zero.", series: [{ name: gv.toUpperCase(), color: OURS }], rows: rows, domain: c.dom[gsub], ticks: c.ticks[gsub], dec: c.dec, tickDec: c.tdec, better: c.better });
+    $("#genTake").innerHTML = c.take;
+  }
+  var gvBtns = $all("[data-gv]");
+  gvBtns.forEach(function (b) { b.addEventListener("click", function () { press(gvBtns, b); gv = b.getAttribute("data-gv"); drawGen(); }); });
+  drawGen();
+
+  /* ---------- per characteristic IoU ---------- */
+  dotChart($("#chartChar"), {
+    title: "Segmentation IoU per characteristic", sub: "Higher is better. Axis does not start at zero.",
+    series: [{ name: "5k real", color: BASE }, { name: "5k real + 2k generated", color: OURS }],
+    rows: [
+      { label: "Any nodule", v: [0.2696, 0.3002] }, { label: "Calcified", v: [0.2879, 0.3199] }, { label: "Regular border", v: [0.2941, 0.3301] },
+      { label: "Irregular border", v: [0.2733, 0.3080] }, { label: "Homogeneous", v: [0.2695, 0.3050] }, { label: "Inhomogeneous", v: [0.2706, 0.2963] }
+    ], domain: [0.25, 0.35], ticks: [0.25, 0.275, 0.30, 0.325, 0.35], dec: 3, tickDec: 3, better: "higher"
+  });
+
+  /* ---------- subtle JSRT ---------- */
+  dotChart($("#chartSubtle"), {
+    title: "JSRT classification accuracy by subtlety grade", sub: "S5 = most obvious, S1 = most subtle. Higher is better.",
+    series: [{ name: "10k real", color: BASE }, { name: "10k real + 12k generated", color: OURS }],
+    rows: [
+      { label: "S5 (most obvious)", v: [100, 100] }, { label: "S4", v: [96, 100] }, { label: "S3", v: [70, 76] }, { label: "S2", v: [69, 76] }, { label: "S1 (most subtle)", v: [40, 52], hl: true }
+    ], domain: [0, 100], ticks: [0, 25, 50, 75, 100], dec: 0, tickDec: 0, unit: "%", better: "higher"
+  });
+
+  /* ---------- results tabs ---------- */
+  var tabs = $all(".rtab"), panels = $all(".rpanel");
+  function openTab(t) {
+    tabs.forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-t") === t ? "true" : "false"); });
+    panels.forEach(function (p) { p.hidden = p.getAttribute("data-p") !== t; });
+  }
+  tabs.forEach(function (b) { b.addEventListener("click", function () { openTab(b.getAttribute("data-t")); }); });
+  $all("[data-rtab]").forEach(function (a) { a.addEventListener("click", function () { openTab(a.getAttribute("data-rtab")); }); });
+
+  /* ---------- toc scrollspy ---------- */
+  (function () {
+    var links = $all(".toc a"), map = {}, secs = $all("main section[id]");
+    links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+    function spy() {
+      var y = window.scrollY + 120, cur = secs[0].id;
+      secs.forEach(function (s) { if (s.offsetTop <= y) cur = s.id; });
+      links.forEach(function (a) { a.classList.toggle("active", a === map[cur]); });
+    }
+    window.addEventListener("scroll", spy, { passive: true }); spy();
+  })();
+
+  /* ---------- bibtex ---------- */
+  $("#copyBib").addEventListener("click", function () {
+    var b = this;
+    if (navigator.clipboard) navigator.clipboard.writeText($("#bibtex").textContent).then(function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); }, function () {});
+  });
+
+  /* ---------- math ---------- */
+  function renderMath() {
+    if (window.renderMathInElement) renderMathInElement(document.body, { delimiters: [{ left: "\\[", right: "\\]", display: true }, { left: "\\(", right: "\\)", display: false }], throwOnError: false });
+  }
+  if (document.readyState === "complete") renderMath(); else window.addEventListener("load", renderMath);
+})();
+</script>
+</body>
+</html>
+{% endraw %}
