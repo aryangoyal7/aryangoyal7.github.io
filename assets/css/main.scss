@@ -41,3 +41,11 @@
     "vendor/font-awesome/solid",
     "vendor/font-awesome/brands"
 ;
+/* Wide display equations scroll inside their own box instead of spilling out of
+   the text column (MathJax 3 does not break long lines). */
+.page__content mjx-container[jax="CHTML"][display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding: 2px 0;
+}
