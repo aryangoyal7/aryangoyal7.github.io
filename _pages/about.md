@@ -32,6 +32,9 @@ I'm especially excited about the physical-intelligence space — it's remarkable
 
 ## Publications
 
+- **Measuring the Stability Assumption Behind Action Chunking**\
+  *Incomplete draft, 2026* · [Paper](DRIVE_LINK_TO_PAPER_PDF) · [Project page](/publication/2026-stability-action-chunking)
+
 - **The Hitchhiker's Guide to Mechanistic Interpretability of Vision-Language-Action Models**\
   *Mechanistic Interpretability Workshop at ICML, 2026* · [Paper](https://openreview.net/pdf?id=mS9nh3L3iN) · [Project page](/publication/2026-hitchhikers-guide)
 
