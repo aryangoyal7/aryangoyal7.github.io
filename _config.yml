@@ -91,8 +91,8 @@ publication_category:
     title: 'Journal Articles'    
   conferences:
     title: 'Conference Papers'
-  drafts:
-    title: 'Drafts'
+  working_papers:
+    title: 'Working Papers'
 
 # Site Settings
 teaser                   :  # filename of teaser fallback teaser image placed in /images/ for social media previews
