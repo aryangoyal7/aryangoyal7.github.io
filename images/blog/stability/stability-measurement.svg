@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" role="img" aria-labelledby="title desc">
+  <title id="title">Measuring error propagation behind action chunking</title>
+  <desc id="desc">A state-wise action perturbation is followed under open-loop replay and closed-loop replanning. The log-distance slope over a chosen horizon gives a stable, deadband, or unstable label. The measured rate depends on the horizon and can be partly predicted from observations across demonstrations, rollouts, and policy chunks.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8594a4"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #26384b; }
+      .eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 1.4px; fill: #6b7b8d; }
+      .head { font-size: 23px; font-weight: 700; }
+      .body { font-size: 17px; fill: #536579; }
+      .small { font-size: 15px; fill: #65778a; }
+      .step { font-size: 14px; font-weight: 700; fill: #fff; }
+      .formula { font-size: 22px; font-weight: 600; }
+      .card { fill: #fff; stroke: #d6dee7; stroke-width: 1.5; }
+      .pill { font-size: 14px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="800" rx="22" fill="#f5f7fa"/>
+  <text x="48" y="48" class="eyebrow">MEASURING THE STABILITY ASSUMPTION</text>
+  <text x="48" y="82" font-size="28" font-weight="700">Follow one action error through the system—and ask how the answer changes with the horizon.</text>
+
+  <!-- Measurement sequence -->
+  <rect x="42" y="112" width="286" height="310" rx="16" class="card"/>
+  <circle cx="70" cy="146" r="15" fill="#315e8c"/><text x="70" y="151" text-anchor="middle" class="step">1</text>
+  <text x="96" y="153" class="head">Perturb a state</text>
+  <text x="66" y="195" class="body">Start from a sampled state</text>
+  <text x="66" y="223" class="body">and add a small error to the</text>
+  <text x="66" y="251" class="body">first action.</text>
+  <rect x="66" y="281" width="238" height="56" rx="11" fill="#edf3f8"/>
+  <text x="185" y="315" text-anchor="middle" class="formula">ãₜ = aₜ + δ</text>
+  <text x="66" y="372" class="small">Scale δ to the policy's measured</text>
+  <text x="66" y="394" class="small">action prediction error.</text>
+
+  <path d="M 330 266 L 350 266" stroke="#8594a4" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="358" y="112" width="400" height="310" rx="16" class="card"/>
+  <circle cx="386" cy="146" r="15" fill="#315e8c"/><text x="386" y="151" text-anchor="middle" class="step">2</text>
+  <text x="412" y="153" class="head">Compare execution modes</text>
+  <rect x="380" y="181" width="356" height="94" rx="12" fill="#edf4fa" stroke="#c8d9e8"/>
+  <rect x="397" y="199" width="12" height="12" rx="4" fill="#3d78ae"/>
+  <text x="420" y="211" font-size="17" font-weight="700" fill="#315e8c">Open-loop</text>
+  <text x="397" y="241" class="body">Replay the remaining recorded actions.</text>
+  <text x="397" y="263" class="small">The dynamics propagate the initial error.</text>
+  <rect x="380" y="290" width="356" height="94" rx="12" fill="#fbefef" stroke="#e7cccc"/>
+  <rect x="397" y="308" width="12" height="12" rx="4" fill="#c56363"/>
+  <text x="420" y="320" font-size="17" font-weight="700" fill="#a84f54">Closed-loop</text>
+  <text x="397" y="350" class="body">Let the policy replan after the error.</text>
+  <text x="397" y="372" class="small">Paired runs share policy randomness.</text>
+
+  <path d="M 760 266 L 780 266" stroke="#8594a4" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="788" y="112" width="300" height="310" rx="16" class="card"/>
+  <circle cx="816" cy="146" r="15" fill="#315e8c"/><text x="816" y="151" text-anchor="middle" class="step">3</text>
+  <text x="842" y="153" class="head">Fit over K steps</text>
+  <text x="812" y="191" class="body">Track separation from nominal</text>
+  <text x="812" y="216" class="body">and fit its log-slope.</text>
+  <rect x="812" y="237" width="252" height="54" rx="10" fill="#f2f5f8"/>
+  <text x="938" y="271" text-anchor="middle" class="formula">log dₖ ≈ α + λk</text>
+  <path d="M 830 370 L 830 309 M 830 370 L 1045 370" fill="none" stroke="#a6b3c0" stroke-width="1.4"/>
+  <path d="M 842 325 C 865 338, 877 347, 900 351 S 949 358, 982 359 S 1020 360, 1040 360" fill="none" stroke="#c56363" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="842" y="397" class="small">early growth</text>
+  <text x="989" y="397" class="small">plateau</text>
+
+  <path d="M 1090 266 L 1110 266" stroke="#8594a4" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="1118" y="112" width="280" height="310" rx="16" class="card"/>
+  <circle cx="1146" cy="146" r="15" fill="#315e8c"/><text x="1146" y="151" text-anchor="middle" class="step">4</text>
+  <text x="1172" y="153" class="head">Assign a label</text>
+  <text x="1142" y="190" class="body">Require meaningful change and</text>
+  <text x="1142" y="215" class="body">a resolved sign of λ.</text>
+  <rect x="1142" y="241" width="228" height="42" rx="10" fill="#e5f3e8" stroke="#bdd9c3"/>
+  <circle cx="1162" cy="262" r="6" fill="#558469"/><text x="1180" y="268" class="pill" fill="#456f55">Stable · contracts</text>
+  <rect x="1142" y="293" width="228" height="42" rx="10" fill="#eef0f3" stroke="#d2d7de"/>
+  <circle cx="1162" cy="314" r="6" fill="#8b95a1"/><text x="1180" y="320" class="pill" fill="#66717d">Deadband · unresolved</text>
+  <rect x="1142" y="345" width="228" height="42" rx="10" fill="#fae9e8" stroke="#e8c2c0"/>
+  <circle cx="1162" cy="366" r="6" fill="#bf5b57"/><text x="1180" y="372" class="pill" fill="#a94f4b">Unstable · expands</text>
+
+  <!-- Finding: horizon, prediction, and stamp types -->
+  <rect x="42" y="448" width="1356" height="132" rx="15" fill="#e8eef4" stroke="#d4dee7"/>
+  <text x="68" y="481" class="eyebrow">THE FITTING HORIZON IS PART OF THE RESULT</text>
+  <text x="68" y="518" font-size="19" font-weight="700">Short windows capture front-loaded amplification; longer windows include the later plateau.</text>
+  <text x="68" y="550" class="body">So λ is state- and horizon-dependent—not one contraction constant for a task or benchmark.</text>
+  <rect x="1193" y="474" width="78" height="34" rx="17" fill="#fff" stroke="#cad5df"/><text x="1232" y="496" text-anchor="middle" class="pill">K = 8</text>
+  <rect x="1281" y="474" width="88" height="34" rx="17" fill="#fff" stroke="#cad5df"/><text x="1325" y="496" text-anchor="middle" class="pill">K = 24</text>
+
+  <rect x="42" y="604" width="656" height="150" rx="15" class="card"/>
+  <text x="68" y="640" class="head">Can the rate be predicted?</text>
+  <text x="68" y="676" class="body">Camera + proprioception recover some open-loop structure;</text>
+  <text x="68" y="703" class="body">closed-loop propagation is only partly recoverable.</text>
+  <rect x="68" y="718" width="184" height="25" rx="12" fill="#edf4fa"/><text x="160" y="736" text-anchor="middle" class="pill" fill="#315e8c">observations</text>
+  <path d="M 261 730 L 300 730" stroke="#8594a4" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="312" y="718" width="176" height="25" rx="12" fill="#f2f5f8"/><text x="400" y="736" text-anchor="middle" class="pill">predicted rate</text>
+  <text x="508" y="736" class="small">actions add signal</text>
+
+  <rect x="718" y="604" width="680" height="150" rx="15" class="card"/>
+  <text x="744" y="640" class="head">Compare state and action sources</text>
+  <rect x="744" y="663" width="184" height="38" rx="10" fill="#edf4fa"/><text x="836" y="687" text-anchor="middle" class="pill">Demonstrations</text>
+  <rect x="940" y="663" width="184" height="38" rx="10" fill="#edf4fa"/><text x="1032" y="687" text-anchor="middle" class="pill">Policy rollouts</text>
+  <rect x="1136" y="663" width="232" height="38" rx="10" fill="#f8f0e4"/><text x="1252" y="687" text-anchor="middle" class="pill">Emitted policy chunks</text>
+  <text x="744" y="728" class="small">Twelve tasks across robomimic, MimicGen, and RoboCasa.</text>
+</svg>
