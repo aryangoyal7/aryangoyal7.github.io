@@ -1278,48 +1278,38 @@ function initLabelVideoGrid() {
     </div>
     <div class="content paper-section-text math-content">
       <p>
-        We ask a simple question at each state: if the executed action is slightly wrong, does
-        the resulting deviation grow or shrink over the steps that follow? Writing \(y_j\) for a
-        task metric \(j\) steps after the state along a nominal execution and \(y_j^{(n)}\) for
-        the same quantity along the \(n\)-th perturbed branch, we fit
+        The idea is a small experiment repeated at many states. Pick a state, nudge the first
+        action a little, and watch how far the robot drifts from where it would have gone
+        without the nudge. If the gap shrinks over the next few steps, that state is stable; if
+        it grows, it is unstable.
       </p>
-      <p class="equation has-text-centered">
-        \[\log \lVert y_j - y_j^{(n)} \rVert \;\approx\; \alpha_n + \lambda_n j,\]
-      </p>
+      <ol>
+        <li><strong>Nudge.</strong> At state \(s_t\), add Gaussian noise to the translation part
+          of the action. The noise scale \(\sigma_u\) is the trained policy's own action error on
+          held-out demonstrations, so the nudge is the size of a mistake the policy actually
+          makes. Do this \(N{=}8\) times to get eight perturbed branches.</li>
+        <li><strong>Roll forward, two ways.</strong>
+          <em>Open-loop:</em> after the nudge, replay the recorded actions unchanged. No policy
+          is involved, so this measures what the physics and the task geometry do with the
+          error. <em>Closed-loop:</em> after the nudge, let the deployed policy replan at every
+          step. Nominal and perturbed branches share the same random seeds, so any difference
+          comes from the nudge, not from the policy sampling differently.</li>
+        <li><strong>Fit a rate.</strong> Over a window of \(K\) steps, fit a line to the log of
+          the gap between each perturbed branch and the nominal one,
+          \(\log \lVert y_j - y_j^{(n)} \rVert \approx \alpha_n + \lambda_n j\). The slope is the
+          propagation rate: positive means the gap grows, negative means it shrinks. Average the
+          eight slopes into \(\bar{\lambda}\) with a standard error.</li>
+        <li><strong>Label.</strong> Two checks. Is the rate big enough to matter, at least an
+          \(m\)-fold change over the window (\(|\bar{\lambda}| \ge \ln(m)/K\))? And is its sign
+          trustworthy (\(|\bar{\lambda}| \ge t\,\mathrm{SE}\))? Pass both and the state is
+          <span class="cls-stab">stable</span> or <span class="cls-unst">unstable</span> by the
+          sign; fail either and it goes in the <span class="cls-dead">deadband</span>, which means
+          "we can't tell", not "the rate is zero". Defaults: \(m{=}2\), \(t{=}2.365\),
+          \(K{=}24\).</li>
+      </ol>
       <p>
-        where \(\lambda_n\) plays the role of \(\log\rho\): positive means the deviation grows,
-        negative means it decays. We repeat the fit across \(N{=}8\) perturbed branches and
-        aggregate the slopes into a mean rate \(\bar{\lambda}\) and its standard error. The fit
-        needs a window \(K\), which is a property of the measurement rather than of the executed
-        chunk.
-      </p>
-      <p>
-        <strong>Open-loop.</strong> A property of the dynamics and task geometry, so no trained
-        policy is required. At a state \(s_t\) we perturb only the translation components of the
-        first action with Gaussian noise of scale \(\sigma_u\), set to the trained policy's action
-        prediction error on held-out demonstrations, and replay the remaining recorded actions
-        unchanged.
-      </p>
-      <p>
-        <strong>Closed-loop.</strong> A property of the plant together with the deployed policy.
-        Same perturbation, but the policy replans at every subsequent step, so both the nominal
-        and the perturbed branch are policy-driven. Because the policy may be stochastic, paired
-        branches use common random numbers, so the measured separation reflects the injected
-        perturbation rather than a different random sample.
-      </p>
-      <p>
-        <strong>Deciding a label.</strong> Two gates apply to both regimes: the rate must be large
-        enough to matter, \(|\bar{\lambda}| \ge \delta_m = \ln(m)/K\), an \(m\)-fold change over
-        the window, and its sign must be resolved, \(|\bar{\lambda}| \ge t\,\mathrm{SE}\). Passing
-        both gives <span class="cls-stab">stable</span> (\(\bar{\lambda}<0\)) or
-        <span class="cls-unst">unstable</span> (\(\bar{\lambda}>0\)); failing either gives the
-        <span class="cls-dead">deadband</span>, a statement about measurement resolution, not a
-        claim that the rate is zero. We use \(m{=}2\), \(t{=}2.365\), and \(K{=}24\) by default.
-      </p>
-      <p>
-        <strong>Where the states come from.</strong> The open-loop probe runs at three stamp
-        types, and the closed-loop probe at the policy stamps, so the two regimes can be compared
-        at identical states.
+        The open-loop probe is run at three kinds of states, and the closed-loop probe at the
+        policy's own replan points, so the two regimes can be compared at identical states.
       </p>
     </div>
 
@@ -1380,95 +1370,28 @@ function initLabelVideoGrid() {
 
     <figure class="paper-figure paper-figure-wide dense math-content">
       <img src="/assets/figures/stability-action-chunking/fig_hist.svg"
-           alt="Distributions of the measured open-loop propagation rate pooled by benchmark family, for demonstration, rollout and policy-chunk stamps">
+           alt="Distributions of the measured propagation rate pooled by benchmark family, for demonstration, rollout, policy-chunk and closed-loop stamps">
       <figcaption>
-        Distributions of the measured open-loop rate \(\lambda_{\mathrm{mean}}\), pooled within
+        Distributions of the measured propagation rate \(\lambda_{\mathrm{mean}}\), pooled within
         each benchmark family. Columns: robomimic, MimicGen, RoboCasa; rows: demonstration,
-        rollout, and policy-chunk stamps. Verticals mark the reference Gate-1 thresholds
-        \(\pm\ln(m)/16\) for \(m\in\{1.5, 2.0, 3.0\}\).
+        rollout, policy-chunk, and closed-loop stamps. Verticals mark the reference Gate-1
+        thresholds \(\pm\ln(m)/16\) for \(m\in\{1.5, 2.0, 3.0\}\). Demonstration, rollout, and
+        closed-loop rates are fitted over \(K{=}24\); the policy-chunk rate is capped by the
+        emitted chunk length.
       </figcaption>
     </figure>
 
     <div class="content paper-section-text math-content">
       <p>
-        <strong>The fitting horizon changes the answer.</strong> Shortening the window from
-        \(K{=}24\) to \(K{=}8\) on the same stored trajectories moves a large fraction of stamps
-        from the deadband into the unstable class, while the stable fraction changes little: on
-        lift demonstrations the unstable share goes from 21.1% to 69.7% while the stable share
-        stays at 0.0%. The divergence is front-loaded: perturbed branches separate rapidly in the
-        first few steps and then flatten, so a short window fits the initial rise and a long
-        window averages it with the plateau. \(\lambda\) is therefore a summary of propagation
-        over a fitting interval, not a time-invariant rate for the whole trajectory, and a short
-        chunk can terminate while the error is still growing where a longer one continues through
-        the plateau.
+        <strong>The error is front-loaded.</strong> The perturbed branches separate rapidly in
+        the first few steps and then flatten rather than keep growing at the same rate. The
+        measured rate therefore depends on the fitting window: a short window fits the initial
+        rise and reports more unstable states, a long window averages that rise with the plateau
+        and pulls \(\lambda\) toward zero. \(\lambda\) is a summary of propagation over an
+        interval, not a time-invariant rate for the whole trajectory, and a short chunk can end
+        while the error is still growing where a longer one continues through the plateau.
       </p>
     </div>
-
-    <div class="results-table-wrap math-content">
-      <table class="results-table shares-table">
-        <thead>
-          <tr>
-            <th rowspan="2" class="lab">Dataset</th>
-            <th rowspan="2" class="lab">Stamps</th>
-            <th colspan="3">\(K{=}24\)</th>
-            <th colspan="3">\(K{=}8\) (matched)</th>
-          </tr>
-          <tr>
-            <th class="h-stab">S</th><th class="h-dead">D</th><th class="h-unst">U</th>
-            <th class="h-stab">S</th><th class="h-dead">D</th><th class="h-unst">U</th>
-          </tr>
-        </thead>
-        <tbody>
-<tr class="group-row"><th colspan="8">robomimic</th></tr>
-<tr><td class="lab">lift</td><td class="lab">demos</td><td>0.0</td><td>78.9</td><td>21.1</td><td>0.0</td><td>30.3</td><td>69.7</td></tr>
-<tr><td class="lab">lift</td><td class="lab">rollouts</td><td>1.4</td><td>74.1</td><td>24.5</td><td>1.7</td><td>34.8</td><td>63.5</td></tr>
-<tr><td class="lab">lift</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>0.2</td><td>28.1</td><td>71.7</td></tr>
-<tr><td class="lab">can</td><td class="lab">demos</td><td>2.9</td><td>82.0</td><td>15.1</td><td>1.4</td><td>38.0</td><td>60.6</td></tr>
-<tr><td class="lab">can</td><td class="lab">rollouts</td><td>1.7</td><td>71.3</td><td>27.0</td><td>1.6</td><td>34.4</td><td>64.0</td></tr>
-<tr><td class="lab">can</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>1.7</td><td>38.1</td><td>60.2</td></tr>
-<tr><td class="lab">square</td><td class="lab">demos</td><td>1.5</td><td>70.6</td><td>27.9</td><td>1.5</td><td>36.1</td><td>62.4</td></tr>
-<tr><td class="lab">square</td><td class="lab">rollouts</td><td>2.0</td><td>80.6</td><td>17.4</td><td>2.0</td><td>29.3</td><td>68.7</td></tr>
-<tr><td class="lab">square</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>2.4</td><td>33.5</td><td>64.1</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">demos</td><td>1.4</td><td>67.4</td><td>31.3</td><td>1.2</td><td>33.2</td><td>65.6</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">rollouts</td><td>1.4</td><td>73.3</td><td>25.3</td><td>1.1</td><td>31.2</td><td>67.7</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>1.9</td><td>28.0</td><td>70.1</td></tr>
-<tr class="group-row"><th colspan="8">MimicGen</th></tr>
-<tr><td class="lab">coffee</td><td class="lab">demos</td><td>5.5</td><td>76.1</td><td>18.4</td><td>5.2</td><td>52.8</td><td>42.0</td></tr>
-<tr><td class="lab">coffee</td><td class="lab">rollouts</td><td>4.9</td><td>76.2</td><td>18.9</td><td>5.5</td><td>48.6</td><td>45.9</td></tr>
-<tr><td class="lab">coffee</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>5.8</td><td>49.4</td><td>44.8</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">demos</td><td>4.7</td><td>75.2</td><td>20.2</td><td>6.2</td><td>53.7</td><td>40.1</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">rollouts</td><td>5.4</td><td>76.7</td><td>17.9</td><td>6.8</td><td>51.5</td><td>41.7</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">policy</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>6.5</td><td>51.3</td><td>42.2</td></tr>
-<tr><td class="lab">square_d0</td><td class="lab">demos</td><td>1.6</td><td>68.6</td><td>29.8</td><td>1.4</td><td>34.9</td><td>63.7</td></tr>
-<tr><td class="lab">stack_d0</td><td class="lab">demos</td><td>0.3</td><td>81.7</td><td>18.0</td><td>0.4</td><td>25.1</td><td>74.5</td></tr>
-<tr class="group-row"><th colspan="8">RoboCasa</th></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">demos</td><td>1.2</td><td>95.6</td><td>3.2</td><td>2.3</td><td>23.3</td><td>74.4</td></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">policy</td><td>4.1</td><td>89.3</td><td>6.6</td><td>1.3</td><td>17.1</td><td>81.6</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">demos</td><td>2.5</td><td>93.2</td><td>4.3</td><td>3.4</td><td>19.3</td><td>77.3</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">policy</td><td>4.6</td><td>81.9</td><td>13.5</td><td>2.2</td><td>21.8</td><td>76.0</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">demos</td><td>0.1</td><td>94.0</td><td>5.9</td><td>0.8</td><td>14.5</td><td>84.7</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">policy</td><td>3.5</td><td>85.9</td><td>10.6</td><td>0.4</td><td>16.2</td><td>83.4</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">demos</td><td>1.0</td><td>92.3</td><td>6.7</td><td>1.3</td><td>14.2</td><td>84.5</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">policy</td><td>0.8</td><td>85.3</td><td>13.8</td><td>4.0</td><td>13.8</td><td>82.2</td></tr>
-        </tbody>
-      </table>
-      <p class="table-caption">
-        Open-loop label shares (%) at \(m{=}2.0\), \(t{=}2.365\), at the stored window and refit
-        at \(K{=}8\) on the same stamps. S, D, U = stable, deadband, unstable. Policy stamps on
-        robomimic and MimicGen are emitted as 8-action chunks and have no \(K{=}24\) entry.
-      </p>
-    </div>
-
-    <figure class="paper-figure paper-figure-medium math-content">
-      <img src="/assets/figures/stability-action-chunking/fig_lamK8.svg"
-           alt="Distributions of the open-loop rate for the same OpenCabinet demonstration stamps fitted at K=8, 16 and 24">
-      <figcaption>
-        \(\lambda_{\mathrm{mean}}\) at \(K{=}8\), \(16\), and \(24\) for the same
-        <code>OpenCabinet</code> demonstration stamps (\(n{=}33{,}238\)). The distribution slides
-        toward larger positive rates as the window shortens while the stable side stays sparse.
-        Verticals mark \(\pm0.0433\), the Gate-1 threshold at \(m{=}2.0\).
-      </figcaption>
-    </figure>
 
     <div class="content paper-section-text math-content">
       <p>
