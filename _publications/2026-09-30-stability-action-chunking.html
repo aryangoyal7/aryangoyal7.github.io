@@ -1525,8 +1525,15 @@ function initLabelVideoGrid() {
       <h2 class="title is-4">What the labels look like</h2>
     </div>
     <div class="content paper-section-text math-content">
-      Each panel shows the nominal rollout and the \(N{=}8\) perturbed branches from one
-      labeled state; the label is printed in the corner.
+      <p>
+        Each clip starts at one labeled state: the moment we nudge the first action. From there
+        it plays the next \(K{=}24\) time steps, which is the whole window the label is measured
+        over, so the clips are short by design. The white path is the robot's end-effector when
+        nothing is nudged; the coloured paths are the \(N{=}8\) nudged copies. Watch whether the
+        coloured paths pull back toward the white one (<span class="cls-stab">stable</span>),
+        fan out away from it (<span class="cls-unst">unstable</span>), or neither
+        (<span class="cls-dead">deadband</span>). The label and its rate are printed in the corner.
+      </p>
     </div>
     <div class="video-legend math-content">
       <span><i class="legend-line legend-nominal"></i>nominal end-effector path</span>
