@@ -10,9 +10,6 @@ Research notes, project write-ups, and shorter pieces from ongoing work.
 - [**Robot Learning: A Mathematical Guide to Training Policies**](/blog/robot-learning-mathematical-guide/)\
   A guided look at imitation error, compounding, DAgger, stability, and the limits of continuous-action learning guarantees.
 
-- [**Measuring the Stability Assumption Behind Action Chunking**](/blog/stability-regimes/)  
-  A state-wise study of how injected action errors propagate across fitting horizons, how much stability can be predicted from observations, and how the results compare across demonstrations, policy rollouts, and emitted action chunks.
-
 - [**Does Diffusion Actually Capture Multi-Modal Behavior?**](/blog/diffusion-multimodality/)  
   Re-running the *Much Ado About Noising* myth-buster tests with diffusion policies on genuinely multi-modal robot data. Also available as a [thread on X](https://x.com/arygoy/status/2076910993125568610?s=20).
 

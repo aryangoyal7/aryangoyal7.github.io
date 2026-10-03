@@ -494,7 +494,7 @@ The geometric series is the heart of the argument, so it is worth seeing what ha
 
 ![Effect of one push over time and its accumulated effect over the horizon, for contracting, marginal, and expanding dynamics](/images/blog/robot-learning/fig_stability_regimes.png)
 
-For $T=100$, the accumulated effect is about $10$ when $\rho=0.9$ (and never more, however long the episode), exactly $100$ when $\rho=1$, and about $1.4\times10^5$ when $\rho=1.1$. Contracting dynamics give a constant amplification, marginal dynamics give $O(T)$, and expanding dynamics give amplification exponential in the horizon. This is the same funnel picture as in the [stability regimes post](/blog/stability-regimes/).
+For $T=100$, the accumulated effect is about $10$ when $\rho=0.9$ (and never more, however long the episode), exactly $100$ when $\rho=1$, and about $1.4\times10^5$ when $\rho=1.1$. Contracting dynamics give a constant amplification, marginal dynamics give $O(T)$, and expanding dynamics give amplification exponential in the horizon. This is the same funnel picture as in the [action chunking stability project page](/publication/2026-stability-action-chunking).
 
 > **Takeaway.** Stability turns a horizon-dependent amplification into a geometric series, $C+C\rho+C\rho^2+\cdots=C/(1-\rho)$. When the learner's closed loop forgets disturbances, a small action error has a bounded total effect however long the task is. Note that the assumption is about the learner's loop, not the expert's.
 
