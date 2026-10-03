@@ -6,8 +6,9 @@ layout: none
 permalink: /publication/2026-stability-action-chunking
 excerpt: 'Per-state, finite-horizon measurements of whether a small action error grows or dies out under open-loop execution and closed-loop replanning, across twelve manipulation tasks from robomimic, MimicGen and RoboCasa.'
 date: 2026-09-30
-status: 'Working paper'
-citation: 'Goyal, A. (2026). &quot;Measuring the Stability Assumption Behind Action Chunking&quot;. Working paper.'
+status: 'arXiv preprint'
+paperurl: 'https://arxiv.org/abs/2610.01626'
+citation: 'Goyal, A. (2026). &quot;Measuring the Stability Assumption Behind Action Chunking&quot;. arXiv:2610.01626.'
 ---
 {% raw %}<!DOCTYPE html>
 <html lang="en">
@@ -495,36 +496,6 @@ h2[id], h3[id], section[id] { scroll-margin-top: 1.5rem; }
   /* dense multi-panel figures keep a legible width and scroll sideways */
   .paper-figure.dense { overflow-x: auto; }
   .paper-figure.dense img { min-width: 680px; }
-}
-
-/* ---- joint-label interpretation matrix ------------------------------------- */
-.matrix-table {
-  font-size: 0.78rem;
-}
-
-.matrix-table td,
-.matrix-table th.lab {
-  text-align: left;
-  vertical-align: top;
-  line-height: 1.35;
-}
-
-.matrix-table td.cell-mark {
-  box-shadow: inset 0 0 0 2px #5f78af;
-  border-radius: 4px;
-}
-
-/* ---- the paper's own method figure sits inside the method details ----------- */
-.paper-figure-photo img {
-  padding: 0;
-}
-
-.method-body .paper-figure {
-  margin-bottom: 1.5rem;
-}
-
-.dist-table {
-  font-size: 0.74rem;
 }
 
 /* ---- joint-label interpretation matrix ------------------------------------- */
@@ -1098,15 +1069,13 @@ function initLabelVideoGrid() {
 <body>
 
 <nav id="toc-nav" aria-label="Section navigation">
-  <a class="toc-item" href="#why"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Why</span></a>
-  <a class="toc-item" href="#probe"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">The probe</span></a>
+  <a class="toc-item" href="#chunking"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Action chunking</span></a>
+  <a class="toc-item" href="#theory"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">The theory</span></a>
+  <a class="toc-item" href="#framework"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Our framework</span></a>
   <a class="toc-item" href="#results"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Results</span></a>
-  <a class="toc-item" href="#horizon"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Fitting horizon</span></a>
   <a class="toc-item" href="#prediction"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Prediction</span></a>
-  <a class="toc-item" href="#sources"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Stamp sources</span></a>
   <a class="toc-item" href="#conclusion"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Conclusion</span></a>
   <a class="toc-item" href="#label-videos"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Label videos</span></a>
-  <a class="toc-item" href="#method"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Method</span></a>
   <a class="toc-item" href="#BibTeX"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">BibTeX</span></a>
 </nav>
 
@@ -1132,11 +1101,17 @@ function initLabelVideoGrid() {
           <div class="column has-text-centered">
             <div class="publication-links">
               <span class="link-block">
-                <!-- arXiv: put the abs URL in href and drop is-disabled-coming-soon once posted -->
-                <a href="" class="external-link button is-normal is-rounded is-dark is-disabled-coming-soon"
-                   aria-disabled="true" title="Link will be added when the paper is posted">
+                <a href="https://arxiv.org/abs/2610.01626" target="_blank" rel="noopener"
+                   class="external-link button is-normal is-rounded is-dark">
                   <span class="icon"><i class="ai ai-arxiv"></i></span>
                   <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2610.01626" target="_blank" rel="noopener"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
                 </a>
               </span>
               <span class="link-block">
@@ -1157,14 +1132,17 @@ function initLabelVideoGrid() {
 
 
 <section class="section overview-figure-section" id="overview">
-  <figure class="paper-figure paper-figure-wide overview-figure">
-    <img src="/assets/figures/stability-action-chunking/fig_overview.svg" alt="Top row: inject a small action error at a state, follow it under open-loop replay and closed-loop replanning, fit a propagation rate over a finite window, and gate it into stable, deadband, or unstable. Bottom row: rates vary state by state, the fitting window changes the answer, replanning rarely restores contraction, and the open-loop regime is predictable from observation while the closed-loop rate is only partly recoverable.">
+  <figure class="paper-figure paper-figure-wide overview-figure paper-figure-photo math-content">
+    <img src="/assets/figures/stability-action-chunking/fig_method_paper.jpg"
+         alt="Per-state measurement of open-loop and closed-loop error propagation: a perturbation at state s_t is followed under open-loop replay of the recorded actions and under closed-loop replanning by the deployed policy; the log state deviation is fitted to obtain a propagation rate that is classified as stable, deadband, or unstable">
     <figcaption>
-      Top: the probe. A small action error is injected at a state, followed under open-loop
-      replay and under closed-loop replanning, fitted as a propagation rate over a finite window,
-      and gated into <span class="cls-stab">stable</span>, <span class="cls-dead">deadband</span>,
-      or <span class="cls-unst">unstable</span>. Bottom: what the labels show across twelve
-      manipulation tasks.
+      At a state \(s_t\), a small action perturbation \(\delta\) produces \(\tilde a_t = a_t + \delta\).
+      We measure the deviation from a nominal rollout under two regimes: (a) open-loop, where the
+      rest of the recorded chunk is replayed without replanning, and (b) closed-loop, where the
+      deployed policy replans at each subsequent step. For each regime, a line fitted to the log
+      deviation gives a propagation rate \(\lambda_{\mathrm{ol}}\) or \(\lambda_{\mathrm{cl}}\),
+      classified as <span class="cls-stab">stable</span>, <span class="cls-dead">deadband</span>,
+      or <span class="cls-unst">unstable</span>.
     </figcaption>
   </figure>
 </section>
@@ -1210,11 +1188,11 @@ function initLabelVideoGrid() {
 </section>
 
 
-<section class="section paper-section" id="why">
+<section class="section paper-section" id="chunking">
   <div class="container is-max-widescreen">
     <div class="paper-section-heading">
-      <p class="section-kicker">Why measure what happens after an error?</p>
-      <h2 class="title is-4">The chunking guarantees rest on a single contraction rate. Is there one?</h2>
+      <p class="section-kicker">Background</p>
+      <h2 class="title is-4">Why is action chunking said to work?</h2>
     </div>
     <div class="content paper-section-text math-content">
       <p>
@@ -1222,299 +1200,207 @@ function initLabelVideoGrid() {
         single steps. A chunked executor plays \(k\) actions open-loop and then replans, and
         \(k\) is chosen once per task. Chunked execution is widely reported to outperform
         single-step execution, but the explanation is contested. The accounts on offer attribute
-        the gain to different mechanisms: temporal consistency, horizon reduction, representation
-        learning, non-Markovian expressivity, delayed conditioning, implicit ensembling, and
-        limited context. Every one of these concerns the error that <em>enters</em> the loop: how
-        often the policy introduces one, or how large it is when introduced. None of them
-        addresses what happens to the error afterwards, and that is arguably the more
-        consequential question, because small deviations are inevitable in learned policies. The
-        introduced error can be amplified, absorbed, or carried forward along the horizon of the
-        task.
+        the gain to different mechanisms:
       </p>
-      <p>
-        The theoretical bounds do speak to this, but they assume a single global contraction rate
-        for the dynamics rather than a rate that varies with state. Zhang et&nbsp;al. (2025) assume
-        the true dynamics are open-loop exponentially incrementally input-to-state stable with a
-        fixed decay factor \(\rho\in(0,1)\), and show that sufficiently long action chunks restore
-        exponential stability of the learned closed loop, with the required chunk length growing
-        as contraction weakens. Lazzati et&nbsp;al. (2026) likewise derive their bound under
-        deterministic Lipschitz dynamics. In both analyses the relevant dynamical constants are
-        assumed rather than measured and treated as global, whereas the propagation of an action
-        error may depend strongly on the state and task geometry. A manipulator in free space and
-        the same manipulator during contact need not propagate an error at the same rate.
-      </p>
-      <p>
-        Replanning is the other way an error can be dealt with once it has entered, and it raises
-        the same question about the deployed policy rather than the plant. Closed-loop stability
-        is a property of a controller paired with a plant, and the pair that matters here is not
-        the one the theory assumes. The expert paired with the true dynamics,
-        \((\pi^{\star}, f)\), is stable by construction, since a human demonstrator sees the error
-        and corrects it. What determines whether replanning helps at deployment is the learned
-        policy paired with the same dynamics, \((\hat{\pi}, f)\), and stability of the former does
-        not imply stability of the latter. Behaviour cloning fits the expert's actions at the
-        expert's states and constrains little about what the policy does once it has drifted,
-        which is precisely where correction is required. Whether \((\hat{\pi}, f)\) is stable at
-        a given state is an empirical property of the trained policy in its environment, to be
-        measured rather than inherited from the demonstrator. Existing methods that vary the
-        execution horizon at test time do not supply the answer either: they trigger on model
-        confidence, attention weights, action entropy, denoising variance, or agreement between
-        chunks, each a proxy for how certain the policy is about its own output rather than a
-        measurement of how the plant treats an action error.
-      </p>
-    </div>
-
-    <div class="callout-panel math-content">
-      <p class="callout-label">What we do</p>
-      <h3>Label every state on two axes</h3>
-      <p>
-        We label, per state, how an injected action error propagates over the steps that follow:
-        what the plant does with it while the policy executes a chunk blind, and what the deployed
-        policy does with the same error when it is allowed to replan. The two correspond to the
-        decision the executor makes at that moment, since a longer chunk leaves the deviation to
-        the dynamics and a shorter one hands it to the policy, so the labels say which of the two
-        is doing the work at each state. This lets us ask whether the assumption the chunking
-        guarantees rest on, that the plant absorbs a small error before the next replan, actually
-        holds along the states these policies encounter.
-      </p>
+      <ul>
+        <li><strong>Temporal consistency.</strong> Modelling actions jointly matches correlated
+          demonstrator behaviour that independent sampling does not.</li>
+        <li><strong>Horizon reduction.</strong> Suboptimality scales with the number of decisions,
+          and a chunk makes \(k\) times fewer.</li>
+        <li><strong>Representation learning.</strong> The harder training target yields a better
+          internal representation.</li>
+        <li><strong>Non-Markovian expressivity.</strong> A chunk can capture history-dependent
+          demonstrator behaviour that a Markovian policy cannot.</li>
+        <li><strong>Delayed conditioning.</strong> Predicting later actions from earlier
+          observations can reduce the effect of the policy's own accumulated errors.</li>
+        <li><strong>Implicit ensembling.</strong> A chunked policy learns multiple temporal
+          relationships between observations and actions, producing ensemble-like robustness.</li>
+        <li><strong>Limited context.</strong> Chunking substitutes for history the policy cannot
+          condition on, and the advantage recedes once the context window is extended.</li>
+      </ul>
       <p class="callout-emph">
-        We report the labels across robomimic, MimicGen, and RoboCasa, spanning twelve tasks and
-        two policy classes, at demonstration states, at states the policy visits, and on the
-        chunks the policy itself plans, and then ask whether the regime is recoverable from what a
-        robot can observe.
+        Every one of these accounts concerns the error that <em>enters</em> the loop: how often
+        the policy introduces one, or how large it is when introduced. None of them addresses
+        what happens to the error afterwards, whether the dynamics contract it or expand it, and
+        small deviations are inevitable in learned policies.
       </p>
     </div>
   </div>
 </section>
 
 
-<section class="section paper-section is-light" id="probe">
+<section class="section paper-section is-light" id="theory">
   <div class="container is-max-widescreen">
     <div class="paper-section-heading">
-      <p class="section-kicker">The measurement</p>
-      <h2 class="title is-4">A per-state, finite-horizon probe</h2>
+      <p class="section-kicker">The theory</p>
+      <h2 class="title is-4">The guarantees assume a single contraction rate</h2>
     </div>
     <div class="content paper-section-text math-content">
       <p>
-        We ask a simple question: starting from here, if the executed action is slightly wrong,
-        does the resulting deviation grow or shrink over the steps that follow? The
-        incremental-stability bounds motivate an exponential form: for a small initial deviation
-        they describe propagation of the form \(|\Delta y_j| \propto \rho^j|\Delta y_0|\), so the
-        logarithm of the deviation should vary approximately linearly with the number of steps. We
-        therefore use a local exponential model rather than assuming a global contraction factor.
-        Writing \(y_j\) for a task metric evaluated \(j\) steps after the state along a nominal
-        execution and \(y_j^{(n)}\) for the same quantity along the \(n\)-th perturbed branch,
+        The theoretical bounds do speak to what happens after an error enters, but they assume a
+        single global contraction rate for the dynamics rather than a rate that varies with
+        state. Zhang et&nbsp;al. (2025) assume the true dynamics are open-loop exponentially
+        incrementally input-to-state stable with a fixed decay factor \(\rho\in(0,1)\): roughly,
+        \(\rho\) determines how quickly a deviation between trajectories decays from one step to
+        the next. Under this assumption they show that sufficiently long action chunks restore
+        exponential stability of the learned closed loop, with the required chunk length
+      </p>
+      <p class="equation has-text-centered">
+        \[k \;\ge\; k^{\star} \;=\; \log(1/\rho)^{-1}\,\log\!\big(\mathrm{poly}(L, C_{\mathrm{ISS}})\big),\]
+      </p>
+      <p>
+        so weaker contraction (larger \(\rho\)) requires longer chunks. Lazzati et&nbsp;al. (2026)
+        likewise derive their bound under deterministic Lipschitz dynamics. In both analyses the
+        relevant dynamical constants are assumed rather than measured and treated as global. A
+        manipulator in free space and the same manipulator during contact need not propagate an
+        error at the same rate.
+      </p>
+      <p>
+        Replanning is the other way an error can be dealt with, and it raises the same question
+        about the deployed policy rather than the plant. The expert paired with the true dynamics,
+        \((\pi^{\star}, f)\), is stable by construction, since a human demonstrator sees the error
+        and corrects it. What matters at deployment is the learned policy paired with the same
+        dynamics, \((\hat{\pi}, f)\), and stability of the former does not imply stability of the
+        latter. Whether \((\hat{\pi}, f)\) is stable at a given state is an empirical property of
+        the trained policy in its environment, to be measured rather than inherited from the
+        demonstrator.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section paper-section" id="framework">
+  <div class="container is-max-widescreen">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Our framework</p>
+      <h2 class="title is-4">Measuring open- and closed-loop stability per state</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <p>
+        We ask a simple question at each state: if the executed action is slightly wrong, does
+        the resulting deviation grow or shrink over the steps that follow? Writing \(y_j\) for a
+        task metric \(j\) steps after the state along a nominal execution and \(y_j^{(n)}\) for
+        the same quantity along the \(n\)-th perturbed branch, we fit
       </p>
       <p class="equation has-text-centered">
         \[\log \lVert y_j - y_j^{(n)} \rVert \;\approx\; \alpha_n + \lambda_n j,\]
       </p>
       <p>
-        where \(\alpha_n\) absorbs the initial magnitude of the perturbation and \(\lambda_n\) is
-        the local error-propagation rate, playing the role of \(\log\rho\): a positive value
-        indicates growth of the deviation, a negative value indicates decay, and a value near zero
-        indicates that the deviation is approximately preserved. We repeat this fit across \(N\)
-        perturbed branches and aggregate their slopes to obtain the mean rate \(\bar{\lambda}\)
-        and its standard error. Estimating \(\lambda\) requires a window \(K\) over which to fit
-        it, which is a property of the measurement rather than of the executed chunk.
+        where \(\lambda_n\) plays the role of \(\log\rho\): positive means the deviation grows,
+        negative means it decays. We repeat the fit across \(N{=}8\) perturbed branches and
+        aggregate the slopes into a mean rate \(\bar{\lambda}\) and its standard error. The fit
+        needs a window \(K\), which is a property of the measurement rather than of the executed
+        chunk.
       </p>
       <p>
-        <strong>Open-loop.</strong> Since this is a property of the dynamics and task geometry
-        rather than of a policy, no trained policy is required to measure it. At a state
-        \(s_t\) we replay the recorded actions without replanning, perturbing only the
-        translation components of the first action with Gaussian noise of scale \(\sigma_u\),
-        set to the trained policy's action prediction error on held-out demonstrations so that
-        the probe reflects an error of the size the policy makes. The remaining actions are
-        replayed unchanged, isolating how an initial action error propagates through the
-        dynamics.
+        <strong>Open-loop.</strong> A property of the dynamics and task geometry, so no trained
+        policy is required. At a state \(s_t\) we perturb only the translation components of the
+        first action with Gaussian noise of scale \(\sigma_u\), set to the trained policy's action
+        prediction error on held-out demonstrations, and replay the remaining recorded actions
+        unchanged.
       </p>
       <p>
-        <strong>Closed-loop.</strong> This is a property of the plant together with the deployed
-        policy, and therefore requires one. We use the same perturbation construction with one
-        key difference: the policy replans at every subsequent step after the initial
-        perturbation, so both the nominal and perturbed branches are policy-driven. Because the
-        policy may be stochastic, paired branches use <em>common random numbers</em>: within each
-        pair, the two branches use the same sequence of policy random variables, so the measured
-        separation reflects the injected perturbation rather than a different random sample.
+        <strong>Closed-loop.</strong> A property of the plant together with the deployed policy.
+        Same perturbation, but the policy replans at every subsequent step, so both the nominal
+        and the perturbed branch are policy-driven. Because the policy may be stochastic, paired
+        branches use common random numbers, so the measured separation reflects the injected
+        perturbation rather than a different random sample.
+      </p>
+      <p>
+        <strong>Deciding a label.</strong> Two gates apply to both regimes: the rate must be large
+        enough to matter, \(|\bar{\lambda}| \ge \delta_m = \ln(m)/K\), an \(m\)-fold change over
+        the window, and its sign must be resolved, \(|\bar{\lambda}| \ge t\,\mathrm{SE}\). Passing
+        both gives <span class="cls-stab">stable</span> (\(\bar{\lambda}<0\)) or
+        <span class="cls-unst">unstable</span> (\(\bar{\lambda}>0\)); failing either gives the
+        <span class="cls-dead">deadband</span>, a statement about measurement resolution, not a
+        claim that the rate is zero. We use \(m{=}2\), \(t{=}2.365\), and \(K{=}24\) by default.
+      </p>
+      <p>
+        <strong>Where the states come from.</strong> The open-loop probe runs at three stamp
+        types, and the closed-loop probe at the policy stamps, so the two regimes can be compared
+        at identical states.
       </p>
     </div>
 
-    <div class="callout-panel math-content">
-      <p class="callout-label">Deciding a label</p>
-      <h3>Two gates, three classes</h3>
-      <p>
-        The same two gates are applied to both regimes. The first asks whether the measured rate
-        is large enough to represent meaningful amplification or decay, requiring
-        \(|\bar{\lambda}| \geq \delta_m\), where \(\delta_m = \ln(m)/K\) is the rate corresponding
-        to an \(m\)-fold change over the \(K\)-step window. The second asks whether the sign of
-        the rate is sufficiently well resolved, requiring \(|\bar{\lambda}| \geq t\,\mathrm{SE}\).
-        A stamp that passes both gates is labelled <span class="cls-stab">stable</span> when
-        \(\bar{\lambda}<0\) and <span class="cls-unst">unstable</span> when \(\bar{\lambda}>0\);
-        stamps that fail either gate are assigned to the <span class="cls-dead">deadband</span>.
+    <div class="results-table-wrap">
+      <table class="results-table stamp-table">
+        <thead>
+          <tr><th class="lab">Stamp type</th><th class="lab">State from</th><th class="lab">Actions used</th><th>\(K\)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="lab">demonstration</td><td class="lab">demonstration file</td><td class="lab">demonstrator actions, as recorded</td><td>24</td></tr>
+          <tr><td class="lab">rollout</td><td class="lab">policy rollout</td><td class="lab">policy actions, as recorded</td><td>24</td></tr>
+          <tr><td class="lab">policy chunk</td><td class="lab">policy rollout, at a replan boundary</td><td class="lab">chunk emitted by the policy</td><td>8 or 24</td></tr>
+          <tr><td class="lab">closed loop</td><td class="lab">policy rollout, at a replan boundary</td><td class="lab">policy replans at every step</td><td>24</td></tr>
+        </tbody>
+      </table>
+      <p class="table-caption math-content">
+        Demonstration versus rollout changes the state distribution; rollout versus policy chunk
+        changes the action source. For policy-chunk stamps, \(K\) is capped by the emitted chunk
+        length: 8 actions for the diffusion policies and up to 24 on RoboCasa.
       </p>
-      <p class="callout-emph">
-        Deadband is a statement about measurement resolution, not a claim that the true rate is
-        zero.
+    </div>
+
+    <div class="content paper-section-text math-content">
+      <p>
+        We label twelve tasks across three benchmark families: <strong>robomimic</strong>
+        (<code>lift</code>, <code>can</code>, <code>square</code>, <code>tool_hang</code>, per-task
+        diffusion policies), <strong>MimicGen</strong> (<code>coffee</code>,
+        <code>nut_assembly</code>, <code>square_d0</code>, <code>stack_d0</code>), and
+        <strong>RoboCasa</strong> (<code>OpenCabinet</code>, <code>OpenDrawer</code>,
+        <code>PickPlaceCounterToCabinet</code>, <code>TurnOnSinkFaucet</code>, driven by the public
+        GR00T&nbsp;N1.5 checkpoint).
       </p>
     </div>
   </div>
 </section>
 
 
-<section class="section paper-section" id="results">
+<section class="section paper-section is-light" id="results">
   <div class="container is-max-widescreen">
     <div class="paper-section-heading">
       <p class="section-kicker">Results</p>
-      <h2 class="title is-4">Neither execution regime reliably contracts an injected error</h2>
+      <h2 class="title is-4">Neither regime reliably contracts an injected error</h2>
     </div>
     <div class="content paper-section-text math-content">
       <p>
-        Across all three stamp types, unstable states are more common than stable states among
-        measurements that clear the gates, while most stamps fall in the deadband. The deadband
-        does not imply stability: it arises when the measured rate is either too small to exceed
-        the amplification threshold or too uncertain to resolve its sign. Open-loop execution
-        therefore does not generally avoid error growth through passive contraction.
-      </p>
-      <p>
-        Nor is the large deadband primarily a consequence of statistical uncertainty. Among
-        stamps that clear Gate&nbsp;1, 90&ndash;99% also have a sufficiently resolved sign at
-        \(K{=}24\); what drives the deadband is rates too small to cross the amplification
-        threshold. On lift, only 543 of 2,485 demonstration stamps clear Gate&nbsp;1, so 78% have
-        \(|\lambda| < 0.0289\). Most states do not exhibit confidently measurable amplification or
-        contraction at the chosen threshold, even though the resolved subset is predominantly
-        unstable.
-      </p>
-      <p>
-        Within robomimic demonstrations, the median propagation rate increases from can
-        (\(0.009\)) to lift (\(0.015\)), square (\(0.017\)), and tool hang (\(0.026\)). This
-        ordering is consistent with a trend toward more contact-sensitive and precision-demanding
-        manipulation: the largest rate occurs on tool hang, where successful execution requires
-        high-precision insertion. These medians do not establish that task difficulty itself
-        causes the increase.
+        <strong>Open-loop.</strong> Across all three stamp types, unstable states are more common
+        than stable states among measurements that clear the gates, while most stamps fall in the
+        deadband. The deadband is not noise: 90&ndash;99% of stamps that clear Gate&nbsp;1 also
+        clear Gate&nbsp;2 at \(K{=}24\). It is driven by rates too small to cross the
+        amplification threshold; on lift, 78% of demonstration stamps have
+        \(|\lambda| < 0.0289\). Within robomimic the median rate rises from can (\(0.009\)) to
+        lift (\(0.015\)), square (\(0.017\)), and tool hang (\(0.026\)), the most
+        precision-demanding task. Rollout medians stay close to their demonstration counterparts
+        (lift \(0.019\) vs. \(0.015\)), so moving from expert states to policy-visited states does
+        not substantially change how the plant propagates a small error.
       </p>
     </div>
 
     <figure class="paper-figure paper-figure-wide dense math-content">
       <img src="/assets/figures/stability-action-chunking/fig_hist.svg"
-           alt="Distributions of the measured propagation rate pooled by benchmark family, for demonstration, rollout, policy-chunk and closed-loop stamps">
+           alt="Distributions of the measured open-loop propagation rate pooled by benchmark family, for demonstration, rollout and policy-chunk stamps">
       <figcaption>
-        Distributions of the measured open-loop propagation rate \(\lambda_{\mathrm{mean}}\),
-        pooled within each benchmark family. Columns correspond to robomimic, MimicGen, and
-        RoboCasa; rows to demonstration, rollout, and policy-chunk stamps. Stable, deadband, and
-        unstable regions are shown by the bar segments. Vertical lines show the reference Gate-1
-        thresholds \(\pm\ln(m)/16\) for \(m\in\{1.5, 2.0, 3.0\}\), a common visual reference
-        rather than the window-specific threshold used for labeling. Demonstration and rollout
-        rates are fitted over \(K{=}24\); the policy-chunk rate is capped by the emitted chunk
-        length.
+        Distributions of the measured open-loop rate \(\lambda_{\mathrm{mean}}\), pooled within
+        each benchmark family. Columns: robomimic, MimicGen, RoboCasa; rows: demonstration,
+        rollout, and policy-chunk stamps. Verticals mark the reference Gate-1 thresholds
+        \(\pm\ln(m)/16\) for \(m\in\{1.5, 2.0, 3.0\}\).
       </figcaption>
     </figure>
 
     <div class="content paper-section-text math-content">
       <p>
-        Closed-loop stability is substantially rarer than passive contraction under the same
-        perturbation measurement. Across robomimic, MimicGen, and RoboCasa, the labels contain
-        only a small number of confidently stable stamps: at \(m{=}2\), the stable class holds
-        only 3&ndash;88 stamps per task, despite hundreds of non-stable stamps. In this sense,
-        closed-loop execution can be worse than open-loop commitment: it trades away the temporal
-        commitment of a chunk for reactivity without reliably reducing error propagation.
-      </p>
-      <p>
-        The joint labels then ask whether replanning changes the propagation of an injected error
-        that would otherwise grow during open-loop execution. Across all three benchmark families,
-        the [OL&nbsp;unstable, CL&nbsp;stable] cell is near zero: states with error amplification
-        under open-loop execution rarely show contraction when the policy is allowed to replan.
-        Instead, these states are more often classified as deadband or remain unstable under
-        closed-loop execution. Within the measured propagation horizon, replanning does not
-        generally convert error growth into error contraction. The two labels characterise
-        complementary modes of propagation, and the results show that neither regime can be
-        assumed to attenuate a small error. This finding concerns error propagation only; it does
-        not by itself establish which execution regime yields better task performance or
-        determine an optimal chunk length.
-      </p>
-    </div>
-
-    <div class="results-table-wrap math-content">
-      <table class="results-table matrix-table">
-        <thead>
-          <tr>
-            <th class="lab"></th>
-            <th class="h-stab">CL stable</th>
-            <th class="h-dead">CL deadband</th>
-            <th class="h-unst">CL unstable</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th class="lab h-stab">OL stable</th>
-            <td>both modes are non-amplifying; little propagation-based reason to shorten</td>
-            <td>no clear propagation-based preference</td>
-            <td>replanning introduces amplification; continued execution may avoid it</td>
-          </tr>
-          <tr>
-            <th class="lab h-dead">OL deadband</th>
-            <td>replanning provides evidence of contraction; shorter horizons may help</td>
-            <td>neither regime is resolved</td>
-            <td>replanning shows amplification; shortening should be weighed against other considerations</td>
-          </tr>
-          <tr>
-            <th class="lab h-unst">OL unstable</th>
-            <td class="cell-mark">replanning contracts an otherwise growing error; shortening has direct propagation-based motivation</td>
-            <td>shortening removes the measured open-loop amplification but gives no evidence of contraction</td>
-            <td>both regimes amplify the error; shortening alone does not resolve the measured propagation problem</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="table-caption">
-        Interpretation of the joint open- and closed-loop stability labels. The entries describe
-        what the measured error-propagation behaviour implies for the execution-horizon decision.
-        The outlined cell is the clearest case in which the measurements provide actionable
-        evidence, and it is the cell that turns out to be nearly empty. They are not
-        prescriptions for chunk length: stability is one factor in that decision and does not
-        determine task performance, action quality, or the globally preferred horizon.
-      </p>
-    </div>
-
-    <div class="content paper-section-text math-content">
-      <p>
-        These results also expose a gap in standard imitation training. The task-specific
-        diffusion policies are trained directly from expert demonstrations, without perturbation
-        augmentation or explicit recovery supervision. Such training constrains the policy
-        primarily on the demonstrated state distribution, but provides little supervision for
-        recovery after a deviation. This suggests that closed-loop contraction may need to be
-        encouraged explicitly by training on perturbed states and their corresponding recovery
-        actions, consistent with prior work on noise and perturbation injection, including DART
-        (Laskey et&nbsp;al., 2017) and Simchowitz et&nbsp;al. (2025), where injecting
-        perturbations during training exposes the policy to off-demonstration states and reduces
-        compounding error. Closed-loop stability is unlikely to emerge reliably from imitation
-        learning alone.
-      </p>
-    </div>
-  </div>
-</section>
-
-
-<section class="section paper-section is-light" id="horizon">
-  <div class="container is-max-widescreen">
-    <div class="paper-section-heading">
-      <p class="section-kicker">Results &middot; the window</p>
-      <h2 class="title is-4">The fitting horizon changes the measured rate</h2>
-    </div>
-    <div class="content paper-section-text math-content">
-      <p>
-        The diffusion policies on robomimic and MimicGen emit eight-action chunks, so their
-        open-loop divergence can only be fit over \(K{=}8\), whereas \(K{=}24\) is the primary
-        window for demonstration and rollout stamps because it provides a longer and more stable
-        fit. To compare all three state sources on a common basis, we refit the same stored
-        per-branch log-distance matrices for demonstration and rollout stamps at \(K{=}8\). No
-        additional simulation is required: the two columns contain the same stamps, evaluated over
-        different portions of the same trajectories.
-      </p>
-      <p>
-        Across datasets and state sources, shortening the window from \(K{=}24\) to \(K{=}8\)
-        moves a large fraction of stamps from the deadband into the unstable class, while the
-        stable fraction changes little. On robomimic lift demonstrations, the unstable share
-        increases from 21.1% at \(K{=}24\) to 69.7% at \(K{=}8\), while the stable share remains
-        0.0%. The same qualitative shift occurs across the other robomimic, MimicGen, and RoboCasa
-        conditions. Thus, the conclusion that open-loop contraction is uncommon is robust to the
-        choice of window, but the size of the unstable population is not.
+        <strong>The fitting horizon changes the answer.</strong> Shortening the window from
+        \(K{=}24\) to \(K{=}8\) on the same stored trajectories moves a large fraction of stamps
+        from the deadband into the unstable class, while the stable fraction changes little: on
+        lift demonstrations the unstable share goes from 21.1% to 69.7% while the stable share
+        stays at 0.0%. The divergence is front-loaded: perturbed branches separate rapidly in the
+        first few steps and then flatten, so a short window fits the initial rise and a long
+        window averages it with the plateau. \(\lambda\) is therefore a summary of propagation
+        over a fitting interval, not a time-invariant rate for the whole trajectory, and a short
+        chunk can terminate while the error is still growing where a longer one continues through
+        the plateau.
       </p>
     </div>
 
@@ -1533,7 +1419,6 @@ function initLabelVideoGrid() {
           </tr>
         </thead>
         <tbody>
-<!-- BEGIN:table-ol-shares-window -->
 <tr class="group-row"><th colspan="8">robomimic</th></tr>
 <tr><td class="lab">lift</td><td class="lab">demos</td><td>0.0</td><td>78.9</td><td>21.1</td><td>0.0</td><td>30.3</td><td>69.7</td></tr>
 <tr><td class="lab">lift</td><td class="lab">rollouts</td><td>1.4</td><td>74.1</td><td>24.5</td><td>1.7</td><td>34.8</td><td>63.5</td></tr>
@@ -1565,14 +1450,12 @@ function initLabelVideoGrid() {
 <tr><td class="lab">PickPlaceToCab.</td><td class="lab">policy</td><td>3.5</td><td>85.9</td><td>10.6</td><td>0.4</td><td>16.2</td><td>83.4</td></tr>
 <tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">demos</td><td>1.0</td><td>92.3</td><td>6.7</td><td>1.3</td><td>14.2</td><td>84.5</td></tr>
 <tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">policy</td><td>0.8</td><td>85.3</td><td>13.8</td><td>4.0</td><td>13.8</td><td>82.2</td></tr>
-<!-- END:table-ol-shares-window -->
         </tbody>
       </table>
       <p class="table-caption">
-        Open-loop label shares (%) at \(m{=}2.0\), \(t{=}2.365\), at the stored window and
-        refit at \(K{=}8\) on the same stamps. S, D, U = stable, deadband, unstable. Policy
-        stamps on robomimic and MimicGen are emitted as 8-action chunks and have no
-        \(K{=}24\) entry.
+        Open-loop label shares (%) at \(m{=}2.0\), \(t{=}2.365\), at the stored window and refit
+        at \(K{=}8\) on the same stamps. S, D, U = stable, deadband, unstable. Policy stamps on
+        robomimic and MimicGen are emitted as 8-action chunks and have no \(K{=}24\) entry.
       </p>
     </div>
 
@@ -1580,56 +1463,31 @@ function initLabelVideoGrid() {
       <img src="/assets/figures/stability-action-chunking/fig_lamK8.svg"
            alt="Distributions of the open-loop rate for the same OpenCabinet demonstration stamps fitted at K=8, 16 and 24">
       <figcaption>
-        \(\lambda_{\mathrm{mean}}\) on the open-loop axis at \(K{=}8\), \(16\), and \(24\)
-        for the <code>OpenCabinet</code> demonstration stamps (\(n{=}33{,}238\)), refit from
-        the same stored per-branch log-distance matrices with no new simulation. The three
-        curves therefore describe identical stamps and differ only in the length of the
-        fitting interval. Verticals mark \(\pm0.0433\), the primary Gate-1 threshold at
-        \(m{=}2.0\).
+        \(\lambda_{\mathrm{mean}}\) at \(K{=}8\), \(16\), and \(24\) for the same
+        <code>OpenCabinet</code> demonstration stamps (\(n{=}33{,}238\)). The distribution slides
+        toward larger positive rates as the window shortens while the stable side stays sparse.
+        Verticals mark \(\pm0.0433\), the Gate-1 threshold at \(m{=}2.0\).
       </figcaption>
     </figure>
 
     <div class="content paper-section-text math-content">
       <p>
-        This dependence arises because the divergence is typically front-loaded. The perturbed
-        branches separate rapidly during the first few steps and then tend to flatten rather
-        than continue growing at the same rate. A short window therefore fits primarily the
-        initial rise and produces a larger positive \(\lambda\), whereas a longer window
-        averages that rise with the subsequent flat region and pulls \(\lambda\) toward zero.
-        Because the later trajectory does not generally reverse the initial separation, the
-        additional steps move stamps predominantly into the deadband rather than into the
-        stable class. Accordingly, \(\lambda\) should be interpreted as a summary of error
-        propagation over the specified fitting interval, rather than as a time-invariant rate
-        governing the entire trajectory.
+        <strong>Closed-loop.</strong> Closed-loop stability is substantially rarer than passive
+        contraction under the same measurement: at \(m{=}2\) the stable class holds only
+        3&ndash;88 stamps per task, despite hundreds of non-stable stamps. Comparing the two
+        regimes at the same policy-replan states, the [OL&nbsp;unstable, CL&nbsp;stable] cell is
+        near zero on all three benchmark families. States that amplify an error in open loop
+        rarely contract it when the policy replans; they move to the deadband or remain unstable.
+        Replanning trades away the temporal commitment of a chunk for reactivity without reliably
+        reducing error propagation.
       </p>
       <p>
-        This distinction is important when relating the measurement to chunk length. At
-        \(K{=}8\), the probe captures the error growth that occurs immediately after an action
-        perturbation, the short-horizon cost of committing to a chunk; at \(K{=}24\), it also
-        captures the subsequent period in which the task geometry limits further separation.
-        Read against execution, a short open-loop chunk may terminate while the error is still
-        growing, whereas a longer chunk continues through the subsequent plateau and amortises
-        the same initial transient over more executed steps. Consequently, when considering the
-        error incurred by a single chunk, a shorter chunk can actually be less favourable than a
-        longer one. If the initial amplification is repeatedly followed by another chunk boundary
-        before the divergence has reached its saturated regime, multiple short chunks need not
-        benefit from the stabilisation observed at longer horizons at all. Our measurements do not
-        establish this accumulation effect directly, since each probe introduces a single
-        perturbation and measures its subsequent evolution; they show why the relationship
-        between chunk length and error propagation cannot be inferred from the short-window growth
-        rate alone. Claims about the fraction of unstable states must therefore always be stated
-        together with the fitting window.
-      </p>
-      <p>
-        The result also clarifies how the contraction-based lower bound of Zhang et&nbsp;al.
-        should be interpreted. Their guarantee requires
-        \(k \geq k^{\star} = \log(1/\rho)^{-1}\,\log\big(\mathrm{poly}(L, C_{\mathrm{ISS}})\big)\),
-        where the contraction rate \(\rho\) determines the required chunk length. Our measurements
-        provide an empirical qualification of this picture: errors can amplify during the initial
-        portion of execution without continuing to amplify over the full chunk horizon, so whether
-        a state appears unstable depends not only on the state itself but also on how long the
-        system is observed after the perturbation. We do not interpret the window result as
-        establishing an optimal chunk length or as validating the bound.
+        This exposes a gap in standard imitation training. The policies are trained directly from
+        expert demonstrations, without perturbation augmentation or recovery supervision, which
+        constrains them on the demonstrated states and says little about recovery after a
+        deviation. Closed-loop contraction may need to be encouraged explicitly by training on
+        perturbed states and their recovery actions, in the spirit of DART (Laskey et&nbsp;al.,
+        2017) and Simchowitz et&nbsp;al. (2025).
       </p>
     </div>
   </div>
@@ -1644,128 +1502,28 @@ function initLabelVideoGrid() {
     </div>
     <div class="content paper-section-text math-content">
       <p>
-        Since the open-loop rate is determined by the dynamics and task geometry rather than by
-        policy feedback, it is a property of the state the robot is in, which makes it reasonable
-        to ask whether it is visible: does an observation of the current state, or a short history
-        of observations, carry enough evidence to say what the next several steps will do with an
-        injected error? Both predictor variants use a frozen V-JEPA&nbsp;2 ViT-L encoder over a
-        short window of camera frames ending at \(t\), together with proprioception over the same
-        window. A learned query attends over the visual tokens, a small recurrent network encodes
-        proprioception, and a two-layer head predicts both a continuous estimate of \(\lambda\)
-        and a logit for the unstable class. The encoder is never fine-tuned, so the variants
-        differ only in their inputs: <em>P</em> receives frames and proprioception only, testing
-        whether the regime is recoverable from the observed configuration; <em>A1</em>
-        additionally receives the action chunk under evaluation, since \(\lambda\) is defined for
-        the specific actions that are replayed. Predictors are trained separately for
-        demonstration, rollout, and policy stamps, with train and validation sets split by
-        demonstration rather than by stamp, and three random initialisations per cell.
-        Classification is trained and evaluated only on stamps that clear both gates; regression
-        uses all stamps.
+        The open-loop rate is a property of the state the robot is in, so we ask whether it is
+        visible. A frozen V-JEPA&nbsp;2 ViT-L encoder over a short window of camera frames, with
+        proprioception over the same window, feeds a two-layer head that predicts \(\lambda\) and
+        a logit for the unstable class. <em>P</em> receives frames and proprioception only;
+        <em>A1</em> additionally receives the action chunk under evaluation. Classification uses
+        only stamps that clear both gates; regression uses all stamps.
       </p>
       <p>
-        Open-loop stability exhibits measurable state-dependent structure that can be partially
-        recovered from observation. Across the demonstration and rollout stamps, the
-        camera-and-proprioception predictor achieves AUROC values between \(0.63\) and \(0.94\)
-        on cells with sufficient negative-class support, with the strongest results on
-        <code>tool_hang</code> and <code>mg-coffee</code>. The observed configuration contains
-        information about whether a small action error is likely to amplify or decay, even
-        without access to the simulator or the actions used in the probe.
+        <strong>Open-loop is visible.</strong> On demonstration and rollout stamps the predictor
+        reaches AUROC between \(0.63\) and \(0.94\) where the negative class is sufficiently
+        supported, strongest on <code>tool_hang</code> and <code>mg-coffee</code>. Regression is
+        weaker, recovering a tenth to a quarter of the constant-median error: the model is better
+        at identifying which states are prone to amplification than at predicting how much the
+        error will amplify. Adding the action sequence improves regression and rank correlation,
+        as expected when the target depends on the sequence replayed.
       </p>
       <p>
-        The regression is weaker than the classification. Measured against a constant predictor
-        that outputs the training-set median for every stamp, the head recovers between a tenth
-        and a quarter of the error, and on <code>can</code> it does not improve on that baseline
-        at all. The model is better at identifying which states are more prone to error
-        amplification than at predicting how much the error will amplify: observations contain
-        enough information to distinguish stability regimes, but not enough to accurately
-        reconstruct the propagation rate itself. Adding the action sequence generally improves
-        the prediction of \(\lambda\), particularly in regression error and rank correlation, as
-        expected because the measured open-loop rate depends on the particular sequence of actions
-        being replayed. The improvement is not uniform across classification metrics, so we view
-        A1 as providing additional information about the measured execution rather than as
-        uniformly improving regime classification.
-      </p>
-    </div>
-
-    <div class="results-table-wrap math-content">
-      <table class="results-table pred-table">
-        <thead>
-          <tr>
-            <th class="lab">Dataset</th><th class="lab">var</th><th>base MAE</th><th>MAE</th>
-            <th>\(\rho\)</th><th>AUROC</th><th>neg (per seed)</th>
-          </tr>
-        </thead>
-        <tbody>
-<!-- BEGIN:table-pred-ol -->
-<tr class="group-row"><th colspan="7">demonstration stamps</th></tr>
-<tr><td class="lab">lift</td><td class="lab">P</td><td>.0351</td><td>.0272</td><td>.704</td><td>&ndash;</td><td>0; 0; 0</td></tr>
-<tr><td class="lab">lift</td><td class="lab">A1</td><td>.0351</td><td>.0216</td><td>.718</td><td>&ndash;</td><td>0; 0; 0</td></tr>
-<tr><td class="lab">can</td><td class="lab">P</td><td>.0281</td><td>.0284</td><td>.392</td><td>.722</td><td>50; 49; 46</td></tr>
-<tr><td class="lab">can</td><td class="lab">A1</td><td>.0281</td><td>.0280</td><td>.426</td><td>.797</td><td>50; 49; 46</td></tr>
-<tr><td class="lab">square</td><td class="lab">P</td><td>.0343</td><td>.0309</td><td>.526</td><td>.712</td><td>40; 45; 45</td></tr>
-<tr><td class="lab">square</td><td class="lab">A1</td><td>.0343</td><td>.0289</td><td>.593</td><td>.830</td><td>40; 45; 45</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">P</td><td>.0325</td><td>.0260</td><td>.594</td><td>.909</td><td>112; 148; 140</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">A1</td><td>.0325</td><td>.0247</td><td>.651</td><td>.942</td><td>112; 148; 140</td></tr>
-<tr><td class="lab">mg-coffee</td><td class="lab">P</td><td>.0311</td><td>.0247</td><td>.650</td><td>.941</td><td>713; 723; 700</td></tr>
-<tr><td class="lab">mg-coffee</td><td class="lab">A1</td><td>.0311</td><td>.0226</td><td>.690</td><td>.947</td><td>713; 723; 700</td></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">P</td><td>.0139</td><td>.0130</td><td>.358</td><td>.810</td><td>104; 90; 56</td></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">A1</td><td>.0139</td><td>.0124</td><td>.443</td><td>.909</td><td>104; 90; 56</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">P</td><td>.0165</td><td>.0150</td><td>.367</td><td>.800</td><td>117; 116; 125</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">A1</td><td>.0165</td><td>.0140</td><td>.483</td><td>.894</td><td>117; 116; 125</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">P</td><td>.0114</td><td>.0113</td><td>.186</td><td>.667</td><td>1; 5; 2</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">A1</td><td>.0114</td><td>.0106</td><td>.389</td><td>.846</td><td>1; 5; 2</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">P</td><td>.0132</td><td>.0134</td><td>.220</td><td>.857</td><td>23; 42; 40</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">A1</td><td>.0132</td><td>.0127</td><td>.336</td><td>.864</td><td>23; 42; 40</td></tr>
-<tr class="group-row"><th colspan="7">rollout stamps</th></tr>
-<tr><td class="lab">lift</td><td class="lab">P</td><td>.0329</td><td>.0309</td><td>.404</td><td>.631</td><td>21; 11; 4</td></tr>
-<tr><td class="lab">lift</td><td class="lab">A1</td><td>.0329</td><td>.0300</td><td>.492</td><td>.833</td><td>21; 11; 4</td></tr>
-<tr><td class="lab">can</td><td class="lab">P</td><td>.0305</td><td>.0284</td><td>.449</td><td>.830</td><td>35; 38; 28</td></tr>
-<tr><td class="lab">can</td><td class="lab">A1</td><td>.0305</td><td>.0279</td><td>.494</td><td>.842</td><td>35; 38; 28</td></tr>
-<tr class="group-row"><th colspan="7">policy stamps</th></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">P</td><td>.0196</td><td>.0247</td><td>.097</td><td>.712</td><td>21; 17; 27</td></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">A1</td><td>.0196</td><td>.0208</td><td>.213</td><td>.822</td><td>21; 17; 27</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">P</td><td>.0242</td><td>.0287</td><td>.218</td><td>.697</td><td>25; 24; 19</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">A1</td><td>.0242</td><td>.0248</td><td>.309</td><td>.767</td><td>25; 24; 19</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">P</td><td>.0213</td><td>.0258</td><td>.206</td><td>.706</td><td>29; 19; 13</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">A1</td><td>.0213</td><td>.0214</td><td>.345</td><td>.886</td><td>29; 19; 13</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">P</td><td>.0247</td><td>.0246</td><td>.190</td><td>.626</td><td>4; 10; 13</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">A1</td><td>.0247</td><td>.0240</td><td>.277</td><td>.774</td><td>4; 10; 13</td></tr>
-<!-- END:table-pred-ol -->
-        </tbody>
-      </table>
-      <p class="table-caption">
-        Open-loop prediction, means over three seeds. <em>base MAE</em> is a constant-median
-        predictor on the same validation split. \(\rho\) is the Spearman correlation between
-        predicted and measured \(\lambda\), and AUROC is computed over the confident subset.
-        <em>neg</em> gives the number of negative examples behind each seed's AUROC. <em>P</em>
-        receives camera observations and proprioception over the observation window; <em>A1</em>
-        additionally receives the action sequence being evaluated.
-      </p>
-    </div>
-
-    <div class="content paper-section-text math-content">
-      <p>
-        The closed-loop rate depends on both the current state and the behaviour of the deployed
-        policy after the perturbation. Nevertheless, because the labels are generated under the
-        same policy used at deployment, the rate may still contain predictable structure tied to
-        the observed configuration. We therefore treat closed-loop prediction as a controlled
-        target ablation: the predictor architecture, inputs, and policy-replan stamps are
-        unchanged, while the target is switched from the open-loop to the closed-loop propagation
-        rate.
-      </p>
-      <p>
-        The closed-loop rate is partially recoverable from these inputs. Across the evaluated
-        tasks and input variants, the predictor improves over the constant-median baseline on
-        most regression cells, while AUROC exceeds \(0.70\) in half of the cells for which both
-        classes are present. The strongest results occur on lift and mg-coffee, whereas
-        performance is weaker and closer to chance on several of the remaining tasks. The
-        classification results should be interpreted cautiously because the stable closed-loop
-        class is very small at \(m{=}2\), with only a few to tens of stable stamps per task and
-        several single-class validation splits. The result is not that closed-loop stability is
-        purely unpredictable; rather, some state-dependent structure is recoverable, but
-        substantially less uniformly than for open-loop propagation. This is consistent with
-        closed-loop stability depending not only on the configuration but also on the policy's
-        subsequent behaviour.
+        <strong>Closed-loop is only partly recoverable.</strong> With the same predictor, inputs,
+        and stamps, switching the target to the closed-loop rate still improves on the
+        constant-median baseline on most regression cells, and AUROC exceeds \(0.70\) in half of
+        the cells with both classes present, but the gains are less uniform. The closed-loop rate
+        depends not only on the configuration but on how the policy acts after the perturbation.
       </p>
     </div>
 
@@ -1800,169 +1558,44 @@ function initLabelVideoGrid() {
       <p class="table-caption">
         Prediction of open- and closed-loop propagation rates at the same policy-replan stamps.
         Both heads use the same trunk and inputs; only the target differs. \(\mathrm{MAE}_0\) is
-        the constant-median baseline, and \(\rho\) is Spearman correlation with the measured
-        rate. Bold denotes improvement over the constant-median baseline.
+        the constant-median baseline, \(\rho\) is Spearman correlation with the measured rate.
+        Bold denotes improvement over the baseline.
       </p>
     </div>
   </div>
 </section>
 
 
-<section class="section paper-section is-light" id="sources">
-  <div class="container is-max-widescreen">
-    <div class="paper-section-heading">
-      <p class="section-kicker">Stamp sources</p>
-      <h2 class="title is-4">Demonstrations, policy rollouts, and the policy's own chunks</h2>
-    </div>
-    <div class="content paper-section-text math-content">
-      <p>
-        The open-loop probe is evaluated at three stamp types, differing in the state distribution
-        and the source of the replayed actions. <em>Demonstration</em> stamps use recorded
-        demonstration states and actions; <em>rollout</em> stamps use states reached by the
-        policy and the actions it executed; and <em>policy</em> stamps use replan boundaries and
-        the action chunk emitted by the policy. This gives two controlled comparisons:
-        demonstration versus rollout changes the state distribution, while rollout versus policy
-        changes the action source. Closed-loop probes are evaluated at the same policy stamps,
-        allowing the two execution regimes to be compared at identical states.
-      </p>
-      <p>
-        We label three benchmark families, all built on robosuite and MuJoCo, covering twelve
-        tasks and two policy classes, with both human and generated demonstrations.
-        <strong>robomimic</strong>: four proficient-human teleoperation tasks, <code>lift</code>,
-        <code>can</code>, <code>square</code>, and <code>tool_hang</code>, spanning simple
-        pick-and-place through high-precision insertion, with per-task diffusion policies.
-        <strong>MimicGen</strong>: demonstrations generated by transforming and replaying human
-        source segments into new object poses; <code>coffee</code> and <code>nut_assembly</code>
-        carry trained diffusion policies and therefore the rollout, policy, and closed-loop axes,
-        while <code>square_d0</code> and <code>stack_d0</code> are demonstration only, with a
-        proxy \(\sigma_u\) taken from a robomimic policy. <strong>RoboCasa</strong>: four kitchen
-        tasks, <code>OpenCabinet</code>, <code>OpenDrawer</code>,
-        <code>PickPlaceCounterToCabinet</code>, and <code>TurnOnSinkFaucet</code>, each with 200
-        demonstrations, driven by the public GR00T&nbsp;N1.5 checkpoint, a multitask generalist
-        that we do not train. There is no separate rollout corpus on this family, so its
-        demonstration-to-policy comparison has no intermediate control.
-      </p>
-      <p>
-        Rollout medians are close to their demonstration counterparts (lift \(0.019\) vs.
-        \(0.015\); tool hang \(0.021\) vs. \(0.026\)), suggesting that moving from expert
-        states to policy-visited states does not substantially change how the plant propagates a
-        small error. The three sources also let us test whether policies simply choose to commit
-        at states that are naturally stable: if that were the case, policy-chunk stamps should
-        contain more stable and fewer unstable states than the broader state distributions. At the
-        matched \(K{=}8\) window they do not. Policy stamps are predominantly unstable on robomimic
-        and MimicGen, 71.7% on lift and 70.1% on tool hang, and the stable share remains small
-        across all three stamp types.
-      </p>
-    </div>
-
-    <div class="results-table-wrap math-content">
-      <table class="results-table dist-table">
-        <thead>
-          <tr>
-            <th class="lab">Dataset</th><th class="lab">Stamps</th><th>\(\sigma_u\)</th><th>\(K\)</th>
-            <th>\(n\)</th><th>median</th><th>p5&ndash;p95</th><th>\(\lambda_{\mathrm{se}}\)</th>
-            <th>G1 pass</th><th>G2 keep</th>
-          </tr>
-        </thead>
-        <tbody>
-<tr class="group-row"><th colspan="10">robomimic &mdash; per-task diffusion policies</th></tr>
-<tr><td class="lab">lift</td><td class="lab">demos</td><td>0.165</td><td>24</td><td>2,485</td><td>.015</td><td>&minus;.012&ndash;.184</td><td>.0076</td><td>543</td><td>96.7%</td></tr>
-<tr><td class="lab">lift</td><td class="lab">rollouts</td><td>0.165</td><td>24</td><td>2,585</td><td>.019</td><td>&minus;.020&ndash;.127</td><td>.0084</td><td>690</td><td>97.0%</td></tr>
-<tr><td class="lab">lift</td><td class="lab">policy</td><td>0.165</td><td>8</td><td>3,056</td><td>.090</td><td>.021&ndash;.458</td><td>.0216</td><td>2,620</td><td>83.8%</td></tr>
-<tr><td class="lab">can</td><td class="lab">demos</td><td>0.225</td><td>24</td><td>9,254</td><td>.009</td><td>&minus;.032&ndash;.115</td><td>.0059</td><td>1,844</td><td>90.2%</td></tr>
-<tr><td class="lab">can</td><td class="lab">rollouts</td><td>0.225</td><td>24</td><td>8,360</td><td>.019</td><td>&minus;.022&ndash;.116</td><td>.0078</td><td>2,511</td><td>95.5%</td></tr>
-<tr><td class="lab">can</td><td class="lab">policy</td><td>0.225</td><td>8</td><td>3,049</td><td>.073</td><td>&minus;.016&ndash;.536</td><td>.0172</td><td>2,169</td><td>87.0%</td></tr>
-<tr><td class="lab">square</td><td class="lab">demos</td><td>0.220</td><td>24</td><td>12,723</td><td>.017</td><td>&minus;.026&ndash;.128</td><td>.0082</td><td>4,004</td><td>93.5%</td></tr>
-<tr><td class="lab">square</td><td class="lab">rollouts</td><td>0.220</td><td>24</td><td>10,229</td><td>.018</td><td>&minus;.029&ndash;.104</td><td>.0067</td><td>2,145</td><td>92.5%</td></tr>
-<tr><td class="lab">square</td><td class="lab">policy</td><td>0.220</td><td>8</td><td>3,116</td><td>.091</td><td>&minus;.050&ndash;.385</td><td>.0253</td><td>2,553</td><td>81.2%</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">demos</td><td>0.164</td><td>24</td><td>45,633</td><td>.026</td><td>&minus;.025&ndash;.114</td><td>.0084</td><td>15,533</td><td>95.9%</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">rollouts</td><td>0.164</td><td>24</td><td>24,591</td><td>.021</td><td>&minus;.024&ndash;.101</td><td>.0077</td><td>6,843</td><td>95.9%</td></tr>
-<tr><td class="lab">tool_hang</td><td class="lab">policy</td><td>0.164</td><td>8</td><td>3,201</td><td>.113</td><td>&minus;.015&ndash;.348</td><td>.0216</td><td>2,584</td><td>89.3%</td></tr>
-<tr class="group-row"><th colspan="10">MimicGen &mdash; per-task diffusion policies</th></tr>
-<tr><td class="lab">coffee</td><td class="lab">demos</td><td>0.114</td><td>24</td><td>332,981</td><td>.007</td><td>&minus;.047&ndash;.103</td><td>.0072</td><td>83,698</td><td>95.3%</td></tr>
-<tr><td class="lab">coffee</td><td class="lab">rollouts</td><td>0.114</td><td>24</td><td>12,384</td><td>.009</td><td>&minus;.043&ndash;.105</td><td>.0069</td><td>3,022</td><td>97.6%</td></tr>
-<tr><td class="lab">coffee</td><td class="lab">policy</td><td>0.114</td><td>8</td><td>3,225</td><td>.045</td><td>&minus;.134&ndash;.301</td><td>.0191</td><td>1,990</td><td>82.1%</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">demos</td><td>0.103</td><td>24</td><td>33,251</td><td>.009</td><td>&minus;.043&ndash;.097</td><td>.0076</td><td>8,814</td><td>93.7%</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">rollouts</td><td>0.103</td><td>24</td><td>12,304</td><td>.006</td><td>&minus;.046&ndash;.099</td><td>.0078</td><td>3,047</td><td>94.2%</td></tr>
-<tr><td class="lab">nut_assembly</td><td class="lab">policy</td><td>0.103</td><td>8</td><td>3,245</td><td>.046</td><td>&minus;.121&ndash;.329</td><td>.0230</td><td>2,026</td><td>77.9%</td></tr>
-<tr><td class="lab">square_d0</td><td class="lab">demos</td><td>0.220<sup>&dagger;</sup></td><td>24</td><td>12,874</td><td>.020</td><td>&minus;.024&ndash;.122</td><td>.0083</td><td>4,291</td><td>94.2%</td></tr>
-<tr><td class="lab">stack_d0</td><td class="lab">demos</td><td>0.203<sup>&dagger;</sup></td><td>24</td><td>8,445</td><td>.019</td><td>&minus;.014&ndash;.115</td><td>.0069</td><td>1,595</td><td>96.9%</td></tr>
-<tr class="group-row"><th colspan="10">RoboCasa &mdash; GR00T N1.5</th></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">demos</td><td>0.565</td><td>24</td><td>33,238</td><td>.016</td><td>&minus;.022&ndash;.038</td><td>.0062</td><td>1,554</td><td>95.1%</td></tr>
-<tr><td class="lab">OpenCabinet</td><td class="lab">policy</td><td>0.565</td><td>24</td><td>3,250</td><td>.019</td><td>&minus;.040&ndash;.051</td><td>.0060</td><td>360</td><td>96.7%</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">demos</td><td>0.426</td><td>24</td><td>24,226</td><td>.018</td><td>&minus;.028&ndash;.042</td><td>.0056</td><td>1,720</td><td>95.8%</td></tr>
-<tr><td class="lab">OpenDrawer</td><td class="lab">policy</td><td>0.426</td><td>24</td><td>3,250</td><td>.020</td><td>&minus;.043&ndash;.089</td><td>.0069</td><td>614</td><td>95.8%</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">demos</td><td>0.479</td><td>24</td><td>23,724</td><td>.020</td><td>&minus;.006&ndash;.046</td><td>.0048</td><td>1,420</td><td>99.4%</td></tr>
-<tr><td class="lab">PickPlaceToCab.</td><td class="lab">policy</td><td>0.479</td><td>24</td><td>3,038</td><td>.019</td><td>&minus;.035&ndash;.064</td><td>.0054</td><td>430</td><td>99.3%</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">demos</td><td>0.299</td><td>24</td><td>19,968</td><td>.023</td><td>&minus;.013&ndash;.050</td><td>.0047</td><td>1,553</td><td>98.5%</td></tr>
-<tr><td class="lab">TurnOnSinkFaucet</td><td class="lab">policy</td><td>0.299</td><td>24</td><td>3,187</td><td>.022</td><td>&minus;.021&ndash;.087</td><td>.0061</td><td>483</td><td>96.7%</td></tr>
-        </tbody>
-      </table>
-      <p class="table-caption">
-        \(\lambda_{\mathrm{mean}}\) on the open-loop axis, per dataset and stamp type.
-        \(\sigma_u\) is the probe scale, the policy's measured action RMSE; \(K\) is the fitting
-        window, bounded on policy stamps by the emitted chunk. \(\lambda_{\mathrm{se}}\) is the
-        median per-stamp standard error over the eight branches. <em>G1 pass</em> counts stamps
-        clearing Gate&nbsp;1 at \(m{=}2.0\) and <em>G2 keep</em> the fraction of those also
-        clearing the \(t\)-test. <sup>&dagger;</sup> proxy \(\sigma_u\); no policy was trained
-        for these tasks, so they have no rollout or policy stamps.
-      </p>
-    </div>
-
-    <figure class="paper-figure paper-figure-wide dense math-content">
-      <img src="/assets/figures/stability-action-chunking/fig_stack.svg"
-           alt="Task-level stable, deadband and unstable shares for demonstration, rollout and policy-chunk stamps at three Gate-1 thresholds">
-      <figcaption>
-        Task-level breakdown of open-loop stability labels across the three stamp types. For each
-        task, the three adjacent bars correspond to Gate-1 thresholds \(m{=}1.5\), \(2.0\), and
-        \(3.0\); each bar is partitioned into stable, deadband, and unstable stamps.
-      </figcaption>
-    </figure>
-  </div>
-</section>
-
-
-<section class="section paper-section" id="conclusion">
+<section class="section paper-section is-light" id="conclusion">
   <div class="container is-max-desktop">
     <div class="paper-section-heading">
       <p class="section-kicker">Conclusion</p>
-      <h2 class="title is-4">What state-wise measurement changes about the stability story</h2>
+      <h2 class="title is-4">What state-wise measurement changes about the story</h2>
     </div>
     <div class="content paper-section-text math-content">
       <p>
         We studied what happens after an action error enters a chunked imitation-learning system,
-        rather than how often the policy introduces one. By measuring error propagation from
-        individual states under both open-loop execution and closed-loop replanning, we find that
-        confidently stable states are uncommon, while amplification is common among states for
-        which the propagation rate is resolved. Replanning frequently removes confident
-        amplification, but rarely produces confident contraction, suggesting that feedback does
-        not generally turn an injected deviation into a reliably shrinking one.
+        rather than how often the policy introduces one. Confidently stable states are uncommon,
+        amplification is common among states whose rate is resolved, and replanning frequently
+        removes confident amplification but rarely produces confident contraction. Propagation is
+        strongly state- and horizon-dependent: even within a single task, rates vary substantially
+        across states, so the assumption of a single global contraction rate is not supported
+        empirically even at the task level, let alone across a benchmark.
       </p>
       <p>
-        The measurements also show that error propagation is strongly state- and
-        horizon-dependent. Shorter fitting windows emphasise the initial amplification of a
-        perturbation, while longer windows include subsequent saturation, making the measured rate
-        a finite-horizon quantity rather than a single global stability constant. More
-        importantly, even within a single task, propagation rates vary substantially across
-        states, so the assumption of a single global contraction rate is not supported
-        empirically even at the task level, let alone across an entire benchmark dataset.
-      </p>
-      <p>
-        These results do not determine the best execution horizon by themselves: stability is one
-        factor alongside task performance, temporal consistency, replanning cost, and other
-        effects of action chunking. They instead provide a state-dependent measure of the
-        error-propagation consequences of continuing a chunk versus replanning. Taken together,
-        they suggest that closed-loop error recovery should not be expected to emerge reliably
-        from standard imitation learning. If such recovery is desired, it should be trained
-        explicitly by exposing the policy to perturbations and recovery trajectories through
-        perturbation- and tree-coverage-oriented training.
+        These results do not determine the best execution horizon by themselves; stability is one
+        factor alongside task performance, temporal consistency, and replanning cost. They do
+        suggest that closed-loop error recovery should not be expected to emerge reliably from
+        standard imitation learning. If it is desired, it should be trained explicitly, by
+        exposing the policy to perturbations and recovery trajectories through perturbation- and
+        tree-coverage-oriented training.
       </p>
     </div>
   </div>
 </section>
 
 
-<section class="section paper-section is-light" id="label-videos">
+<section class="section paper-section" id="label-videos">
   <div class="container is-max-widescreen">
     <div class="paper-section-heading">
       <p class="section-kicker">Label videos</p>
@@ -1990,143 +1623,16 @@ function initLabelVideoGrid() {
 </section>
 
 
-<section class="section paper-section" id="method">
-  <div class="container is-max-desktop">
-    <div class="paper-section-heading">
-      <p class="section-kicker">Method</p>
-      <h2 class="title is-4">Measuring open- and closed-loop propagation per state</h2>
-    </div>
-    <details class="method-details">
-      <summary>Show the labeling procedure</summary>
-      <div class="content method-body math-content">
-        <figure class="paper-figure paper-figure-wide paper-figure-photo">
-          <img src="/assets/figures/stability-action-chunking/fig_method_paper.jpg"
-               alt="Per-state measurement of open-loop and closed-loop error propagation: a perturbation at state s_t is followed under open-loop replay of the recorded actions and under closed-loop replanning by the deployed policy; the log state deviation is fitted to obtain a propagation rate that is classified as stable, deadband, or unstable">
-          <figcaption>
-            Per-state measurement of open-loop and closed-loop error propagation. At a state
-            \(s_t\), a small action perturbation \(\delta\) produces \(\tilde a_t = a_t + \delta\).
-            We measure the resulting deviation from a nominal rollout under two regimes:
-            (a) open-loop, where the remainder of the recorded action chunk is replayed without
-            replanning, and (b) closed-loop, where the deployed policy replans at each subsequent
-            step. Nominal and perturbed closed-loop branches share the same policy randomness.
-            For each regime, we fit the log state deviation to obtain a propagation rate
-            \(\lambda_{\mathrm{ol}}\) or \(\lambda_{\mathrm{cl}}\), which is classified as stable,
-            deadband, or unstable using the amplification and uncertainty gates.
-          </figcaption>
-        </figure>
-        <p>
-          We ask a simple question: starting from here, if the executed action is slightly
-          wrong, does the resulting deviation grow or shrink over the steps that follow?
-          Writing \(y_j\) for a task metric evaluated \(j\) steps after the state along a
-          nominal execution and \(y_j^{(n)}\) for the same quantity along the \(n\)-th
-          perturbed branch, we model the local propagation of the deviation as
-        </p>
-        <p class="equation">
-          \[\log \lVert y_j - y_j^{(n)} \rVert \;\approx\; \alpha_n + \lambda_n j,\]
-        </p>
-        <p>
-          where \(\lambda_n\) is the fitted error-propagation rate for branch \(n\) over the
-          measurement window. A positive \(\lambda_n\) indicates growth of the deviation, so
-          an initial error \(\epsilon\) would grow approximately as
-          \(\epsilon e^{\lambda_n k}\) over a \(k\)-step window; a negative \(\lambda_n\)
-          indicates decay, while a \(\lambda_n\) near zero indicates that the deviation is
-          approximately preserved. We repeat this fit across \(N\) perturbed branches and
-          aggregate their slopes to obtain the mean rate and its standard error. Estimating
-          \(\lambda_n\) requires a window over which to fit it, written \(K\), which is a
-          property of the measurement rather than of the executed chunk.
-        </p>
-        <p>
-          <strong>Open-loop stability.</strong> Since this is a property of the dynamics and
-          task geometry rather than of a policy, no trained policy is required to measure it.
-          At a state \(s_t\), we replay the recorded actions without replanning, perturbing
-          only the translation components of the first action with Gaussian noise of scale
-          \(\sigma_u\). We set \(\sigma_u\) to the action prediction error of the trained
-          policy on held-out demonstrations, providing a perturbation magnitude
-          representative of the policy's typical action error. The remaining actions are
-          replayed unchanged, isolating how an initial action error propagates through the
-          dynamics.
-        </p>
-        <p>
-          <strong>Closed-loop stability.</strong> Closed-loop stability is a property of the
-          plant together with the deployed policy and therefore requires a trained policy. We
-          evaluate it using the same perturbation construction as in the open-loop setting,
-          with one key difference: the policy replans at every subsequent step after the
-          initial perturbation, so both the nominal and perturbed branches are policy-driven.
-          Replaying the demonstrator actions on either branch would confound the effect of
-          perturbation propagation with the discrepancy between the learned policy and the
-          demonstrator. Because the policy may be stochastic, we use common random numbers:
-          for each initial state we generate \(N\) paired nominal and perturbed rollouts, and
-          within each pair the two branches use the same sequence of policy random variables.
-          The closed-loop rate and its standard error are obtained by averaging the branch-wise
-          rates and using their sample variation. This paired construction isolates the effect
-          of the injected perturbation without estimating or subtracting a separate
-          stochastic-control rate.
-        </p>
-        <p>
-          <strong>State and action sources.</strong> We evaluate the open-loop probe at three
-          stamp types, differing in the state distribution and the source of the replayed
-          actions. <em>Demonstration</em> stamps use states from recorded demonstrations and
-          the corresponding demonstrator actions; <em>rollout</em> stamps use states reached
-          by the policy and the actions it executed; and <em>policy</em> stamps use replan
-          boundaries and the action chunk emitted by the policy there. This gives two
-          controlled comparisons: demonstration versus rollout changes the state
-          distribution, while rollout versus policy changes the action source. The fitting
-          window is \(K{=}24\) for demonstration and rollout stamps. For policy stamps, \(K\)
-          is capped by the emitted chunk length: 8 actions for the diffusion policies and up
-          to 24 on RoboCasa. Closed-loop probes use the same policy-replan stamps, so open- and
-          closed-loop rates can be compared at identical states; the closed-loop policy replans
-          at each step and is measured over \(K{=}24\).
-        </p>
-        <div class="results-table-wrap">
-          <table class="results-table stamp-table">
-            <thead>
-              <tr><th class="lab">Stamp type</th><th class="lab">State from</th><th class="lab">Actions used</th><th>\(K\)</th></tr>
-            </thead>
-            <tbody>
-              <tr><td class="lab">demonstration</td><td class="lab">demonstration file</td><td class="lab">demonstrator actions, as recorded</td><td>24</td></tr>
-              <tr><td class="lab">rollout</td><td class="lab">policy rollout</td><td class="lab">policy actions, as recorded</td><td>24</td></tr>
-              <tr><td class="lab">policy chunk</td><td class="lab">policy rollout, at a replan boundary</td><td class="lab">chunk emitted by the policy</td><td>8 or 24</td></tr>
-              <tr><td class="lab">closed loop</td><td class="lab">policy rollout, at a replan boundary</td><td class="lab">policy replans at every step</td><td>24</td></tr>
-            </tbody>
-          </table>
-          <p class="table-caption">
-            The four stamp types used in the analysis. \(K\) denotes the fitting window. For
-            policy-chunk stamps, \(K\) is capped by the emitted chunk length, which is 8 actions
-            for the diffusion policies and up to 24 on RoboCasa.
-          </p>
-        </div>
-        <p>
-          <strong>Deciding a label.</strong> We apply the same two gates to both regimes. First,
-          we ask whether the measured rate is large enough to represent meaningful
-          amplification or decay, comparing \(|\bar{\lambda}|\) against
-          \(\delta_m = \ln(m)/K\), the rate corresponding to an \(m\)-fold change over the
-          \(K\)-step measurement window. Second, we ask whether the sign of the measured rate
-          is sufficiently well resolved, comparing \(|\bar{\lambda}|\) against \(t\,\mathrm{SE}\):
-        </p>
-        <p class="equation">
-          \[\text{Gate 1: } |\bar{\lambda}| \geq \delta_m = \ln(m)/K,
-            \qquad \text{Gate 2: } |\bar{\lambda}| \geq t\,\mathrm{SE}.\]
-        </p>
-        <p>
-          A stamp that passes both gates is labelled <em>stable</em> when \(\bar{\lambda}<0\)
-          and <em>unstable</em> when \(\bar{\lambda}>0\); stamps that fail either gate are
-          assigned to the <em>deadband</em>. The main text uses \(m{=}2.0\), \(t{=}2.365\), and
-          \(K{=}24\) as the default settings.
-        </p>
-      </div>
-    </details>
-  </div>
-</section>
-
-
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
     <pre><code>@misc{goyal2026stability,
-  title   = {Measuring the Stability Assumption Behind Action Chunking},
-  author  = {Goyal, Aryan},
-  year    = {2026},
-  note    = {Working paper},
+  title         = {Measuring the Stability Assumption Behind Action Chunking},
+  author        = {Goyal, Aryan},
+  year          = {2026},
+  eprint        = {2610.01626},
+  archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2610.01626},
 }</code></pre>
   </div>
 </section>
