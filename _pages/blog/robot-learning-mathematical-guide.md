@@ -3,6 +3,7 @@ layout: single
 title: "Robot Learning: A Mathematical Guide to Training Policies"
 permalink: /blog/robot-learning-mathematical-guide/
 author_profile: false
+page_class: robot-learning-guide
 ---
 
 {:ext: target="_blank" rel="noopener"}
@@ -14,21 +15,21 @@ author_profile: false
 
 ## Introduction
 
-## The control problem
+## The setup
 
-Picture a robot arm learning to reach for a cup. We have demonstrations: recordings of an expert, say a human teleoperator, performing the reach one timestep at a time. The simplest way to turn these recordings into a policy is supervised learning, known here as [behavior cloning](https://en.wikipedia.org/wiki/Imitation_learning#Behavior_Cloning){:ext}: show the policy a state from a demonstration, and train it to output the action the expert took there.
+$x_t\in\mathbb{R}^d$ is the robot's state, and $t$ is the time step. For a robot arm, the state may include joint angles and velocities. $u_t\in\mathcal{U}\subseteq\mathbb{R}^m$ is its action, such as a joint velocity command. An episode lasts $T$ steps.
 
-On paper, this is ordinary regression. At deployment it is not, because every action the policy takes moves the arm, and the new pose becomes the input to its next decision. A classifier is tested on inputs that someone else chose. A policy chooses its own. *What changes when a model picks its own test inputs?*
-
-Let's set up the notation. Let $x_t\in\mathbb{R}^d$ be the robot's state at timestep $t$ (for the arm, its joint angles and velocities), and let $u_t\in\mathcal{U}\subseteq\mathbb{R}^m$ be its action (for example, joint velocity commands). The physical system evolves according to deterministic dynamics
+The dynamics $F$ determine the next state from the current state and action:
 
 $$
 x_{t+1}=F(x_t,u_t).
 $$
 
-The policy receives an observation $o_t=G(x_t)$. Depending on the setup, $G$ may reveal the complete state or only [proprioceptive](https://en.wikipedia.org/wiki/Proprioception){:ext} information such as joint positions and velocities. We use $\pi^\star$ for the expert policy and $\hat\pi$ for the learned policy, and to keep the notation light we write $\pi(x)$ for the action a policy takes at state $x$, which really means $\pi(G(x))$. The expert is a demonstrator and need not be globally optimal.
+We assume deterministic dynamics: the same state and action always give the same next state.
 
-Starting from the same initial conditions, the two policies generate two trajectories:
+The robot receives an observation $o_t=G(x_t)$. This may be the full state, a camera image, or sensor readings. A policy $\pi$ uses this observation to choose an action. A deterministic policy gives one action; a stochastic policy gives a distribution from which an action is sampled. We write $\pi(x)$ as shorthand for $\pi(G(x))$.
+
+$\pi^\star$ is the expert policy that provides demonstrations, and $\hat\pi$ is the learned policy. The expert need not be optimal. Starting from the same initial state, they generate two sequences of states and actions, called trajectories:
 
 $$
 \begin{aligned}
@@ -37,25 +38,33 @@ $$
 \end{aligned}
 $$
 
-For a policy $\pi$, let $d_\pi^t$ be the distribution of the state at timestep $t$, and let
+$d_\pi^t$ is the **state distribution** at time $t$ under policy $\pi$: it describes which states the robot is likely to occupy at that step across repeated episodes. The initial state, and any sampled actions, can vary between episodes. We compare the expert and learner using the same initial-state distribution.
+
+The average state distribution over all $T$ steps is
 
 $$
-d_\pi=\frac{1}{T}\sum_{t=1}^{T}d_\pi^t
+d_\pi=\frac{1}{T}\sum_{t=1}^{T}d_\pi^t.
 $$
 
-be its average over an episode of $T$ steps. Demonstrations are samples from $d_{\pi^\star}$. The learned policy, however, is deployed on $d_{\hat\pi}$, and in general
+Equivalently, run the policy, choose one of the $T$ time steps uniformly at random, and look at the state there. Its distribution is $d_\pi$.
+
+Demonstrations contain states visited by the expert, described by $d_{\pi^\star}$. At deployment, the learner visits states described by $d_{\hat\pi}$. These distributions can differ:
 
 $$
-\boxed{d_{\hat\pi}\neq d_{\pi^\star}}.
+\boxed{d_{\hat\pi}\neq d_{\pi^\star}\quad\text{in general}}.
 $$
 
-Here is how the difference arises. Suppose the learner commands a slightly wrong velocity at step 5. At step 6 the arm is a few millimeters from where the expert's arm was. That pose may appear nowhere in the demonstrations, so the learner's next action is a prediction on an unfamiliar input, and its error there can be larger than anything we measured during training. The picture below shows the effect: the demonstrations cover a narrow band of states around the expert's path, and one small mistake is enough to carry the learner out of it.
+A different action can move the learner to a state poorly covered by the demonstrations. Its next action is then chosen from that new state, so further errors can carry it farther from the expert's trajectory. This is the distribution shift illustrated below.
 
-![A learner trajectory leaves the band of states covered by the expert demonstrations after one small mistake](/images/blog/robot-learning/fig_distribution_shift.png)
+<figure class="distribution-shift-figure">
+  <img src="/images/blog/robot-learning/fig_distribution_shift.png" alt="An expert trajectory stays in a blue band of demonstrated states while a learner trajectory diverges after an action error.">
+  <figcaption>The blue band marks states covered by expert demonstrations. The orange curve is one possible learner rollout: an error can take it outside this region. This is a schematic, not a plot of probability density.</figcaption>
+</figure>
 
-Nothing about the world changed. The learner's own action caused the shift. This feedback loop is what [Ross and Bagnell (2010)](https://proceedings.mlr.press/v9/ross10a.html){:ext} single out as the difference from standard supervised learning, where training and test inputs are assumed to come from the same fixed distribution.
+The dynamics have not changed; the learner's actions change the states it visits. This is the distinction from ordinary supervised learning emphasized by [Ross and Bagnell (2010)](https://proceedings.mlr.press/v9/ross10a.html){:ext}.
 
 > **Takeaway.** Demonstrations are drawn from $d_{\pi^\star}$, but the robot is evaluated on $d_{\hat\pi}$, and the policy itself creates the gap between the two. This is what separates imitation learning from ordinary supervised learning.
+{: .takeaway}
 
 ## How far did the rollout drift?
 
@@ -78,6 +87,7 @@ $$
 This number measures mismatch, not success. A learner can take a different path to the cup and still grasp it, and trajectory distance counts that as error. Or it can track the expert closely for 95 of 100 steps and knock the cup over in the last five, and trajectory distance charges it little more than $5$ out of a possible $100$, even though the task failed. To judge the task, we need the task's own cost.
 
 > **Takeaway.** Trajectory distance tells us how different the learner is from the expert, not how well it does the task. The two quantities we actually need come next: the cost we care about, and the error we can measure.
+{: .takeaway}
 
 ## What we care about, and what we can measure
 
@@ -135,6 +145,7 @@ $$
 Because the training error is summed over $T$ steps, a learner that errs at rate $\epsilon$ per step has a training error of about $T\epsilon$. Most of the results are about the amplification factor $A$: we will see $A=T$ in the worst case, a constant for forgiving or stable systems, and $e^{\Omega(T)}$ in the worst case for continuous actions. Two results work on the other factor instead: DAgger changes the states on which the training error is measured, and log-loss changes what is measured.
 
 > **Takeaway.** We measure action error on the expert's states but pay task cost on the learner's states. The rest of the post is about the amplification factor that converts one into the other.
+{: .takeaway}
 
 ## The price of one wrong action
 
@@ -160,6 +171,7 @@ Why does the learner, and not the expert, take over after the action? Because at
 If $Q$ changes gently with the action, a small action error has a small price. If $Q$ changes sharply, even a tiny error can be expensive. Later we will see that this is more than a picture: the deployment gap is exactly a sum of these prices, one for each step of the expert's trajectory. Until then, each of the next results can be read as a different answer to one question: how large can the price of a wrong action be?
 
 > **Takeaway.** $Q$ converts an action difference into a difference in future cost. The results that follow differ mainly in what they assume, or prove, about the size of that conversion.
+{: .takeaway}
 
 ## The worst case: compounding error
 
@@ -203,6 +215,7 @@ The two factors of $T$ come from different places. One sits inside $T\epsilon$, 
 Plug in some numbers. A 20-second task at 50 Hz has $T=1000$ steps. A per-step disagreement rate of $\epsilon=0.001$ sounds excellent, yet the bound gives $T^2\epsilon=1000$, the largest cost any policy can incur, so the guarantee says nothing. In general the bound is informative only when $\epsilon<1/T$: the longer the task, the more accurate the per-step imitation has to be.
 
 > **Takeaway.** $T^2\epsilon$ is the chance of a mistake (up to $T\epsilon$) times the worst-case price of a mistake (up to $T$). The second factor is not a law of imitation learning. It comes from assuming nothing about recovery.
+{: .takeaway}
 
 ## When the robot can recover
 
@@ -255,6 +268,7 @@ $$
 where $\epsilon_t$ is now the step-$t$ policy's error on the states it was trained on. With the numbers from before, $T=1000$ and $\epsilon=0.001$, a task in which no mistake costs more than $K=5$ steps' worth gives a bound of $5$ instead of $1000$.
 
 > **Takeaway.** Recoverability attacks the second factor of $T$: in a forgiving task, a mistake costs a bounded amount, and the gap can grow only linearly with the horizon. But the mistakes have to be counted on the learner's own states, so the learner has to be trained there. An expert's ability to recover is no help to a behavior-cloned learner that has never seen where its mistakes lead.
+{: .takeaway}
 
 ## Training where the learner goes: DAgger
 
@@ -315,6 +329,7 @@ $$
 DAgger is not free. It needs an expert who can label arbitrary states on demand, and an environment in which an imperfect learner can be rolled out.
 
 > **Takeaway.** DAgger changes the guarantee from small error on the expert's states to small error on the learner's states. It fixes distribution shift at the source instead of assuming it away, at the price of an interactive expert and learner rollouts.
+{: .takeaway}
 
 ## Changing the loss: log-loss and the horizon
 
@@ -355,6 +370,7 @@ Why does the loss matter so much? The zero-one analysis looks at the learner one
 These guarantees rely on discrete-action ingredients. With a deterministic expert, for example, the learner must put real probability on exactly the expert's action. They should not be carried over automatically to continuous controls, where exact agreement almost never happens.
 
 > **Takeaway.** The $T^2$ penalty is not a law of offline imitation. With discrete actions, log-loss matches whole trajectories, and the explicit horizon factor disappears.
+{: .takeaway}
 
 ## When mistakes stay small
 
@@ -411,6 +427,7 @@ This gives a useful sanity check. $Q_t$ can never exceed the remaining horizon, 
 Of the two conditions, the Lipschitz one suits robots better. Bounded $Q$ still counts disagreements with the zero-one loss and inherits that loss's problems with continuous actions, while the Lipschitz route measures the size of each error. But it leaves a question open: where would a Lipschitz $Q$ come from?
 
 > **Takeaway.** The deployment gap is exactly a sum, along the expert's trajectory, of the prices of single swapped actions. If that price grows in proportion to the size of the swap (a Lipschitz $Q$), the amplification factor is a constant and the horizon drops out of it.
+{: .takeaway}
 
 ## Where smoothness comes from: stability
 
@@ -497,6 +514,7 @@ The geometric series is the heart of the argument, so it is worth seeing what ha
 For $T=100$, the accumulated effect is about $10$ when $\rho=0.9$ (and never more, however long the episode), exactly $100$ when $\rho=1$, and about $1.4\times10^5$ when $\rho=1.1$. Contracting dynamics give a constant amplification, marginal dynamics give $O(T)$, and expanding dynamics give amplification exponential in the horizon. This is the same funnel picture as in the [action chunking stability project page](/publication/2026-stability-action-chunking).
 
 > **Takeaway.** Stability turns a horizon-dependent amplification into a geometric series, $C+C\rho+C\rho^2+\cdots=C/(1-\rho)$. When the learner's closed loop forgets disturbances, a small action error has a bounded total effect however long the task is. Note that the assumption is about the learner's loop, not the expert's.
+{: .takeaway}
 
 ## Robots have continuous actions
 
@@ -532,6 +550,7 @@ There is no contradiction here. If the expert commands $0.53721$ and the learner
 In terms of the earlier bounds, essentially every step now counts as a mistake, so $R_{0,1}\approx T$, and the bounds built on counting mistakes lose their force. The compounding-error bound, for instance, becomes $T^2$, more than the largest possible cost. The Lipschitz and stability results, which measure the size of each error, are the ones that survive.
 
 > **Takeaway.** For continuous actions, the right question is "how close?", not "exactly equal?". That moves us to norm-based errors, and a small norm error is only as good as the system's sensitivity to it.
+{: .takeaway}
 
 ## A small gain error, an unstable robot
 
@@ -594,6 +613,7 @@ Why doesn't the training error notice? Look at where it comes from: $\lvert\Delt
 The sign of the error matters too. With $\Delta k=+0.1$ instead (the dashed line), $$\rho'=0.85$$ and the learner is more stable than the expert. Both learners have exactly the same training error, because $R_{\mathrm{train}}$ depends only on $\lvert\Delta k\rvert$. One balances better than the expert, and the other falls over. The training error cannot tell them apart.
 
 > **Takeaway.** A stable expert's demonstrations contract toward equilibrium, where every policy looks alike. A learner can match them closely and still close its loop with the wrong gain, because the quantity that decides stability, $$\rho'=\rho-b\,\Delta k$$, barely shows up in the data.
+{: .takeaway}
 
 ## How bad can it get? The lower bounds
 
@@ -655,6 +675,7 @@ $$
 This result holds for a broad algorithm class, including nonsmooth, stochastic, and history-dependent policies, so in this setting no choice of policy representation fixes the problem. What is missing is information. The demonstrations never show how to act away from the expert's path, and in an open-loop unstable system, small deviations push the learner away from that path.
 
 > **Takeaway.** The lower bounds are worst-case statements about families of problems, not forecasts for every robot. What they establish is that low demonstration error does not, by itself, pin down the feedback behavior a robot needs away from the expert's path. The data, or the system, has to supply it.
+{: .takeaway}
 
 ## Putting it together
 

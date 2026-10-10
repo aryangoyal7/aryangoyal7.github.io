@@ -49,3 +49,70 @@
   max-width: 100%;
   padding: 2px 0;
 }
+
+/* Give this equation-heavy guide a wider, centered reading column. */
+.page.robot-learning-guide {
+  float: none;
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+
+  h2 {
+    scroll-margin-top: 90px;
+  }
+
+  .page__content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Keep MathJax's visually hidden accessibility text inside its equation. */
+  mjx-assistive-mml {
+    max-width: 100%;
+  }
+
+  .takeaway {
+    margin: 1.75em 0;
+    padding: 1em 1.2em;
+    border-left: 4px solid #2f7f93;
+    border-radius: 0 6px 6px 0;
+    background: rgba(47, 127, 147, 0.09);
+    font-style: normal;
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: #246779;
+    }
+  }
+
+  .distribution-shift-figure {
+    margin: 1.5em 0;
+
+    img {
+      display: block;
+      width: 100%;
+    }
+
+    figcaption {
+      margin-top: 0.75em;
+      font-size: 0.8em;
+      line-height: 1.5;
+      color: var(--global-text-color);
+    }
+  }
+}
+
+html[data-theme="dark"] .robot-learning-guide .takeaway {
+  border-left-color: #5fc7df;
+  background: rgba(14, 161, 197, 0.13);
+
+  strong {
+    color: #8ed6e8;
+  }
+}
