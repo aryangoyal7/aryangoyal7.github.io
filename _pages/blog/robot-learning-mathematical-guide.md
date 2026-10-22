@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "Robot Learning: A Mathematical Guide to Training Policies"
+title: "Robot Learning: A Mathematical Guide to Training Policies (in progress work)"
 permalink: /blog/robot-learning-mathematical-guide/
 author_profile: false
 page_class: robot-learning-guide
