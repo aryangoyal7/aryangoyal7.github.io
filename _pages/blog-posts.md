@@ -7,9 +7,6 @@ author_profile: false
 
 Research notes, project write-ups, and shorter pieces from ongoing work.
 
-- [**Notes on Modafinil (Written on 100mg)**](https://aryanx07.substack.com/p/notes-on-modafinil-written-on-100mg)  
-  Ever since humans sat down and tried to work for long hours, we’ve struggled with it.
-
 - [**Robot Learning: A Mathematical Guide to Training Policies (in progress work)**](/blog/robot-learning-mathematical-guide/)\
   A guided look at imitation error, compounding, DAgger, stability, and the limits of continuous-action learning guarantees.
 
@@ -18,6 +15,9 @@ Research notes, project write-ups, and shorter pieces from ongoing work.
 
 - [**My Punk Advice for Undergrads**](https://aryanx07.substack.com/p/my-punk-advice-for-undergrads)  
   A departure from the usual research notes — advice I felt compelled to consolidate from my undergrad years.
+
+- [**Notes on Modafinil (Written on 100mg)**](https://aryanx07.substack.com/p/notes-on-modafinil-written-on-100mg)  
+  Ever since humans sat down and tried to work for long hours, we’ve struggled with it.
 
 - [**How Fine-Tuning Rewires AI: A Mechanistic Interpretability Study**](https://aryanx07.substack.com/p/how-fine-tuning-rewires-ai-a-mechanistic)  
   An early experiment studying training dynamics through a mechanistic-interpretability lens.
